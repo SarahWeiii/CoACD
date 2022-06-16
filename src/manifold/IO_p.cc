@@ -22,42 +22,87 @@ policies, either expressed or implied, of Jingwei Huang.
 #include <igl/readOFF.h>
 #include <fstream>
 #include <vector>
+#include <iostream>
 
-void ReadOBJ(const char* filename, MatrixD* V, MatrixI* F) {
-	int len = strlen(filename);
-	if (strcmp(filename + (len - 3), "off") == 0) {
-		igl::readOFF(filename, *V, *F);
-		return;
-	}
-	char buffer[1024];
-	std::ifstream is(filename);
-	std::vector<Vector3> vertices;
-	std::vector<Vector3i> faces;
-	while (is >> buffer) {
-		if (strcmp(buffer, "v") == 0) {
-			Vector3 v;
-			is >> v[0] >> v[1] >> v[2];
-			vertices.push_back(v);
-		}
-		if (strcmp(buffer, "f") == 0) {
-			Vector3i f;
-			for (int j = 0; j < 3; ++j) {
-				is >> buffer;
-				int t = 0;
-				int k = 0;
-				while (buffer[k] >= '0' && buffer[k] <= '9') {
-					t = t * 10 + (buffer[k] - '0');
-					k += 1;
-				}
-				f[j] = t - 1;
-			}
-			faces.push_back(f);
-		}
-	}
-	V->resize(vertices.size(), 3);
-	F->resize(faces.size(), 3);
-	memcpy(V->data(), vertices.data(), sizeof(Vector3) * vertices.size());
-	memcpy(F->data(), faces.data(), sizeof(Vector3i) * faces.size());
+bool ReadOBJ(const char* filename, MatrixD* V, MatrixI* F) {
+	std::vector<Vector3> points;
+	std::vector<Vector3i> triangles;
+	const unsigned int BufferSize = 1024;
+    FILE *fid = fopen(filename, "r");
+
+    if (fid)
+    {
+        char buffer[BufferSize];
+        int ip[4];
+        double x[3];
+        char *pch;
+        char *str;
+        while (!feof(fid))
+        {
+            if (!fgets(buffer, BufferSize, fid))
+            {
+                break;
+            }
+            else if (buffer[0] == 'v')
+            {
+                if (buffer[1] == ' ')
+                {
+                    str = buffer + 2;
+                    for (int k = 0; k < 3; ++k)
+                    {
+                        pch = strtok(str, " ");
+                        if (pch)
+                            x[k] = (double)atof(pch);
+                        else
+                        {
+                            return false;
+                        }
+                        str = NULL;
+                    }
+                    points.push_back({x[0], x[1], x[2]});
+                }
+            }
+            else if (buffer[0] == 'f')
+            {
+
+                pch = str = buffer + 2;
+                int k = 0;
+                while (pch)
+                {
+                    pch = strtok(str, " ");
+                    if (pch && *pch != '\n')
+                    {
+                        ip[k++] = (uint)atoi(pch) - 1;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                    str = NULL;
+                }
+                if (k == 3)
+                {
+                    triangles.push_back({ip[0], ip[1], ip[2]});
+                }
+                else if (k == 4)
+                {
+                    triangles.push_back({ip[0], ip[1], ip[2]});
+                    triangles.push_back({ip[0], ip[2], ip[3]});
+                }
+            }
+        }
+	 	fclose(fid);
+    }
+    else
+    {
+        std::cout << "Open File Error!" << std::endl;
+        return false;
+    }
+	V->resize(points.size(), 3);
+	F->resize(triangles.size(), 3);
+	memcpy(V->data(), points.data(), sizeof(Vector3) * points.size());
+	memcpy(F->data(), triangles.data(), sizeof(Vector3i) * triangles.size());
+	return true;
 }
 
 void WriteOBJ(const char* filename, const MatrixD& V, const MatrixI& F) {

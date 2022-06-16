@@ -428,7 +428,8 @@ bool Model::LoadOBJ(const string &fileName)
                 }
                 else if (k == 4)
                 {
-                    cout << "Facet Format Error!" << endl;
+                    triangles.push_back({ip[0], ip[1], ip[2]});
+                    triangles.push_back({ip[0], ip[2], ip[3]});
                 }
             }
         }

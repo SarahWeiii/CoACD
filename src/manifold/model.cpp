@@ -90,11 +90,11 @@ int Model_OBJ::Load(char* filename)
                     str = NULL;
                 }
                 if (k == 3) {
-                    // triangles.push_back({ip[0], ip[1], ip[2]});
 					face_indices.push_back(glm::ivec3(ip[0], ip[1], ip[2]));
                 }
                 else if (k == 4) {
-					cout << "Facet Format Error!" << endl;
+					face_indices.push_back(glm::ivec3(ip[0], ip[1], ip[2]));
+					face_indices.push_back(glm::ivec3(ip[0], ip[2], ip[3]));
                 }
             }
         }

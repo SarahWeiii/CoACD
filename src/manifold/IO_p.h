@@ -22,7 +22,7 @@ policies, either expressed or implied, of Jingwei Huang.
 
 #include "types_p.h"
 
-void ReadOBJ(const char* filename, MatrixD* V, MatrixI* F);
+bool ReadOBJ(const char* filename, MatrixD* V, MatrixI* F);
 void WriteOBJ(const char* filename, const MatrixD& V, const MatrixI& F);
 
 #endif
