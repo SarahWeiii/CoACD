@@ -21,23 +21,22 @@ policies, either expressed or implied, of Jingwei Huang.
 
 #include "Intersection.h"
 
-Octree::Octree()
+OctreeP::OctreeP()
 {
-	memset(children_, 0, sizeof(Octree*) * 8);
-	memset(connection_, 0, sizeof(Octree*) * 6);
-	memset(empty_connection_, 0, sizeof(Octree*) * 6);
+	memset(children_, 0, sizeof(OctreeP*) * 8);
+	memset(connection_, 0, sizeof(OctreeP*) * 6);
+	memset(empty_connection_, 0, sizeof(OctreeP*) * 6);
 	level_ = 0;
 	number_ = 1;
 	occupied_ = 1;
 	exterior_ = 0;
 }
 
-
-Octree::Octree(const Vector3 min_c, const Vector3 max_c, const MatrixI& faces)
+OctreeP::OctreeP(const Vector3 min_c, const Vector3 max_c, const MatrixI& faces)
 {
-	memset(children_, 0, sizeof(Octree*) * 8);
-	memset(connection_, 0, sizeof(Octree*) * 6);
-	memset(empty_connection_, 0, sizeof(Octree*) * 6);
+	memset(children_, 0, sizeof(OctreeP*) * 8);
+	memset(connection_, 0, sizeof(OctreeP*) * 6);
+	memset(empty_connection_, 0, sizeof(OctreeP*) * 6);
 	level_ = 0;
 	number_ = 1;
 	occupied_ = 1;
@@ -63,11 +62,11 @@ Octree::Octree(const Vector3 min_c, const Vector3 max_c, const MatrixI& faces)
 	}
 }
 
-Octree::Octree(const Vector3& min_c, const Vector3& volume_size)
+OctreeP::OctreeP(const Vector3& min_c, const Vector3& volume_size)
 {
-	memset(children_, 0, sizeof(Octree*) * 8);
-	memset(connection_, 0, sizeof(Octree*) * 6);
-	memset(empty_connection_, 0, sizeof(Octree*) * 6);
+	memset(children_, 0, sizeof(OctreeP*) * 8);
+	memset(connection_, 0, sizeof(OctreeP*) * 6);
+	memset(empty_connection_, 0, sizeof(OctreeP*) * 6);
 	level_ = 0;
 	number_ = 1;
 	occupied_ = 1;
@@ -77,7 +76,7 @@ Octree::Octree(const Vector3& min_c, const Vector3& volume_size)
 	volume_size_ = volume_size;
 }
 
-Octree::~Octree()
+OctreeP::~OctreeP()
 {
 	for (int i = 0; i < 8; ++i)
 	{
@@ -87,7 +86,7 @@ Octree::~Octree()
 }
 
 
-bool Octree::IsExterior(const Vector3& p)
+bool OctreeP::IsExterior(const Vector3& p)
 {
 	for (int i = 0; i < 3; ++i)
 		if (p[i] < min_corner_[i] || p[i] > min_corner_[i] + volume_size_[i])
@@ -106,7 +105,7 @@ bool Octree::IsExterior(const Vector3& p)
 	return children_[index]->IsExterior(p);
 }
 
-bool Octree::Intersection(int Find_ex, const Vector3& min_corner,
+bool OctreeP::Intersection(int Find_ex, const Vector3& min_corner,
 	const Vector3& size, const MatrixD& V)
 {
 	float boxcenter[3];
@@ -127,7 +126,7 @@ bool Octree::Intersection(int Find_ex, const Vector3& min_corner,
 	return triBoxOverlap(boxcenter, boxhalfsize, triverts);
 }
 
-void Octree::Split(const MatrixD& V)
+void OctreeP::Split(const MatrixD& V)
 {
 	level_ += 1;
 	number_ = 0;
@@ -158,7 +157,7 @@ void Octree::Split(const MatrixD& V)
 				startpoint[1] += j * halfsize[1];
 				startpoint[2] += k * halfsize[2];
 									
-				children_[ind] = new Octree(startpoint, halfsize);
+				children_[ind] = new OctreeP(startpoint, halfsize);
 				children_[ind]->occupied_ = 0;
 				children_[ind]->number_ = 0;
 
@@ -180,7 +179,7 @@ void Octree::Split(const MatrixD& V)
 	Find_.clear();
 }
 
-void Octree::BuildConnection()
+void OctreeP::BuildConnection()
 {
 	if (level_ == 0)
 		return;
@@ -203,7 +202,7 @@ void Octree::BuildConnection()
 	}
 }
 
-void Octree::ConnectTree(Octree* l, Octree* r, int dim)
+void OctreeP::ConnectTree(OctreeP* l, OctreeP* r, int dim)
 {
 	int y_index[] = {0, 1, 4, 5};
 	if (dim == 2)
@@ -239,7 +238,7 @@ void Octree::ConnectTree(Octree* l, Octree* r, int dim)
 	}
 }
 
-void Octree::ConnectEmptyTree(Octree* l, Octree* r, int dim)
+void OctreeP::ConnectEmptyTree(OctreeP* l, OctreeP* r, int dim)
 {
 	int y_index[] = {0, 1, 4, 5};
 	if (l->occupied_ && r->occupied_)
@@ -350,8 +349,8 @@ void Octree::ConnectEmptyTree(Octree* l, Octree* r, int dim)
 }
 
 
-void Octree::ExpandEmpty(std::list<Octree*>& empty_list,
-	std::set<Octree*>& empty_set, int dim)
+void OctreeP::ExpandEmpty(std::list<OctreeP*>& empty_list,
+	std::set<OctreeP*>& empty_set, int dim)
 {
 	if (!occupied_)
 	{
@@ -390,7 +389,7 @@ void Octree::ExpandEmpty(std::list<Octree*>& empty_list,
 	}
 }
 
-void Octree::BuildEmptyConnection()
+void OctreeP::BuildEmptyConnection()
 {
 	if (level_ == 0)
 		return;
@@ -411,7 +410,7 @@ void Octree::BuildEmptyConnection()
 	}
 }
 
-void Octree::ConstructFace(const Vector3i& start,
+void OctreeP::ConstructFace(const Vector3i& start,
 	std::map<GridIndex,int>* vcolor,
 	std::vector<Vector3>* vertices,
 	std::vector<Vector4i>* faces,

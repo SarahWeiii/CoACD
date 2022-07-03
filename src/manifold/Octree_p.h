@@ -17,8 +17,8 @@ The views and conclusions contained in the software and documentation are
 those of the authors and should not be interpreted as representing official 
 policies, either expressed or implied, of Jingwei Huang.
 */
-#ifndef OCTREE_H_
-#define OCTREE_H_
+#ifndef OCTREE_P_H_
+#define OCTREE_P_H_
 
 #include <list>
 #include <map>
@@ -28,13 +28,13 @@ policies, either expressed or implied, of Jingwei Huang.
 
 #include "GridIndex_p.h"
 
-class Octree
+class OctreeP
 {
 public:
-	Octree();
-	Octree(const Vector3 min_c, const Vector3 max_c, const MatrixI& faces);
-	Octree(const Vector3& min_c, const Vector3& volume_size);
-	~Octree();
+	OctreeP();
+	OctreeP(const Vector3 min_c, const Vector3 max_c, const MatrixI& faces);
+	OctreeP(const Vector3& min_c, const Vector3& volume_size);
+	~OctreeP();
 
 	bool IsExterior(const Vector3 &p);
 
@@ -44,11 +44,11 @@ public:
 
 	void Split(const MatrixD& V);
 	void BuildConnection();
-	void ConnectTree(Octree* l, Octree* r, int dim);
-	void ConnectEmptyTree(Octree* l, Octree* r, int dim);
+	void ConnectTree(OctreeP* l, OctreeP* r, int dim);
+	void ConnectEmptyTree(OctreeP* l, OctreeP* r, int dim);
 
-	void ExpandEmpty(std::list<Octree*>& empty_list,
-		std::set<Octree*>& empty_set, int dim);
+	void ExpandEmpty(std::list<OctreeP*>& empty_list,
+		std::set<OctreeP*>& empty_set, int dim);
 
 	void BuildEmptyConnection();
 
@@ -64,10 +64,10 @@ public:
 	int occupied_;
 	int exterior_;
 
-	Octree* children_[8];
-	Octree* connection_[6];
-	Octree* empty_connection_[6];
-	std::list<Octree*> empty_neighbors_;
+	OctreeP* children_[8];
+	OctreeP* connection_[6];
+	OctreeP* empty_connection_[6];
+	std::list<OctreeP*> empty_neighbors_;
 
 	std::vector<Vector3i> F_;
 	std::vector<int> Find_;

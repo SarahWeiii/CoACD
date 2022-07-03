@@ -18,6 +18,7 @@ those of the authors and should not be interpreted as representing official
 policies, either expressed or implied, of Jingwei Huang.
 */
 #include "IO_p.h"
+#include <stdint.h>
 
 #include <igl/readOFF.h>
 #include <fstream>
@@ -72,7 +73,7 @@ bool ReadOBJ(const char* filename, MatrixD* V, MatrixI* F) {
                     pch = strtok(str, " ");
                     if (pch && *pch != '\n')
                     {
-                        ip[k++] = (uint)atoi(pch) - 1;
+                        ip[k++] = (unsigned int)atoi(pch) - 1;
                     }
                     else
                     {

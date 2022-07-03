@@ -58,7 +58,7 @@ void ManifoldP::ProcessManifold(const MatrixD& V, const MatrixI& F,
 void ManifoldP::BuildTree(int depth)
 {
 	CalcBoundingBox();
-	tree_ = new Octree(min_corner_, max_corner_, F_);
+	tree_ = new OctreeP(min_corner_, max_corner_, F_);
 
 	for (int iter = 0; iter < depth; ++iter) {
 		tree_->Split(V_);
@@ -67,8 +67,8 @@ void ManifoldP::BuildTree(int depth)
 	tree_->BuildConnection();
 	tree_->BuildEmptyConnection();
 
-	std::list<Octree*> empty_list;
-	std::set<Octree*> empty_set;
+	std::list<OctreeP*> empty_list;
+	std::set<OctreeP*> empty_set;
 	for (int i = 0; i < 6; ++i)
 	{
 		tree_->ExpandEmpty(empty_list, empty_set, i);
@@ -76,9 +76,9 @@ void ManifoldP::BuildTree(int depth)
 
 	while ((int)empty_list.size() > 0)
 	{
-		Octree* empty = empty_list.front();
+		OctreeP* empty = empty_list.front();
 		empty->exterior_ = 1;
-		for (std::list<Octree*>::iterator it = empty->empty_neighbors_.begin();
+		for (std::list<OctreeP*>::iterator it = empty->empty_neighbors_.begin();
 			it != empty->empty_neighbors_.end(); ++it)
 		{
 			if (empty_set.find(*it) == empty_set.end())

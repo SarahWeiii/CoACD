@@ -172,8 +172,12 @@ void RemoveOutlierTriangles(vector<vec3d> border, vector<vec3d> overlap, vector<
     map<pair<int, int>, bool> border_map;
     map<pair<int, int>, bool> same_edge_map;
     map<int, bool> overlap_map;
-    bool add_vertex[(int)border.size()] = {0};
-    bool remove_map[(int)border_triangles.size()] = {0};
+    const int v_lenth = (int)border.size();
+    const int f_lenth = (int)border_triangles.size();
+    // bool add_vertex[v_lenth] = {0};
+    // bool remove_map[f_lenth] = {0};
+    bool *add_vertex = new bool[v_lenth]();
+    bool *remove_map = new bool[f_lenth]();
 
     for (int i = 0; i < (int)overlap.size(); i++)
         for (int j = 0; j < (int)border.size(); j++)
@@ -375,6 +379,8 @@ void RemoveOutlierTriangles(vector<vec3d> border, vector<vec3d> overlap, vector<
             vertex_map[i + 1] = ++index;
         }
     }
+    delete[] add_vertex;
+    delete[] remove_map;
 }
 
 bool Clip(const Model &mesh, Model &pos, Model &neg, Plane &plane, double &cut_area, bool foo)
@@ -391,7 +397,9 @@ bool Clip(const Model &mesh, Model &pos, Model &neg, Plane &plane, double &cut_a
 
     const int N = (int)mesh.points.size();
     int idx = 0;
-    bool pos_map[N] = {0}, neg_map[N] = {0};
+    // bool pos_map[N] = {0}, neg_map[N] = {0};
+    bool *pos_map = new bool[N]();
+    bool *neg_map = new bool[N]();
 
     map<pair<int, int>, int> edge_map;
     map<int, int> vertex_map;
@@ -777,7 +785,10 @@ bool Clip(const Model &mesh, Model &pos, Model &neg, Plane &plane, double &cut_a
     double pos_x_min = INF, pos_x_max = -INF, pos_y_min = INF, pos_y_max = -INF, pos_z_min = INF, pos_z_max = -INF;
     double neg_x_min = INF, neg_x_max = -INF, neg_y_min = INF, neg_y_max = -INF, neg_z_min = INF, neg_z_max = -INF;
 
-    int pos_proj[N] = {0}, neg_proj[N] = {0}, pos_idx = 0, neg_idx = 0;
+    // int pos_proj[N] = {0}, neg_proj[N] = {0}, pos_idx = 0, neg_idx = 0;
+    int pos_idx = 0, neg_idx = 0;
+    int *pos_proj = new int[N]();
+    int *neg_proj = new int[N]();
     for (int i = 0; i < N; i++)
     {
         if (pos_map[i] == true)
@@ -890,6 +901,10 @@ bool Clip(const Model &mesh, Model &pos, Model &neg, Plane &plane, double &cut_a
                                  neg_N + border_map[final_triangles[i][1]] - 1,
                                  neg_N + border_map[final_triangles[i][0]] - 1});
     }
+    delete[] pos_proj;
+    delete[] neg_proj;
+    delete[] neg_map;
+    delete[] pos_map;
 
     return true;
 }

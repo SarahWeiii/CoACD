@@ -42,7 +42,7 @@ protected:
 		std::vector<Vector3i>& triangles);
 
 private:	
-	Octree* tree_;
+	OctreeP* tree_;
 	Vector3 min_corner_, max_corner_;
 	MatrixD V_;
 	MatrixI F_;

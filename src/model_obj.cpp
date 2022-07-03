@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include "model_obj.h"
 #include "quickhull/QuickHull.hpp"
 #include "btConvexHull/btConvexHullComputer.h"
@@ -414,7 +415,7 @@ bool Model::LoadOBJ(const string &fileName)
                     pch = strtok(str, " ");
                     if (pch && *pch != '\n')
                     {
-                        ip[k++] = (uint)atoi(pch) - 1;
+                        ip[k++] = (unsigned int)atoi(pch) - 1;
                     }
                     else
                     {
