@@ -19,7 +19,7 @@ git clone --recurse-submodules https://github.com/SarahWeiii/CoACD.git
 cd CoACD
 mkdir build
 cd build
-cmake ..
+cmake .. -DCMAKE_BUILD_TYPE=Release
 make
 ```
 
