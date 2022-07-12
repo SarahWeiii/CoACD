@@ -23,7 +23,7 @@ cmake .. -DCMAKE_BUILD_TYPE=Release
 make
 ```
 
-### (3) Quick tart
+### (3) Quick start
 We provide a set of default parameters, and you only need to specify the input and output path. You can take an arbitrary mesh as input (in `.obj` format, no need to be a manifold) and run the algorithm by the following command:
 ```
 ./main -i PATH_OF_YOUR_MESH -o PATH_OF_OUTPUT
