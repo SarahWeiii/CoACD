@@ -13998,6 +13998,8 @@ vector<array<double, 2>> vertices;
     setvertexmark(vertexloop, 0);
     setvertextype(vertexloop, INPUTVERTEX);
     /* Determine the smallest and largest x and y coordinates. */
+    x = vertices[i][0];
+    y = vertices[i][1];
     if (i == 0) {
       m->xmin = m->xmax = x;
       m->ymin = m->ymax = y;

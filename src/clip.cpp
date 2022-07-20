@@ -174,8 +174,6 @@ void RemoveOutlierTriangles(vector<vec3d> border, vector<vec3d> overlap, vector<
     map<int, bool> overlap_map;
     const int v_lenth = (int)border.size();
     const int f_lenth = (int)border_triangles.size();
-    // bool add_vertex[v_lenth] = {0};
-    // bool remove_map[f_lenth] = {0};
     bool *add_vertex = new bool[v_lenth]();
     bool *remove_map = new bool[f_lenth]();
 
@@ -397,7 +395,6 @@ bool Clip(const Model &mesh, Model &pos, Model &neg, Plane &plane, double &cut_a
 
     const int N = (int)mesh.points.size();
     int idx = 0;
-    // bool pos_map[N] = {0}, neg_map[N] = {0};
     bool *pos_map = new bool[N]();
     bool *neg_map = new bool[N]();
 
@@ -785,7 +782,6 @@ bool Clip(const Model &mesh, Model &pos, Model &neg, Plane &plane, double &cut_a
     double pos_x_min = INF, pos_x_max = -INF, pos_y_min = INF, pos_y_max = -INF, pos_z_min = INF, pos_z_max = -INF;
     double neg_x_min = INF, neg_x_max = -INF, neg_y_min = INF, neg_y_max = -INF, neg_z_min = INF, neg_z_max = -INF;
 
-    // int pos_proj[N] = {0}, neg_proj[N] = {0}, pos_idx = 0, neg_idx = 0;
     int pos_idx = 0, neg_idx = 0;
     int *pos_proj = new int[N]();
     int *neg_proj = new int[N]();

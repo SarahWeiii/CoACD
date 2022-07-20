@@ -29,7 +29,6 @@ public:
   double threshold;
   unsigned int resolution;
   unsigned int seed;
-  int tri_thres;
   double rv_k;
   bool preprocess;
   int prep_resolution;
@@ -40,7 +39,6 @@ public:
   /////////////// MCTS Config ///////////////
   int mcts_iteration;
   int mcts_max_depth;
-  int mcts_downsample;
 
   Params()
   {
@@ -52,7 +50,6 @@ public:
     threshold = 0.05;
     resolution = 2000;
     seed = 1234;
-    tri_thres = 10;
     rv_k = 0.3;
     preprocess = true;
     prep_resolution = 10000;
@@ -62,6 +59,5 @@ public:
 
     mcts_iteration = 150;
     mcts_max_depth = 3;
-    mcts_downsample = 1;
   }
 };

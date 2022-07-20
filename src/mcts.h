@@ -20,6 +20,8 @@
 #include "model_obj.h"
 #include "cost.h"
 
+#define MCTS_RANDOM_CUT 1
+
 void ComputeAxesAlignedClippingPlanes(Model &m, const int downsampling, vector<Plane> &planes, bool shuffle = false);
 
 class Part
@@ -422,7 +424,7 @@ bool TernaryMCTS(Model &m, Params &params, Plane &bestplane, vector<Plane> &best
   double *bbox = m.GetBBox();
   double interval;
   double minItv = 0.01;
-  size_t thres = params.tri_thres;
+  size_t thres = 10;
   double best_within_three = INF;
   Plane best_plane_within_three;
   double Hmin;
@@ -792,7 +794,7 @@ double default_policy(Node *node, Params &params, vector<Plane> &current_path) /
     vector<Plane> planes;
     Plane bestplane;
     double bestcost, cut_area;
-    ComputeAxesAlignedClippingPlanes(current_state.current_parts[current_state.worst_part_idx].current_mesh, params.mcts_downsample, planes);
+    ComputeAxesAlignedClippingPlanes(current_state.current_parts[current_state.worst_part_idx].current_mesh, MCTS_RANDOM_CUT, planes);
     if ((int)planes.size() == 0)
     {
       break;
