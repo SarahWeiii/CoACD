@@ -176,6 +176,7 @@ void Compute(ofstream &of, Model &mesh, Params &params)
   of << "#Points: " << mesh.points.size() << endl;
   of << "#Triangles: " << mesh.triangles.size() << endl;
 
+  of << " - Decomposition (MCTS)" << endl;
   cout << " - Decomposition (MCTS)" << endl;
 
   size_t iter = 0;
@@ -183,6 +184,8 @@ void Compute(ofstream &of, Model &mesh, Params &params)
   while ((int)InputParts.size() > 0)
   {
     vector<Model> tmp;
+    of << "iter " << iter << " ---- "
+         << "waiting pool: " << InputParts.size() << endl;
     cout << "iter " << iter << " ---- "
          << "waiting pool: " << InputParts.size() << endl;
     for (int p = 0; p < (int)InputParts.size(); p++)
