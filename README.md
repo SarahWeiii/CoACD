@@ -72,6 +72,12 @@ bash run_example.sh
 * You can adjust the threshold by `-t` to see results with different quality.
 * Three of the examples are from [PartNet-M](https://sapien.ucsd.edu/browse) (Bottle.obj, Kettle.obj, KitchenPot.obj), which are non-manifold. Two of them are from [Thingi10K](https://ten-thousand-models.appspot.com/) (Octocat-v2.obj, SnowFlake.obj), which are both 2-manifold.
 
+## License
+
+Copyright (c) 2022 Xinyue Wei, Minghua Liu
+
+Please note our code utilizes [Triangle](https://www.cs.cmu.edu/~quake/triangle.html) and [ManifoldPlus](https://github.com/hjwdzh/ManifoldPlus). Although Triangle is freely available, it is copyrighted by the author and may not be sold or included in commercial products without a license. ManifoldPlus is distributed for free for non-commercial use only.
+
 ## Citation
 
 If you find our code helpful, please cite our paper:
