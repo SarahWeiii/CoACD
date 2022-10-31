@@ -7,3 +7,6 @@
 [submodule "3rd/libigl"]
 	path = 3rd/libigl
 	url = https://github.com/libigl/libigl.git
+[submodule "3rd/cdt"]
+	path = 3rd/cdt
+	url = https://github.com/artem-ogre/CDT
