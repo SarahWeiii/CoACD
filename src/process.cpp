@@ -48,7 +48,7 @@ double MergeConvexHulls(Model& m, vector<Model>& meshs, vector<Model>& cvxs, Par
 
         size_t p1, p2;
 #ifdef _OPENMP
-#pragma omp parallel for default(none) shared(costMatrix,precostMatrix,cvxs,params) private(p1,p2)
+#pragma omp parallel for default(none) shared(costMatrix,precostMatrix,cvxs,params,bound,threshold,meshs) private(p1,p2)
 #endif
         for (int idx = 0; idx < bound; ++idx) {
             p1 = (int)(sqrt(8 * idx + 1) - 1) >> 1; // compute nearest triangle number index
@@ -198,7 +198,7 @@ void Compute(ofstream& of, Model& mesh, Params& params)
         cout << "iter " << iter << " ---- "
             << "waiting pool: " << InputParts.size() << endl;
 #ifdef _OPENMP
-#pragma omp parallel for default(none) shared(InputParts,params) private(cut_area)
+#pragma omp parallel for default(none) shared(InputParts,params,mesh,writelock,parts,pmeshs,tmp,cout) private(cut_area)
 #endif
         for (int p = 0; p < (int)InputParts.size(); p++)
         {
