@@ -53,6 +53,10 @@ int main(int argc, char *argv[])
       {
         params.merge = false;
       }
+      if (strcmp(argv[i], "-nmp") == 0 || strcmp(argv[i], "--no-manifold-plus") == 0)
+      {
+        params.mani_plus = false;
+      }
       if (strcmp(argv[i], "--pca") == 0)
       {
         params.pca = true;

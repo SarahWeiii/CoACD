@@ -10,7 +10,7 @@ void ManifoldPreprocess(Params &params, Model &m, ofstream &of)
   tmp.LoadOBJ(params.input_model);
   bool is_thin = tmp.CheckThin();
 
-  if (is_thin)
+  if (params.mani_plus && is_thin)
     ManifoldPlus(of, params.input_model, m, params.prep_depth);
   else
     Manifold(of, params.input_model, m, params.prep_resolution);

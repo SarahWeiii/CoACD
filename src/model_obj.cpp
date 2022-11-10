@@ -16,10 +16,70 @@ Model::Model()
 bool Model::CheckThin()
 {
     Normalize();
-    if (fabs(bbox[0] - bbox[1]) < 0.01 || fabs(bbox[2] - bbox[3]) < 0.01 || fabs(bbox[4] - bbox[5]) < 0.01)
+    int idx0 = 0;
+    int idx1;
+    int idx2;
+    bool flag = 0;
+
+    for (int i = 1; i < (int)points.size(); i++)
+    {
+        double dist = sqrt(pow(points[idx0][0] - points[i][0], 2) + pow(points[idx0][1] - points[i][1], 2) + pow(points[idx0][2] - points[i][2], 2));
+        if (dist > 0.01)
+        {
+            flag = 1;
+            idx1 = i;
+            break;
+        }
+    }
+    if (!flag)
         return true;
-    else
-        return false;
+    flag = 0;
+
+    for (int i = 2; i < (int)points.size(); i++)
+    {
+        if (i == idx1)
+            continue;
+        vec3d p0 = points[idx0];
+        vec3d p1 = points[idx1];
+        vec3d p2 = points[i];
+        vec3d AB, BC;
+        AB[0] = p1[0] - p0[0];
+        AB[1] = p1[1] - p0[1];
+        AB[2] = p1[2] - p0[2];
+        BC[0] = p2[0] - p1[0];
+        BC[1] = p2[1] - p1[1];
+        BC[2] = p2[2] - p1[2];
+
+        double dot_product = AB[0] * BC[0] + AB[1] * BC[1] + AB[2] * BC[2];
+        double res = dot_product / (sqrt(pow(AB[0], 2) + pow(AB[1], 2) + pow(AB[2], 2)) * sqrt(pow(BC[0], 2) + pow(BC[1], 2) + pow(BC[2], 2)));
+        if (fabs(fabs(res) - 1) > 1e-6 && fabs(res) < INF) // AB not \\ BC, dot product != 1
+        {
+            flag = 1;
+            idx2 = i;
+            break;
+        }
+    }
+    if (!flag)
+        return true;
+
+    vec3d p0 = points[idx0], p1 = points[idx1], p2 = points[idx2];
+
+    Plane p;
+    double a = (p1[1] - p0[1]) * (p2[2] - p0[2]) - (p1[2] - p0[2]) * (p2[1] - p0[1]);
+    double b = (p1[2] - p0[2]) * (p2[0] - p0[0]) - (p1[0] - p0[0]) * (p2[2] - p0[2]);
+    double c = (p1[0] - p0[0]) * (p2[1] - p0[1]) - (p1[1] - p0[1]) * (p2[0] - p0[0]);
+    p.a = a / sqrt(pow(a, 2) + pow(b, 2) + pow(c, 2));
+    p.b = b / sqrt(pow(a, 2) + pow(b, 2) + pow(c, 2));
+    p.c = c / sqrt(pow(a, 2) + pow(b, 2) + pow(c, 2));
+    p.d = 0 - (p.a * p1[0] + p.b * p1[1] + p.c * p1[2]);
+
+    for (int i = 0; i < (int)points.size(); i++)
+    {
+        if (p.Side(points[i]) != 0)
+            return false;
+    }
+    return true;
+
 }
 
 vector<vec3d> Model::GetPoints(size_t resolution)

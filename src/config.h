@@ -35,6 +35,7 @@ public:
   int prep_depth;
   bool pca;
   bool merge;
+  bool mani_plus;
 
   /////////////// MCTS Config ///////////////
   int mcts_iteration;
@@ -56,6 +57,7 @@ public:
     prep_depth = 8;
     pca = false;
     merge = true;
+    mani_plus = true;
 
     mcts_iteration = 150;
     mcts_max_depth = 3;

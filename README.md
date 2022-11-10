@@ -76,7 +76,7 @@ bash run_example.sh
 
 Copyright (c) 2022 Xinyue Wei, Minghua Liu
 
-Please note our code utilizes [Triangle](https://www.cs.cmu.edu/~quake/triangle.html) and [ManifoldPlus](https://github.com/hjwdzh/ManifoldPlus). Although Triangle is freely available, it is copyrighted by the author and may not be sold or included in commercial products without a license. ManifoldPlus is distributed for free for non-commercial use only.
+Please note our code utilizes [ManifoldPlus](https://github.com/hjwdzh/ManifoldPlus), which is distributed for free for non-commercial use only. But ManifoldPlus is only used for pre-processing thin objects which cannot be well solved by Manifold. If you don't have non-manifold thin objects, you can **diable** this library by `--no-manifold-plus` or `-nmp`. 
 
 ## Citation
 
