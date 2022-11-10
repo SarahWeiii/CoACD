@@ -76,7 +76,7 @@ bash run_example.sh
 
 Copyright (c) 2022 Xinyue Wei, Minghua Liu
 
-Please note our code utilizes [ManifoldPlus](https://github.com/hjwdzh/ManifoldPlus), which is distributed for free for non-commercial use only. But ManifoldPlus is only used for pre-processing thin objects which cannot be well solved by Manifold. If you don't have non-manifold thin objects, you can **diable** this library by `--no-manifold-plus` or `-nmp`. 
+Please note our code utilizes [ManifoldPlus](https://github.com/hjwdzh/ManifoldPlus), which is distributed for free for non-commercial use only. But ManifoldPlus is only used for pre-processing thin objects which cannot be well solved by Manifold. If you don't have non-manifold thin objects, you can **disable** this library by `--no-manifold-plus` or `-nmp`. 
 
 ## Citation
 
