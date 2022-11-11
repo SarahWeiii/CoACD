@@ -179,9 +179,13 @@ void Compute(ofstream& of, Model& mesh, Params& params)
 #ifdef _OPENMP
     omp_lock_t writelock;
     omp_init_lock(&writelock);
-#endif
+    double start, end; 
+    start = omp_get_wtime(); 
+#else
     clock_t start, end;
     start = clock();
+#endif
+
     of << "#Points: " << mesh.points.size() << endl;
     of << "#Triangles: " << mesh.triangles.size() << endl;
 
@@ -277,10 +281,17 @@ void Compute(ofstream& of, Model& mesh, Params& params)
     }
     if (params.merge)
         MergeConvexHulls(mesh, pmeshs, parts, params, of);
-    end = clock();
 
+#ifdef _OPENMP
+    end = omp_get_wtime();
+    of << "Compute Time: " << double(end - start) << "s" << endl;
+    cout << "Compute Time: " << double(end - start) << "s" << endl;
+#else
+    end = clock();
     of << "Compute Time: " << double(end - start) / CLOCKS_PER_SEC << "s" << endl;
     cout << "Compute Time: " << double(end - start) / CLOCKS_PER_SEC << "s" << endl;
+#endif
+
     of << "#Convex After Merge: " << (int)parts.size() << endl;
     cout << "#Convex After Merge: " << (int)parts.size() << endl;
 
