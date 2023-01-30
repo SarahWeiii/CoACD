@@ -4,7 +4,7 @@
 #include <string>
 #include <time.h>
 
-#include "process.h"
+#include "src/process.h"
 
 using namespace std;
 

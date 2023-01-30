@@ -37,5 +37,5 @@ add_library(coacd SHARED
     src/manifold/ManifoldPlus.h
 )
 
-add_executable(main src/main.cpp)
+add_executable(main main.cpp)
 target_link_libraries(main coacd)
