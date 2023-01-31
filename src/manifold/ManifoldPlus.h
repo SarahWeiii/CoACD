@@ -1,20 +1,20 @@
 /*
 Copyright (c) 2020 Jingwei Huang. All rights reserved.
 
-This software is provided by the copyright holders and the contributors 
-"as is" and any express or implied warranties, including, but not limited 
-to, the implied warranties of merchantability and fitness for a particular 
-purpose are disclaimed. In no event shall the copyright holders or 
-contributors be liable for any direct, indirect, incidental, special, 
-exemplary, or consequential damages (including, but not limited to, 
+This software is provided by the copyright holders and the contributors
+"as is" and any express or implied warranties, including, but not limited
+to, the implied warranties of merchantability and fitness for a particular
+purpose are disclaimed. In no event shall the copyright holders or
+contributors be liable for any direct, indirect, incidental, special,
+exemplary, or consequential damages (including, but not limited to,
 procurement of substitute goods or services; loss of use, data, or profits;
-or business interruption) however caused and on any theory of liability, 
-whether in contract, strict liability, or tort (including negligence or 
-otherwise) arising in any way out of the use of this software, even if 
+or business interruption) however caused and on any theory of liability,
+whether in contract, strict liability, or tort (including negligence or
+otherwise) arising in any way out of the use of this software, even if
 advised of the possibility of such damage.
 
-The views and conclusions contained in the software and documentation are 
-those of the authors and should not be interpreted as representing official 
+The views and conclusions contained in the software and documentation are
+those of the authors and should not be interpreted as representing official
 policies, either expressed or implied, of Jingwei Huang.
 */
 #include <stdlib.h>
@@ -29,8 +29,9 @@ policies, either expressed or implied, of Jingwei Huang.
 #include "Manifold_p.h"
 #include "types_p.h"
 #include "../model_obj.h"
+#include "../logger.h"
 
 using namespace coacd;
 
-int ManifoldPlus(ofstream& of, string input_model, Model& output, int depth=8);
-int ManifoldPlus(Model &input, Model &output, int depth=8);
+int ManifoldPlus(ofstream &of, string input_model, Model &output, int depth = 8);
+int ManifoldPlus(Model &input, Model &output, bool if_cout, bool if_log, string logfile, int depth = 8);

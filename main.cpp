@@ -5,6 +5,7 @@
 #include <time.h>
 
 #include "src/process.h"
+#include "src/logger.h"
 
 using namespace std;
 using namespace coacd;
@@ -58,6 +59,14 @@ int main(int argc, char *argv[])
       {
         params.mani_plus = false;
       }
+      if (strcmp(argv[i], "-nc") == 0 || strcmp(argv[i], "--no-cout") == 0)
+      {
+        params.if_cout = false;
+      }
+      if (strcmp(argv[i], "-nl") == 0 || strcmp(argv[i], "--no-log") == 0)
+      {
+        params.if_log = false;
+      }
       if (strcmp(argv[i], "--pca") == 0)
       {
         params.pca = true;
@@ -96,13 +105,13 @@ int main(int argc, char *argv[])
     ext = params.input_model.substr(params.input_model.length() - 4);
     if (ext != ".obj")
     {
-      cout << "Error: Input must be OBJ format!" << endl;
+      logger(params.if_cout, false) << "Error: Input must be OBJ format!" << endl;
       exit(0);
     }
   }
   else
   {
-    cout << "Error: Input Filename Error!" << endl;
+    logger(params.if_cout, false) << "Error: Input Filename Error!" << endl;
     exit(0);
   }
 
@@ -110,7 +119,7 @@ int main(int argc, char *argv[])
     ext = params.output_name.substr(params.output_name.length() - 4);
   else
   {
-    cout << "Error: Output Filename Error! You can set the output filename as either .OBJ or .WRL!" << endl;
+    logger(params.if_cout, false) << "Error: Output Filename Error! You can set the output filename as either .OBJ or .WRL!" << endl;
     exit(0);
   }
   if (params.logfile == "")
@@ -122,34 +131,30 @@ int main(int argc, char *argv[])
       params.logfile = regex_replace(params.output_name, regex(".wrl"), "_log.txt");
     else
     {
-      cout << "Error: Output Filename must be .OBJ or .WRL format!" << endl;
+      logger(params.if_cout, false) << "Error: Output Filename must be .OBJ or .WRL format!" << endl;
       exit(0);
     }
   }
 
   if (params.threshold < 0.01)
-    cout << "Warning: Threshold t exceeds the lower bound and is automatically set as 0.01!" << endl;
+    logger(params.if_cout, false) << "Warning: Threshold t exceeds the lower bound and is automatically set as 0.01!" << endl;
   else if (params.threshold > 1)
-    cout << "Warning: Threshold t exceeds the higher bound and is automatically set as 1!" << endl;
+    logger(params.if_cout, false) << "Warning: Threshold t exceeds the higher bound and is automatically set as 1!" << endl;
   params.threshold = min(max(params.threshold, 0.01), 1.0);
 
   Model m, n, pos, neg;
 
-  ofstream of(params.logfile);
-
-  SaveConfig(of, params);
+  SaveConfig(params);
 
   if (params.preprocess)
-    ManifoldPreprocess(params, m, of);
+    ManifoldPreprocess(params, m);
   else
     m.LoadOBJ(params.input_model);
   if (params.pca)
     m.PCA();
   m.Normalize();
 
-  Compute(of, m, params);
-
-  of.close();
+  Compute(m, params);
 
   return 0;
 }

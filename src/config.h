@@ -15,7 +15,6 @@
 
 #include "shape.h"
 
-
 using namespace std;
 
 namespace coacd
@@ -39,6 +38,8 @@ namespace coacd
     bool pca;
     bool merge;
     bool mani_plus;
+    bool if_cout;
+    bool if_log;
 
     /////////////// MCTS Config ///////////////
     int mcts_iteration;
@@ -61,6 +62,8 @@ namespace coacd
       pca = false;
       merge = true;
       mani_plus = true;
+      if_cout = true;
+      if_log = true;
 
       mcts_iteration = 150;
       mcts_max_depth = 3;

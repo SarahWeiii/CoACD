@@ -1,40 +1,41 @@
 #include "io.h"
+#include "logger.h"
 
 namespace coacd
 {
-    void SaveConfig(ofstream &of, Params params)
+    void SaveConfig(Params params)
     {
-        of << " - Config" << endl;
-        of << "\tInput Path:                        " << params.input_model << endl;
-        of << "\tOutput Path:                       " << params.output_name << endl;
-        of << "\tLog Path:                          " << params.logfile << endl;
-        of << "\tTerminal Threshold:                " << params.threshold << endl;
-        of << "\tMCTS Node Number:                  " << params.downsampling << endl;
-        of << "\tMCTS Iteration:                    " << params.mcts_iteration << endl;
-        of << "\tMCTS Max Depth:                    " << params.mcts_max_depth << endl;
-        of << "\tManifold Preprocess (ON/OFF):      " << params.preprocess << endl;
-        of << "\tPreprocess Resolution:             " << params.prep_resolution << endl;
-        of << "\tMerge Postprocess (ON/OFF):        " << params.merge << endl;
-        of << "\tPCA (ON/OFF):                      " << params.pca << endl;
-        of << "\tk for Rv:                          " << params.rv_k << endl;
-        of << "\tHausdorff Sampling Resolution:     " << params.resolution << endl;
-        of << "\tRandom Seed:                       " << params.seed << endl;
+        logger(false, params.if_log, params.logfile) << " - Config" << endl;
+        logger(false, params.if_log, params.logfile) << "\tInput Path:                        " << params.input_model << endl;
+        logger(false, params.if_log, params.logfile) << "\tOutput Path:                       " << params.output_name << endl;
+        logger(false, params.if_log, params.logfile) << "\tLog Path:                          " << params.logfile << endl;
+        logger(false, params.if_log, params.logfile) << "\tTerminal Threshold:                " << params.threshold << endl;
+        logger(false, params.if_log, params.logfile) << "\tMCTS Node Number:                  " << params.downsampling << endl;
+        logger(false, params.if_log, params.logfile) << "\tMCTS Iteration:                    " << params.mcts_iteration << endl;
+        logger(false, params.if_log, params.logfile) << "\tMCTS Max Depth:                    " << params.mcts_max_depth << endl;
+        logger(false, params.if_log, params.logfile) << "\tManifold Preprocess (ON/OFF):      " << params.preprocess << endl;
+        logger(false, params.if_log, params.logfile) << "\tPreprocess Resolution:             " << params.prep_resolution << endl;
+        logger(false, params.if_log, params.logfile) << "\tMerge Postprocess (ON/OFF):        " << params.merge << endl;
+        logger(false, params.if_log, params.logfile) << "\tPCA (ON/OFF):                      " << params.pca << endl;
+        logger(false, params.if_log, params.logfile) << "\tk for Rv:                          " << params.rv_k << endl;
+        logger(false, params.if_log, params.logfile) << "\tHausdorff Sampling Resolution:     " << params.resolution << endl;
+        logger(false, params.if_log, params.logfile) << "\tRandom Seed:                       " << params.seed << endl;
 
-        cout << " - Config" << endl;
-        cout << "\tInput Path:                      " << params.input_model << endl;
-        cout << "\tOutput Path:                     " << params.output_name << endl;
-        cout << "\tLog Path:                        " << params.logfile << endl;
-        cout << "\tTerminal Threshold:              " << params.threshold << endl;
-        cout << "\tMCTS Node Number:                " << params.downsampling << endl;
-        cout << "\tMCTS Iteration:                  " << params.mcts_iteration << endl;
-        cout << "\tMCTS Max Depth:                  " << params.mcts_max_depth << endl;
-        cout << "\tManifold Preprocess (ON/OFF):    " << params.preprocess << endl;
-        cout << "\tPreprocess Resolution:           " << params.prep_resolution << endl;
-        cout << "\tMerge Postprocess (ON/OFF):      " << params.merge << endl;
-        cout << "\tPCA (ON/OFF):                    " << params.pca << endl;
-        cout << "\tk for Rv:                        " << params.rv_k << endl;
-        cout << "\tHausdorff Sampling Resolution:   " << params.resolution << endl;
-        cout << "\tRandom Seed:                     " << params.seed << endl;
+        logger(params.if_cout, false) << " - Config" << endl;
+        logger(params.if_cout, false) << "\tInput Path:                      " << params.input_model << endl;
+        logger(params.if_cout, false) << "\tOutput Path:                     " << params.output_name << endl;
+        logger(params.if_cout, false) << "\tLog Path:                        " << params.logfile << endl;
+        logger(params.if_cout, false) << "\tTerminal Threshold:              " << params.threshold << endl;
+        logger(params.if_cout, false) << "\tMCTS Node Number:                " << params.downsampling << endl;
+        logger(params.if_cout, false) << "\tMCTS Iteration:                  " << params.mcts_iteration << endl;
+        logger(params.if_cout, false) << "\tMCTS Max Depth:                  " << params.mcts_max_depth << endl;
+        logger(params.if_cout, false) << "\tManifold Preprocess (ON/OFF):    " << params.preprocess << endl;
+        logger(params.if_cout, false) << "\tPreprocess Resolution:           " << params.prep_resolution << endl;
+        logger(params.if_cout, false) << "\tMerge Postprocess (ON/OFF):      " << params.merge << endl;
+        logger(params.if_cout, false) << "\tPCA (ON/OFF):                    " << params.pca << endl;
+        logger(params.if_cout, false) << "\tk for Rv:                        " << params.rv_k << endl;
+        logger(params.if_cout, false) << "\tHausdorff Sampling Resolution:   " << params.resolution << endl;
+        logger(params.if_cout, false) << "\tRandom Seed:                     " << params.seed << endl;
     }
 
     void SaveOBJ(const string &filename, vector<Model> parts, Params &params)

@@ -24,7 +24,7 @@ int ManifoldPlus(ofstream &of, string input_model, Model &output, int depth)
   return 0;
 }
 
-int ManifoldPlus(Model &input, Model &output, int depth)
+int ManifoldPlus(Model &input, Model &output, bool if_cout, bool if_log, string logfile, int depth)
 {
   clock_t start, end;
   MatrixD V, out_V;
@@ -35,6 +35,11 @@ int ManifoldPlus(Model &input, Model &output, int depth)
   memcpy(V.data(), input.points.data(), sizeof(double) * input.points.size());
   memcpy(F.data(), input.triangles.data(),
          sizeof(int) * input.triangles.size());
+
+  logger(false, if_log, logfile) << " - Pre-processing (manifoldPlus)" << endl;
+  logger(false, if_log, logfile) << "\tdepth: " << depth << endl;
+  logger(if_cout, false) << " - Pre-processing (manifoldPlus)" << endl;
+  logger(if_cout, false) << "\tdepth: " << depth << endl;
 
   ManifoldP manifold;
   start = clock();

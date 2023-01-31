@@ -779,9 +779,7 @@ namespace coacd
                         }
                     }
                     else
-                    {
-                        cout << "Intersection error. Please report this error to sarahwei0210@gmail.com with your input OBJ and log file." << endl;
-                    }
+                        throw runtime_error("Intersection error. Please report this error to sarahwei0210@gmail.com with your input OBJ and log file.");
                 }
             }
         }

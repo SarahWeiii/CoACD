@@ -602,10 +602,7 @@ namespace coacd
             }
         }
         else
-        {
-            cout << "RefineMCTS Error!" << endl;
-            assert(0);
-        }
+            throw runtime_error("RefineMCTS Error!");
     }
 
     void ComputeAxesAlignedClippingPlanes(Model &m, const int downsampling, vector<Plane> &planes, bool shuffle)
@@ -728,10 +725,7 @@ namespace coacd
             Model pos, neg, posCH, negCH;
             bool clipf = Clip(current_state.current_parts[current_state.worst_part_idx].current_mesh, pos, neg, bestplane, cut_area);
             if (!clipf)
-            {
-                cout << "Wrong MCTS clip proposal!" << endl;
-                exit(0);
-            }
+                throw runtime_error("Wrong MCTS clip proposal!");
             current_path.push_back(bestplane);
             vector<double> _current_costs;
             vector<Part> _current_parts;
