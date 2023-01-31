@@ -1,3 +1,5 @@
+#pragma once
+
 #include "model_obj.h"
 #include <deque>
 
