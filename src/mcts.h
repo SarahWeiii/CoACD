@@ -20,7 +20,11 @@
 #include "model_obj.h"
 #include "cost.h"
 
-#define MCTS_RANDOM_CUT 1
+
+namespace coacd 
+{
+
+constexpr int MCTS_RANDOM_CUT = 1;
 
 void ComputeAxesAlignedClippingPlanes(Model &m, const int downsampling, vector<Plane> &planes, bool shuffle = false);
 
@@ -228,8 +232,6 @@ public:
   }
 };
 
-int node_idx;
-
 class Node
 {
 public:
@@ -251,7 +253,6 @@ public:
     quality_value = INF;
     // quality_value = 0;
     state = NULL;
-    idx = node_idx++;
   }
   ~Node()
   {
@@ -930,7 +931,6 @@ Node *MonteCarloTreeSearch(Params &params, Node *node, vector<Plane> &best_path)
   Model initial_mesh = node->get_state()->current_parts[0].current_mesh, initial_ch;
   initial_mesh.ComputeCH(initial_ch);
   double cost = ComputeRv(initial_mesh, initial_ch, params.rv_k) / params.mcts_max_depth;
-  node_idx = 1;
   vector<Plane> current_path;
   srand(params.seed);
 
@@ -945,4 +945,5 @@ Node *MonteCarloTreeSearch(Params &params, Node *node, vector<Plane> &best_path)
   Node *best_next_node = best_child(node, false);
 
   return best_next_node;
+}
 }

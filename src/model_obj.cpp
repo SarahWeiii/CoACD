@@ -6,6 +6,9 @@
 
 using namespace nanoflann;
 
+namespace coacd 
+{
+
 Model::Model()
 {
     barycenter[0] = 0.0;
@@ -700,4 +703,5 @@ void RecoverParts(vector<Model> &meshs, Params &params)
         if (params.pca)
             meshs[i].RevertPCA();
     }
+}
 }

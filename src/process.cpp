@@ -6,6 +6,9 @@
 #include <iostream>
 #include <cmath>
 
+namespace coacd 
+{
+
 void ManifoldPreprocess(Params& params, Model& m, ofstream& of)
 {
     Model tmp;
@@ -302,4 +305,5 @@ void Compute(ofstream& of, Model& mesh, Params& params)
     SaveOBJ(objName, parts, params);
 
     of.close();
+}
 }

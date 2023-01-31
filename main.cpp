@@ -7,6 +7,7 @@
 #include "src/process.h"
 
 using namespace std;
+using namespace coacd;
 
 int main(int argc, char *argv[])
 {

@@ -1,5 +1,9 @@
 #include "shape.h"
 
+
+namespace coacd 
+{
+
 Plane::Plane()
 {
     pFlag = false;
@@ -152,4 +156,5 @@ void Diagonalize(const double (&A)[3][3], double Q[3][3], double D[3][3])
         q[2] /= mq;
         q[3] /= mq;
     }
+}
 }

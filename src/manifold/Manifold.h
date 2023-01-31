@@ -44,6 +44,8 @@ derivative works thereof, in binary and source code form.
 #include "model.h"
 #include "../model_obj.h"
 
+using namespace coacd;
+
 extern int g_sharp;
 int Manifold(ofstream& of, string input_model, Model& output, int resolution)
 {

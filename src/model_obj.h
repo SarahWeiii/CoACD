@@ -1,3 +1,5 @@
+#pragma once
+
 #include <algorithm>
 #include <assert.h>
 #include <fstream>
@@ -18,7 +20,6 @@
 #include "glm/glm.hpp"
 #include "manifold/types_p.h"
 
-#pragma once
 
 #include "shape.h"
 #include "sobol.h"
@@ -26,7 +27,8 @@
 
 using namespace std;
 
-#define INF numeric_limits<double>::max()
+namespace coacd 
+{
 
 /* Copyright to V-HACD */
 struct Material
@@ -125,4 +127,5 @@ inline void SyncNorm(const Model &mesh, Model &pos, Model &neg)
     for (int i = 0; i < 3; i++)
         for (int j = 0; j < 3; j++)
             pos.m_rot[i][j] = neg.m_rot[i][j] = mesh.m_rot[i][j];
+}
 }

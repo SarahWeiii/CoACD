@@ -1,3 +1,5 @@
+#pragma once
+
 #include <algorithm>
 #include <fstream>
 #include <iomanip>
@@ -19,16 +21,17 @@
 #include <utility>
 #include <array>
 
-#pragma once
 
 using namespace std;
 
-typedef array<double, 3> vec3d;
-typedef array<int, 3> vec3i;
-typedef array<short, 3> vec3s;
 
-#define INF numeric_limits<double>::max()
+namespace coacd 
+{
 
+using vec3d = std::array<double, 3>;
+using vec3i = std::array<int, 3>;
+using vec3s = std::array<short, 3>;
+constexpr double INF = std::numeric_limits<double>::max();
 
 struct HalfEdge
 {
@@ -177,4 +180,5 @@ void vec2PointCloud(PointCloud<T> &point, vector<vec3d> V)
 		point.pts[i].y = V[i][1];
 		point.pts[i].z = V[i][2];
 	}
+}
 }

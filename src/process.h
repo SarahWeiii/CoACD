@@ -1,8 +1,9 @@
+#pragma once
+
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <vector>
-
 #include <math.h>
 #include <limits>
 #include <typeinfo>
@@ -16,7 +17,10 @@
 #include "model_obj.h"
 #include "cost.h"
 
-#pragma once
+
+
+namespace coacd 
+{
 
 void ManifoldPreprocess(Params &params, Model &m, ofstream &of);
 void MergeCH(Model &ch1, Model &ch2, Model &ch);
@@ -48,4 +52,5 @@ inline int32_t FindMinimumElement(const vector<double> d, double *const m, const
 
   *m = min;
   return idx;
+}
 }

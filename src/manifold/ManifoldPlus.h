@@ -30,6 +30,8 @@ policies, either expressed or implied, of Jingwei Huang.
 #include "types_p.h"
 #include "../model_obj.h"
 
+using namespace coacd;
+
 int ManifoldPlus(ofstream& of, string input_model, Model& output, int depth=8)
 {
   clock_t start, end;

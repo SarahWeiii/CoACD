@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.1)
 project(CoACD)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
@@ -25,17 +26,22 @@ if (OPENMP_FOUND)
     set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
-include_directories(src)
-include_directories(3rd/glm)
-include_directories(3rd/eigen/)
-include_directories(3rd/libigl/include)
-include_directories(3rd/cdt/CDT)
 
-file(GLOB_RECURSE MAIN_SRC "src/*.h" "src/*.cc" "src/*.hpp" "src/*.cpp")
-add_library(coacd SHARED
+file(GLOB_RECURSE MAIN_SRC "src/*.h" "src/*.cc" "src/*.hpp" "src/*.cpp" "public/coacd.cpp")
+add_library(coacd STATIC
     ${MAIN_SRC}
     src/manifold/ManifoldPlus.h
 )
 
+target_include_directories(coacd PUBLIC public)
+target_include_directories(coacd PRIVATE src)
+target_include_directories(coacd PRIVATE 3rd/eigen)
+target_include_directories(coacd PRIVATE 3rd/glm)
+target_include_directories(coacd PRIVATE 3rd/libigl/include)
+target_include_directories(coacd PRIVATE 3rd/cdt/CDT)
+
 add_executable(main main.cpp)
 target_link_libraries(main coacd)
+target_include_directories(main PRIVATE src)
+target_include_directories(main PRIVATE 3rd/eigen)
+target_include_directories(main PRIVATE 3rd/glm)
