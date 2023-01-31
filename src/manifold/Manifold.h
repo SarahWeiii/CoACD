@@ -47,28 +47,5 @@ derivative works thereof, in binary and source code form.
 using namespace coacd;
 
 extern int g_sharp;
-int Manifold(ofstream& of, string input_model, Model& output, int resolution)
-{
-  clock_t start, end;
-
-  Model_OBJ obj;
-  char *cstr = new char[input_model.length() + 1];
-  strcpy(cstr, input_model.c_str());
-  obj.Load(cstr);
-  delete [] cstr;
-  
-  of << " - Pre-processing (manifold)" << endl;
-  of << "\tresolution: " << resolution << endl;
-  cout << " - Pre-processing (manifold)" << endl;
-  cout << "\tresolution: " << resolution << endl;
-  
-  start = clock();
-  obj.Process_Manifold(resolution);
-  end = clock();
-  of << "Manifold time: " << double(end-start)/CLOCKS_PER_SEC << "s" << endl;
-  cout << "Manifold time: " << double(end-start)/CLOCKS_PER_SEC << "s" << endl;
-
-  output.Load(obj.vertices, obj.face_indices);
-  
-  return 0; 
-}
+int Manifold(ofstream& of, string input_model, Model& output, int resolution);
+int Manifold(Model &input, Model &output, int resolution);

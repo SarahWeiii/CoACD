@@ -16,9 +16,9 @@ void ManifoldPreprocess(Params& params, Model& m, ofstream& of)
     bool is_thin = tmp.CheckThin();
 
   if (params.mani_plus && is_thin)
-    ManifoldPlus(of, params.input_model, m, params.prep_depth);
+    ManifoldPlus(tmp, m, params.prep_depth);
   else
-    Manifold(of, params.input_model, m, params.prep_resolution);
+    Manifold(tmp, m, params.prep_resolution);
 }
 
 void MergeCH(Model &ch1, Model &ch2, Model &ch)
