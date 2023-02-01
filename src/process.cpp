@@ -12,22 +12,14 @@ namespace coacd
     void ManifoldPreprocess(Params &params, Model &m)
     {
         Model tmp = m;
-        // tmp.LoadOBJ(params.input_model);
         bool is_thin = m.CheckThin();
         m.Clear();
 
         if (params.mani_plus && is_thin)
             ManifoldPlus(tmp, m, params.if_cout, params.if_log, params.logfile, params.prep_depth);
-            // ManifoldPlus(params.input_model, m, params.prep_depth);
         else
             Manifold(tmp, m, params.if_cout, params.if_log, params.logfile, params.prep_resolution);
-            // Manifold(params.input_model, m, params.prep_resolution);
 
-        // TODO: not elegant
-        m.m_len = tmp.m_len;
-        m.m_Xmid = tmp.m_Xmid;
-        m.m_Ymid = tmp.m_Ymid;
-        m.m_Zmid = tmp.m_Zmid;
         
     }
 
@@ -41,7 +33,6 @@ namespace coacd
             merge.triangles.push_back({int(ch2.triangles[i][0] + ch1.points.size()),
                                        int(ch2.triangles[i][1] + ch1.points.size()), int(ch2.triangles[i][2] + ch1.points.size())});
         merge.ComputeCH(ch);
-        SyncNorm(ch1, ch);
     }
 
     double MergeConvexHulls(Model &m, vector<Model> &meshs, vector<Model> &cvxs, Params &params, double epsilon, double threshold)
@@ -186,7 +177,7 @@ namespace coacd
         return h;
     }
 
-    void Compute(Model &mesh, Params &params)
+    vector<Model> Compute(Model &mesh, Params &params)
     {
         vector<Model> InputParts = {mesh};
         vector<Model> parts, pmeshs;
@@ -239,7 +230,6 @@ namespace coacd
                     Node *best_next_node = MonteCarloTreeSearch(params, node, best_path);
                     if (best_next_node == NULL)
                     {
-                        SyncNorm(mesh, pCH);
 #ifdef _OPENMP
                         omp_set_lock(&writelock);
 #endif
@@ -276,7 +266,6 @@ namespace coacd
                 }
                 else
                 {
-                    SyncNorm(mesh, pCH);
 #ifdef _OPENMP
                     omp_set_lock(&writelock);
 #endif
@@ -309,10 +298,6 @@ namespace coacd
         logger(false, params.if_log, params.logfile) << "#Convex After Merge: " << (int)parts.size() << endl;
         logger(params.if_cout, false) << "#Convex After Merge: " << (int)parts.size() << endl;
 
-        string objName = regex_replace(params.output_name, regex("wrl"), "obj");
-        string wrlName = regex_replace(params.output_name, regex("obj"), "wrl");
-
-        SaveVRML(wrlName, parts, params);
-        SaveOBJ(objName, parts, params);
+        return parts;
     }
 }

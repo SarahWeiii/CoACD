@@ -20,6 +20,7 @@
 #include <unordered_set>
 #include <utility>
 #include <array>
+#include <limits>
 
 using namespace std;
 
@@ -76,7 +77,7 @@ namespace coacd
     vec3d CalFaceNormal(vec3d p1, vec3d p2, vec3d p3);
     double Area(vec3d p0, vec3d p1, vec3d p2);
     double Volume(vec3d p1, vec3d p2, vec3d p3);
-    void Diagonalize(const double (&A)[3][3], double Q[3][3], double D[3][3]);
+    void Diagonalize(const array<array<double, 3>, 3>& A, array<array<double, 3>, 3>& Q, array<array<double, 3>, 3>& D);
 
     inline bool SameVectorDirection(vec3d v, vec3d w)
     {

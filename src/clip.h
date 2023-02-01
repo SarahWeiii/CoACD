@@ -10,8 +10,6 @@ namespace coacd
     void RemoveOutlierTriangles(vector<vec3d> border, vector<vec3d> overlap, vector<pair<int, int>> border_edges, int oriN,
                                 vector<vec3i> border_triangles, vector<vec3i> &final_triangles);
     void RecordIntersectPoint(Model mesh, map<pair<int, int>, int> &edge_map, int i, int ep0, int ep1, int &idx, vector<vec3d> &border, vec3d point);
-    void SyncNorm(const Model &mesh, Model &pCH);
-    void SyncNorm(const Model &mesh, Model &pos, Model &neg);
     bool Clip(const Model &mesh, Model &pos, Model &neg, Plane &plane, double &cut_area, bool foo = false);
     bool CreatePlaneRotationMatrix(vector<vec3d> &border, vector<pair<int, int>> border_edges, vec3d &T, double R[3][3], Plane &plane);
     short Triangulation(vector<vec3d> &border, vector<pair<int, int>> border_edges, vector<vec3i> &border_triangles, Plane &plane);

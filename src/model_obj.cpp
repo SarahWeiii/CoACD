@@ -18,7 +18,6 @@ namespace coacd
 
     bool Model::CheckThin()
     {
-        Normalize();
         int idx0 = 0;
         int idx1;
         int idx2;
@@ -158,9 +157,9 @@ namespace coacd
         }
     }
 
-    void Model::GetEigenValues(double eigen_values[3][3])
+    void Model::GetEigenValues(array<array<double, 3>, 3> eigen_values)
     {
-        double Q[3][3];
+        array<array<double, 3>, 3> Q;
         double barycenter[3] = {0};
         for (int i = 0; i < (int)points.size(); i++)
         {
@@ -172,9 +171,7 @@ namespace coacd
         barycenter[1] /= (int)points.size();
         barycenter[2] /= (int)points.size();
 
-        double covMat[3][3] = {{0.0, 0.0, 0.0},
-                               {0.0, 0.0, 0.0},
-                               {0.0, 0.0, 0.0}};
+        array<array<double, 3>, 3> covMat;
         double x, y, z;
         for (int i = 0; i < (int)points.size(); i++)
         {
@@ -212,9 +209,7 @@ namespace coacd
         barycenter[1] /= (int)points.size();
         barycenter[2] /= (int)points.size();
 
-        double covMat[3][3] = {{0.0, 0.0, 0.0},
-                               {0.0, 0.0, 0.0},
-                               {0.0, 0.0, 0.0}};
+        array<array<double, 3>, 3> covMat;
         double x, y, z;
         for (int i = 0; i < (int)points.size(); i++)
         {
@@ -237,7 +232,7 @@ namespace coacd
         covMat[1][0] = covMat[0][1];
         covMat[2][0] = covMat[0][2];
         covMat[2][1] = covMat[1][2];
-        double D[3][3];
+        array<array<double, 3>, 3> D;
         Diagonalize(covMat, m_rot, D);
     }
 
@@ -497,10 +492,6 @@ namespace coacd
                 }
             }
 
-            m_len = max(max(x_max - x_min, y_max - y_min), z_max - z_min);
-            m_Xmid = (x_max + x_min) / 2;
-            m_Ymid = (y_max + y_min) / 2;
-            m_Zmid = (z_max + z_min) / 2;
             bbox[0] = x_min;
             bbox[1] = x_max;
             bbox[2] = y_min;
@@ -533,10 +524,6 @@ namespace coacd
             z_max = max(z_max, vertices[i][2]);
         }
 
-        m_len = max(max(x_max - x_min, y_max - y_min), z_max - z_min);
-        m_Xmid = (x_max + x_min) / 2;
-        m_Ymid = (y_max + y_min) / 2;
-        m_Zmid = (z_max + z_min) / 2;
         bbox[0] = x_min;
         bbox[1] = x_max;
         bbox[2] = y_min;
@@ -567,10 +554,6 @@ namespace coacd
             z_max = max(z_max, vertices(i, 2));
         }
 
-        m_len = max(max(x_max - x_min, y_max - y_min), z_max - z_min);
-        m_Xmid = (x_max + x_min) / 2;
-        m_Ymid = (y_max + y_min) / 2;
-        m_Zmid = (z_max + z_min) / 2;
         bbox[0] = x_min;
         bbox[1] = x_max;
         bbox[2] = y_min;
@@ -586,7 +569,7 @@ namespace coacd
         return true;
     }
 
-    void Model::PCA()
+    array<array<double, 3>, 3> Model::PCA()
     {
         AlignToPrincipalAxes();
         double x_min = INF, x_max = -INF, y_min = INF, y_max = -INF, z_min = INF, z_max = -INF;
@@ -607,20 +590,27 @@ namespace coacd
             z_max = max(z_max, points[i][2]);
         }
 
-        m_len = max(max(x_max - x_min, y_max - y_min), z_max - z_min);
-        m_Xmid = (x_max + x_min) / 2;
-        m_Ymid = (y_max + y_min) / 2;
-        m_Zmid = (z_max + z_min) / 2;
         bbox[0] = x_min;
         bbox[1] = x_max;
         bbox[2] = y_min;
         bbox[3] = y_max;
         bbox[4] = z_min;
         bbox[5] = z_max;
+
+        return m_rot;
     }
 
-    void Model::Normalize()
+    vector<double> Model::Normalize()
     {
+        double m_len;
+        double m_Xmid, m_Ymid, m_Zmid;
+        double x_min = bbox[0], x_max = bbox[1], y_min = bbox[2], y_max = bbox[3], z_min = bbox[4], z_max = bbox[5];
+
+        m_len = max(max(x_max - x_min, y_max - y_min), z_max - z_min);
+        m_Xmid = (x_max + x_min) / 2;
+        m_Ymid = (y_max + y_min) / 2;
+        m_Zmid = (z_max + z_min) / 2;
+
         for (int i = 0; i < (int)points.size(); i++)
         {
             vec3d tmp = {2.0 * (points[i][0] - m_Xmid) / m_len,
@@ -635,26 +625,39 @@ namespace coacd
         bbox[3] = y_len / m_len;
         bbox[4] = -z_len / m_len;
         bbox[5] = z_len / m_len;
+
+        return vector<double> {x_min, x_max, y_min, y_max, z_min, z_max};
     }
 
-    void Model::Recover()
+    void Model::Recover(vector<double> _bbox)
     {
+        double m_len;
+        double m_Xmid, m_Ymid, m_Zmid;
+        double x_min = _bbox[0], x_max = _bbox[1], y_min = _bbox[2], y_max = _bbox[3], z_min = _bbox[4], z_max = _bbox[5];
+
+        m_len = max(max(x_max - x_min, y_max - y_min), z_max - z_min);
+        m_Xmid = (x_max + x_min) / 2;
+        m_Ymid = (y_max + y_min) / 2;
+        m_Zmid = (z_max + z_min) / 2;
+
         for (int i = 0; i < (int)points.size(); i++)
             points[i] = {points[i][0] / 2 * m_len + m_Xmid,
                          points[i][1] / 2 * m_len + m_Ymid,
                          points[i][2] / 2 * m_len + m_Zmid};
+
+        std::copy(_bbox.begin(), _bbox.end(), bbox);
     }
 
-    void Model::RevertPCA()
+    void Model::RevertPCA(array<array<double, 3>, 3> rot)
     {
         for (int i = 0; i < (int)points.size(); i++)
         {
             double x = points[i][0];
             double y = points[i][1];
             double z = points[i][2];
-            points[i][0] = m_rot[0][0] * x + m_rot[0][1] * y + m_rot[0][2] * z;
-            points[i][1] = m_rot[1][0] * x + m_rot[1][1] * y + m_rot[1][2] * z;
-            points[i][2] = m_rot[2][0] * x + m_rot[2][1] * y + m_rot[2][2] * z;
+            points[i][0] = rot[0][0] * x + rot[0][1] * y + rot[0][2] * z;
+            points[i][1] = rot[1][0] * x + rot[1][1] * y + rot[1][2] * z;
+            points[i][2] = rot[2][0] * x + rot[2][1] * y + rot[2][2] * z;
         }
     }
 
@@ -700,13 +703,13 @@ namespace coacd
         return volume;
     }
 
-    void RecoverParts(vector<Model> &meshs, Params &params)
+    void RecoverParts(vector<Model> &meshes, vector<double> bbox, array<array<double, 3>, 3> rot, Params &params)
     {
-        for (int i = 0; i < (int)meshs.size(); i++)
+        for (int i = 0; i < (int)meshes.size(); i++)
         {
-            meshs[i].Recover();
+            meshes[i].Recover(bbox);
             if (params.pca)
-                meshs[i].RevertPCA();
+                meshes[i].RevertPCA(rot);
         }
     }
 }

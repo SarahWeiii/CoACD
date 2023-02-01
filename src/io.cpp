@@ -40,7 +40,6 @@ namespace coacd
 
     void SaveOBJ(const string &filename, vector<Model> parts, Params &params)
     {
-        RecoverParts(parts, params);
         vector<int> v_numbers;
         v_numbers.push_back(0);
         std::ofstream os(filename);
@@ -62,9 +61,8 @@ namespace coacd
         os.close();
     }
 
-    void SaveOBJS(const string foldername, const string &filename, vector<Model> parts, Params &params)
+    void SaveOBJs(const string &foldername, const string &filename, vector<Model> parts, Params &params)
     {
-        RecoverParts(parts, params);
         int n_zero = 3;
         for (int n = 0; n < (int)parts.size(); n++)
         {
@@ -163,16 +161,14 @@ namespace coacd
         }
     }
 
-    void SaveVRML(const string &fileName, vector<Model> meshs, Params &params)
+    void SaveVRML(const string &fileName, vector<Model>& meshes, Params &params)
     {
-        vector<Model> output_meshs = meshs;
-        RecoverParts(output_meshs, params);
         ofstream foutCH(fileName);
         if (foutCH.is_open())
         {
-            for (int p = 0; p < (int)output_meshs.size(); ++p)
+            for (int p = 0; p < (int)meshes.size(); ++p)
             {
-                WriteVRML(foutCH, output_meshs[p]);
+                WriteVRML(foutCH, meshes[p]);
             }
             foutCH.close();
         }

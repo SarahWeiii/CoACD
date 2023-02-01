@@ -143,17 +143,26 @@ int main(int argc, char *argv[])
   params.threshold = min(max(params.threshold, 0.01), 1.0);
 
   Model m, n, pos, neg;
+  array<array<double, 3>, 3> rot;
 
   SaveConfig(params);
 
   m.LoadOBJ(params.input_model);
-  m.Normalize();
+  vector<double> bbox = m.Normalize();
   if (params.preprocess)
     ManifoldPreprocess(params, m);
   if (params.pca)
-    m.PCA();
+    rot = m.PCA();
 
-  Compute(m, params);
+  vector<Model> parts = Compute(m, params);
+  
+  RecoverParts(parts, bbox, rot, params);
+
+  string objName = regex_replace(params.output_name, regex("wrl"), "obj");
+  string wrlName = regex_replace(params.output_name, regex("obj"), "wrl");
+  
+  SaveVRML(wrlName, parts, params);
+  SaveOBJ(objName, parts, params);
 
   return 0;
 }

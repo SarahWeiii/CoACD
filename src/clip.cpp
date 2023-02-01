@@ -418,8 +418,6 @@ namespace coacd
         map<int, int> border_map;
         vector<vec3d> final_border;
 
-        SyncNorm(mesh, pos, neg);
-
         const int N = (int)mesh.points.size();
         int idx = 0;
         bool *pos_map = new bool[N]();
