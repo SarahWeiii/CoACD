@@ -1,6 +1,6 @@
 #include "Manifold.h"
 
-int Manifold(ofstream &of, string input_model, Model &output, int resolution)
+int Manifold(string input_model, Model &output, int resolution)
 {
   clock_t start, end;
 
@@ -10,15 +10,15 @@ int Manifold(ofstream &of, string input_model, Model &output, int resolution)
   obj.Load(cstr);
   delete[] cstr;
 
-  of << " - Pre-processing (manifold)" << endl;
-  of << "\tresolution: " << resolution << endl;
+  // of << " - Pre-processing (manifold)" << endl;
+  // of << "\tresolution: " << resolution << endl;
   cout << " - Pre-processing (manifold)" << endl;
   cout << "\tresolution: " << resolution << endl;
 
   start = clock();
   obj.Process_Manifold(resolution);
   end = clock();
-  of << "Manifold time: " << double(end - start) / CLOCKS_PER_SEC << "s" << endl;
+  // of << "Manifold time: " << double(end - start) / CLOCKS_PER_SEC << "s" << endl;
   cout << "Manifold time: " << double(end - start) / CLOCKS_PER_SEC << "s" << endl;
 
   output.Load(obj.vertices, obj.face_indices);

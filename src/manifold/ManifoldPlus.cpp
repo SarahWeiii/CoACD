@@ -1,14 +1,14 @@
 #include "ManifoldPlus.h"
 
-int ManifoldPlus(ofstream &of, string input_model, Model &output, int depth)
+int ManifoldPlus(string input_model, Model &output, int depth)
 {
   clock_t start, end;
   MatrixD V, out_V;
   MatrixI F, out_F;
   ReadOBJ(input_model.c_str(), &V, &F);
 
-  of << " - Pre-processing (manifoldPlus)" << endl;
-  of << "\tdepth: " << depth << endl;
+  // of << " - Pre-processing (manifoldPlus)" << endl;
+  // of << "\tdepth: " << depth << endl;
   cout << " - Pre-processing (manifoldPlus)" << endl;
   cout << "\tdepth: " << depth << endl;
 
@@ -16,7 +16,7 @@ int ManifoldPlus(ofstream &of, string input_model, Model &output, int depth)
   start = clock();
   manifold.ProcessManifold(V, F, depth, &out_V, &out_F);
   end = clock();
-  of << "ManifoldPlus time: " << double(end - start) / CLOCKS_PER_SEC << "s" << endl;
+  // of << "ManifoldPlus time: " << double(end - start) / CLOCKS_PER_SEC << "s" << endl;
   cout << "ManifoldPlus time: " << double(end - start) / CLOCKS_PER_SEC << "s" << endl;
 
   output.Load(out_V, out_F);

@@ -11,14 +11,24 @@ namespace coacd
 
     void ManifoldPreprocess(Params &params, Model &m)
     {
-        Model tmp;
-        tmp.LoadOBJ(params.input_model);
-        bool is_thin = tmp.CheckThin();
+        Model tmp = m;
+        // tmp.LoadOBJ(params.input_model);
+        bool is_thin = m.CheckThin();
+        m.Clear();
 
         if (params.mani_plus && is_thin)
             ManifoldPlus(tmp, m, params.if_cout, params.if_log, params.logfile, params.prep_depth);
+            // ManifoldPlus(params.input_model, m, params.prep_depth);
         else
             Manifold(tmp, m, params.if_cout, params.if_log, params.logfile, params.prep_resolution);
+            // Manifold(params.input_model, m, params.prep_resolution);
+
+        // TODO: not elegant
+        m.m_len = tmp.m_len;
+        m.m_Xmid = tmp.m_Xmid;
+        m.m_Ymid = tmp.m_Ymid;
+        m.m_Zmid = tmp.m_Zmid;
+        
     }
 
     void MergeCH(Model &ch1, Model &ch2, Model &ch)

@@ -658,6 +658,12 @@ namespace coacd
         }
     }
 
+    void Model::Clear()
+    {
+        points.clear();
+        triangles.clear();
+    }
+
     void Model::SaveOBJ(const string &filename)
     {
         std::ofstream os(filename);

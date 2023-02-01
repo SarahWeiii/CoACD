@@ -79,6 +79,7 @@ namespace coacd
         void Normalize();
         void Recover();
         void RevertPCA();
+        void Clear();
 
         void GetEigenValues(double eigen_values[3][3]);
         void AlignToPrincipalAxes();

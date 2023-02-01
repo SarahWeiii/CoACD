@@ -33,5 +33,5 @@ policies, either expressed or implied, of Jingwei Huang.
 
 using namespace coacd;
 
-int ManifoldPlus(ofstream &of, string input_model, Model &output, int depth = 8);
+int ManifoldPlus(string input_model, Model &output, int depth = 8);
 int ManifoldPlus(Model &input, Model &output, bool if_cout, bool if_log, string logfile, int depth = 8);
