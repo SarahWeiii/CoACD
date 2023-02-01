@@ -16,6 +16,7 @@ git clone --recurse-submodules https://github.com/SarahWeiii/CoACD.git
 ### (2) Install Dependency (Optional)
 
 ```
+sudo apt-get install libboost-all-dev
 sudo apt-get install libopenvdb-dev
 ```
 Note: If you do not install this dependency, please comment `target_link_libraries(coacd "-lopenvdb -lboost_iostreams -ltbb -lHalf")` in `CMakeLists.txt` line 41!
