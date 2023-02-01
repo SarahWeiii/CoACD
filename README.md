@@ -13,7 +13,14 @@ Approximate convex decomposition enables efficient geometry processing algorithm
 git clone --recurse-submodules https://github.com/SarahWeiii/CoACD.git
 ```
 
-### (2) Compile
+### (2) Install Dependency (Optional)
+
+```
+sudo apt-get install libopenvdb-dev
+```
+Note: If you do not install this dependency, please comment `target_link_libraries(coacd "-lopenvdb -lboost_iostreams -ltbb -lHalf")` in `CMakeLists.txt` line 41!
+
+### (3) Compile
 
 ```
 cd CoACD
@@ -23,7 +30,7 @@ cmake .. -DCMAKE_BUILD_TYPE=Release
 make
 ```
 
-### (3) Quick start
+### (4) Quick Start
 We provide a set of default parameters, and you only need to specify the input and output path. You can take an arbitrary mesh as input (in `.obj` format, no need to be a manifold) and run the algorithm by the following command:
 ```
 ./main -i PATH_OF_YOUR_MESH -o PATH_OF_OUTPUT
@@ -40,7 +47,7 @@ Here is the description of the parameters (sorted by importance).
 * `-o/--output`: path for output (`.obj` or `.wrl`).
 * `-l/--log`: path for output logfile, default = same_path_as_output_components.
 * `-t/--threshold`:  concavity threshold for terminating the decomposition (0.01~1), default = 0.05.
-* `-np/--no-prerpocess`: flag to disable manifold preprocessing, default = false. If your input is already manifold mesh, disabling the preprocessing can avoid introducing extra artifacts.
+* `-np/--no-prepocess`: flag to disable manifold preprocessing, default = false. If your input is already manifold mesh, disabling the preprocessing can avoid introducing extra artifacts.
 * `-nm/--no-merge`: flag to disable merge postprocessing, default = false.
 * `-mi/--mcts-iteration`: number of search iterations in MCTS (60~2000), default = 100.
 * `-md/--mcts-depth`: max search depth in MCTS (2~7), default = 3.

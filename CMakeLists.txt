@@ -26,7 +26,6 @@ if (OPENMP_FOUND)
     set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
-
 file(GLOB_RECURSE MAIN_SRC "src/*.h" "src/*.cc" "src/*.hpp" "src/*.cpp" "public/coacd.cpp")
 add_library(coacd STATIC
     ${MAIN_SRC}
@@ -39,6 +38,7 @@ target_include_directories(coacd PRIVATE 3rd/eigen)
 target_include_directories(coacd PRIVATE 3rd/glm)
 target_include_directories(coacd PRIVATE 3rd/libigl/include)
 target_include_directories(coacd PRIVATE 3rd/cdt/CDT)
+target_link_libraries(coacd "-lopenvdb -lboost_iostreams -ltbb -lHalf")
 
 add_executable(main main.cpp)
 target_link_libraries(main coacd)

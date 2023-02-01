@@ -38,6 +38,7 @@ namespace coacd
     bool pca;
     bool merge;
     bool mani_plus;
+    bool sdf_mani;
     bool if_cout;
     bool if_log;
 
@@ -62,6 +63,7 @@ namespace coacd
       pca = false;
       merge = true;
       mani_plus = true;
+      sdf_mani = false;
       if_cout = true;
       if_log = true;
 

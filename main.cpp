@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
       {
         sscanf(argv[i + 1], "%u", &params.resolution);
       }
-      if (strcmp(argv[i], "-np") == 0 || strcmp(argv[i], "--no-prerpocess") == 0)
+      if (strcmp(argv[i], "-np") == 0 || strcmp(argv[i], "--no-prepocess") == 0)
       {
         params.preprocess = false;
       }
@@ -58,6 +58,10 @@ int main(int argc, char *argv[])
       if (strcmp(argv[i], "-nmp") == 0 || strcmp(argv[i], "--no-manifold-plus") == 0)
       {
         params.mani_plus = false;
+      }
+      if (strcmp(argv[i], "-sdm") == 0 || strcmp(argv[i], "--sdf-manifold") == 0)
+      {
+        params.sdf_mani = true;
       }
       if (strcmp(argv[i], "-nc") == 0 || strcmp(argv[i], "--no-cout") == 0)
       {

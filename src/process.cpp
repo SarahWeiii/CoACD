@@ -3,6 +3,8 @@
 #include "manifold/Manifold.h"
 #include "manifold/ManifoldPlus.h"
 #include "config.h"
+#include "preprocess.h"
+
 #include <iostream>
 #include <cmath>
 
@@ -15,7 +17,9 @@ namespace coacd
         bool is_thin = m.CheckThin();
         m.Clear();
 
-        if (params.mani_plus && is_thin)
+        if (params.sdf_mani)
+            SDFManifold(tmp, m, params.if_cout, params.if_log, params.logfile, 30.0);
+        else if (params.mani_plus && is_thin)
             ManifoldPlus(tmp, m, params.if_cout, params.if_log, params.logfile, params.prep_depth);
         else
             Manifold(tmp, m, params.if_cout, params.if_log, params.logfile, params.prep_resolution);
