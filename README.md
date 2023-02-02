@@ -22,8 +22,6 @@ sudo apt-get install libboost-all-dev
 sudo apt-get install libopenvdb-dev
 ```
 
-Note: If you are using OpenVDB <= 7.0, please replace the line 42 in `CMakeLists.txt` with `target_link_libraries(coacd -lopenvdb -lboost_iostreams -ltbb -lHalf)`.
-
 ### (3) Compile
 
 ```

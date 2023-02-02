@@ -39,6 +39,11 @@ target_include_directories(coacd PRIVATE 3rd/glm)
 target_include_directories(coacd PRIVATE 3rd/libigl/include)
 target_include_directories(coacd PRIVATE 3rd/cdt/CDT)
 
+find_library(HALF_LIBRARY libHalf.so)
+if (HALF_LIBRARY)
+    target_link_libraries(coacd ${HALF_LIBRARY})
+endif()
+
 target_link_libraries(coacd -lopenvdb -lboost_iostreams -ltbb)
 
 add_executable(main main.cpp)
