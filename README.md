@@ -13,13 +13,16 @@ Approximate convex decomposition enables efficient geometry processing algorithm
 git clone --recurse-submodules https://github.com/SarahWeiii/CoACD.git
 ```
 
-### (2) Install Dependency (Optional)
+### (2) Install Dependency
 
 ```
+sudo apt update
+sudo apt install libtbb-dev
 sudo apt-get install libboost-all-dev
 sudo apt-get install libopenvdb-dev
 ```
-Note: If you do not install this dependency, please comment `target_link_libraries(coacd "-lopenvdb -lboost_iostreams -ltbb -lHalf")` in `CMakeLists.txt` line 41!
+
+Note: If you are using OpenVDB <= 7.0, please replace the line 42 in `CMakeLists.txt` with `target_link_libraries(coacd -lopenvdb -lboost_iostreams -ltbb -lHalf)`.
 
 ### (3) Compile
 
