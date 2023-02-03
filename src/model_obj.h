@@ -17,8 +17,6 @@
 #include <set>
 #include <map>
 #include <unordered_map>
-#include "glm/glm.hpp"
-#include "manifold/types_p.h"
 
 #include "shape.h"
 #include "sobol.h"
@@ -26,6 +24,7 @@
 #include "logger.h"
 
 using namespace std;
+
 
 namespace coacd
 {
@@ -72,8 +71,6 @@ namespace coacd
         Model();
         bool CheckThin();
         bool LoadOBJ(const string &fileName);
-        bool Load(vector<glm::dvec3> vertices, vector<glm::ivec3> face_indices);
-        bool Load(MatrixD vertices, MatrixI face_indices);
         void SaveOBJ(const string &fileName);
         array<array<double, 3>, 3> PCA();
         vector<double> Normalize();

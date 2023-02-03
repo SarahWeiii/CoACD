@@ -7,6 +7,7 @@
 #include <vector>
 #include <cstdio>
 #include <string>
+#include <omp.h>
 
 #include "model_obj.h"
 #include "logger.h"

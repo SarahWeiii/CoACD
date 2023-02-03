@@ -1,12 +1,3 @@
-[submodule "3rd/eigen"]
-	path = 3rd/eigen
-	url = https://github.com/libigl/eigen.git
-[submodule "3rd/glm"]
-	path = 3rd/glm
-	url = https://github.com/g-truc/glm.git
-[submodule "3rd/libigl"]
-	path = 3rd/libigl
-	url = https://github.com/libigl/libigl.git
 [submodule "3rd/cdt"]
 	path = 3rd/cdt
 	url = https://github.com/artem-ogre/CDT

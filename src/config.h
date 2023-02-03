@@ -34,7 +34,6 @@ namespace coacd
     double rv_k;
     bool preprocess;
     int prep_resolution;
-    int prep_depth;
     bool pca;
     bool merge;
     bool mani_plus;
@@ -59,7 +58,6 @@ namespace coacd
       rv_k = 0.3;
       preprocess = true;
       prep_resolution = 10000;
-      prep_depth = 8;
       pca = false;
       merge = true;
       mani_plus = true;

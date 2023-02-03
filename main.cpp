@@ -79,10 +79,6 @@ int main(int argc, char *argv[])
       {
         sscanf(argv[i + 1], "%d", &params.prep_resolution);
       }
-      if (strcmp(argv[i], "-pd") == 0 || strcmp(argv[i], "--prep-depth") == 0)
-      {
-        sscanf(argv[i + 1], "%d", &params.prep_depth);
-      }
       if (strcmp(argv[i], "-s") == 0 || strcmp(argv[i], "--seed") == 0)
       {
         sscanf(argv[i + 1], "%u", &params.seed);

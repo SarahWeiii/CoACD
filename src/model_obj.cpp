@@ -509,66 +509,6 @@ namespace coacd
         return true;
     }
 
-    bool Model::Load(vector<glm::dvec3> vertices, vector<glm::ivec3> face_indices)
-    {
-        double x_min = INF, x_max = -INF, y_min = INF, y_max = -INF, z_min = INF, z_max = -INF;
-        for (int i = 0; i < (int)vertices.size(); ++i)
-        {
-            points.push_back({vertices[i][0], vertices[i][1], vertices[i][2]});
-
-            x_min = min(x_min, vertices[i][0]);
-            x_max = max(x_max, vertices[i][0]);
-            y_min = min(y_min, vertices[i][1]);
-            y_max = max(y_max, vertices[i][1]);
-            z_min = min(z_min, vertices[i][2]);
-            z_max = max(z_max, vertices[i][2]);
-        }
-
-        bbox[0] = x_min;
-        bbox[1] = x_max;
-        bbox[2] = y_min;
-        bbox[3] = y_max;
-        bbox[4] = z_min;
-        bbox[5] = z_max;
-
-        for (int i = 0; i < (int)face_indices.size(); ++i)
-        {
-            triangles.push_back({face_indices[i][0], face_indices[i][1], face_indices[i][2]});
-        }
-
-        return true;
-    }
-
-    bool Model::Load(MatrixD vertices, MatrixI face_indices)
-    {
-        double x_min = INF, x_max = -INF, y_min = INF, y_max = -INF, z_min = INF, z_max = -INF;
-        for (int i = 0; i < (int)vertices.rows(); ++i)
-        {
-            points.push_back({vertices(i, 0), vertices(i, 1), vertices(i, 2)});
-
-            x_min = min(x_min, vertices(i, 0));
-            x_max = max(x_max, vertices(i, 0));
-            y_min = min(y_min, vertices(i, 1));
-            y_max = max(y_max, vertices(i, 1));
-            z_min = min(z_min, vertices(i, 2));
-            z_max = max(z_max, vertices(i, 2));
-        }
-
-        bbox[0] = x_min;
-        bbox[1] = x_max;
-        bbox[2] = y_min;
-        bbox[3] = y_max;
-        bbox[4] = z_min;
-        bbox[5] = z_max;
-
-        for (int i = 0; i < (int)face_indices.rows(); ++i)
-        {
-            triangles.push_back({face_indices(i, 0), face_indices(i, 1), face_indices(i, 2)});
-        }
-
-        return true;
-    }
-
     array<array<double, 3>, 3> Model::PCA()
     {
         AlignToPrincipalAxes();

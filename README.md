@@ -1,11 +1,36 @@
 # Approximate Convex Decomposition for 3D Meshes with Collision-Aware Concavity and Tree Search [SIGGRAPH2022]
  [\[project\]](https://colin97.github.io/CoACD/) [\[paper\]](https://arxiv.org/pdf/2205.02961.pdf)
 
+[***News***] We have replaced the original non-commercial dependencies. So all of the code is MIT license now!
+
 Approximate convex decomposition enables efficient geometry processing algorithms specifically designed for convex shapes (e.g., collision detection). We propose a method that is better to preserve collision conditions of the input shape with fewer components. It thus supports delicate and efficient object interaction in downstream applications.
 
 ![avatar](examples/teaser.png)
 
-## Usage
+## Install by [sapien](https://sapien.ucsd.edu/)
+
+```
+pip install "sapien>=2.2.0"
+```
+
+### Example
+
+```
+# print help info
+coacd -h
+
+# using default parameters
+coacd INPUT_FILE OUTPUT_FILE
+```
+
+### How to use `coacd` in Python scripts
+You can find the example file by the follwing command:
+```
+which coacd
+# Output the example path
+```
+
+## Compile from souce
 
 ### (1) Clone the code
 
@@ -16,20 +41,19 @@ git clone --recurse-submodules https://github.com/SarahWeiii/CoACD.git
 ### (2) Install Dependency
 
 ```
-sudo apt update
-sudo apt install libtbb-dev
-sudo apt-get install libboost-all-dev
-sudo apt-get install libopenvdb-dev
+sudo apt update \
+&& sudo apt install -y libtbb-dev libboost-all-dev libopenvdb-dev
 ```
+Note: Suggested OpenVDB version >= 8.2; if you are using Ubuntu <= 22.04, you should better compile the library from source.
 
 ### (3) Compile
 
 ```
-cd CoACD
-mkdir build
-cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-make
+cd CoACD \
+&& mkdir build \
+&& cd build \
+&& cmake .. -DCMAKE_BUILD_TYPE=Release \
+&& make -j
 ```
 
 ### (4) Quick Start
@@ -40,6 +64,14 @@ We provide a set of default parameters, and you only need to specify the input a
 
 The running log and the generated convex components (in both `.obj` and `.wrl` formats) will be saved in PATH_OF_OUTPUT.
 
+## Examples
+
+We provide some example meshes and a `run_example.sh`, and the results will be saved in the `outputs` folder.
+```
+bash run_example.sh
+```
+* You can adjust the threshold by `-t` to see results with different quality.
+* Three of the examples are from [PartNet-M](https://sapien.ucsd.edu/browse) (Bottle.obj, Kettle.obj, KitchenPot.obj), which are non-manifold. Two of them are from [Thingi10K](https://ten-thousand-models.appspot.com/) (Octocat-v2.obj, SnowFlake.obj), which are both 2-manifold.
 
 ## Parameters
 
@@ -71,21 +103,6 @@ Parameter tuning *tricks*:
 3. `-pr` controls the quality of manifold preprocessing. A larger value can make the preprocessed mesh closer to the original mesh but also lead to more triangles and longer runtime.
 4. Make sure your input mesh is 2-manifold solid if you want to use the `-np` flag. Skipping manifold pre-processing can better preserve input details, but please don't specify the `-np` flag if your input mesh is non-manifold (the algorithm may crush).
 5. `--seed` is used for reproduction of same results as our algorithm is stochastic.
-
-## Examples
-
-We provide some example meshes and a `run_example.sh`, and the results will be saved in the `outputs` folder.
-```
-bash run_example.sh
-```
-* You can adjust the threshold by `-t` to see results with different quality.
-* Three of the examples are from [PartNet-M](https://sapien.ucsd.edu/browse) (Bottle.obj, Kettle.obj, KitchenPot.obj), which are non-manifold. Two of them are from [Thingi10K](https://ten-thousand-models.appspot.com/) (Octocat-v2.obj, SnowFlake.obj), which are both 2-manifold.
-
-## License
-
-Copyright (c) 2022 Xinyue Wei, Minghua Liu
-
-Please note our code utilizes [ManifoldPlus](https://github.com/hjwdzh/ManifoldPlus), which is distributed for free for non-commercial use only. But ManifoldPlus is only used for pre-processing thin objects which cannot be well solved by Manifold. If you don't have non-manifold thin objects, you can **disable** this library by `--no-manifold-plus` or `-nmp`. 
 
 ## Citation
 
