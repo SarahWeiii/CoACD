@@ -110,9 +110,13 @@ If you find our code helpful, please cite our paper:
 
 ```
 @article{wei2022approximate,
-  title={Approximate Convex Decomposition for 3D Meshes with Collision-Aware Concavity and Tree Search},
+  title={Approximate convex decomposition for 3d meshes with collision-aware concavity and tree search},
   author={Wei, Xinyue and Liu, Minghua and Ling, Zhan and Su, Hao},
-  journal={arXiv preprint arXiv:2205.02961},
-  year={2022}
+  journal={ACM Transactions on Graphics (TOG)},
+  volume={41},
+  number={4},
+  pages={1--18},
+  year={2022},
+  publisher={ACM New York, NY, USA}
 }
 ```
