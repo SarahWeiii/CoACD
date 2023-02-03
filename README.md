@@ -42,7 +42,7 @@ git clone --recurse-submodules https://github.com/SarahWeiii/CoACD.git
 
 ```
 sudo apt update \
-&& sudo apt install -y libtbb-dev libboost-all-dev libopenvdb-dev
+&& sudo apt install -y libtbb-dev libboost-all-dev libopenvdb-dev libspdlog-dev
 ```
 Note: Suggested OpenVDB version >= 8.2; if you are using Ubuntu <= 22.04, you should better compile the library from source.
 
@@ -79,17 +79,16 @@ Here is the description of the parameters (sorted by importance).
 
 * `-i/--input`: path for input mesh (`.obj`).
 * `-o/--output`: path for output (`.obj` or `.wrl`).
-* `-l/--log`: path for output logfile, default = same_path_as_output_components.
 * `-t/--threshold`:  concavity threshold for terminating the decomposition (0.01~1), default = 0.05.
 * `-np/--no-prepocess`: flag to disable manifold preprocessing, default = false. If your input is already manifold mesh, disabling the preprocessing can avoid introducing extra artifacts.
 * `-nm/--no-merge`: flag to disable merge postprocessing, default = false.
 * `-mi/--mcts-iteration`: number of search iterations in MCTS (60~2000), default = 100.
 * `-md/--mcts-depth`: max search depth in MCTS (2~7), default = 3.
 * `-mn/--mcts-node`: max number of child nodes in MCTS (10~40), default = 20.
-* `-pr/--prep-resolution`: resolution for manifold preprocess (1e3~1e5), default = 1e4.
+* `-pr/--prep-resolution`: resolution for manifold preprocess (20~40), default = 30.
 * `-r/--resolution`: sampling resolution for Hausdorff distance calculation (1e3~1e4), default = 2000.
-* `-k`: value of $k$ for $\operatorname{R_v}$ calculation, default = 0.3.
 * `--pca`: flag to enable PCA pre-processing, default = false.
+* `-k`: value of $k$ for $\operatorname{R_v}$ calculation, default = 0.3.
 * `--seed`: random seed used for sampling, default = random().
 
 A example of changing the parameters:

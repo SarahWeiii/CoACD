@@ -1,26 +1,21 @@
+
 #include "logger.h"
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 namespace coacd
 {
-    static std::ofstream _logger{};
-    std::ostream &logger(bool _cout_enabled, bool _logger_enabled, std::string const filename)
+    namespace logger
     {
-        if (_logger_enabled)
+
+        std::shared_ptr<spdlog::logger> get()
         {
-            if (!_logger.is_open())
+            static std::shared_ptr<spdlog::logger> logger;
+            if (!logger)
             {
-                _logger.open(filename);
+                logger = spdlog::stdout_color_mt("CoACD");
+                logger->set_level(spdlog::level::info);
             }
-            return _logger;
+            return logger;
         }
-
-        if (_cout_enabled)
-        {
-            return std::cout;
-        }
-
-        static NullBuffer null_buffer;
-        static std::ostream null_stream(&null_buffer);
-        return null_stream;
-    }
+    } // namespace log
 }

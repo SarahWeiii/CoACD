@@ -31,10 +31,6 @@ int main(int argc, char *argv[])
       {
         params.output_name = argv[i + 1];
       }
-      if (strcmp(argv[i], "-l") == 0 || strcmp(argv[i], "--log") == 0)
-      {
-        params.logfile = argv[i + 1];
-      }
       if (strcmp(argv[i], "-k") == 0)
       {
         sscanf(argv[i + 1], "%lf", &params.rv_k);
@@ -58,18 +54,6 @@ int main(int argc, char *argv[])
       if (strcmp(argv[i], "-nmp") == 0 || strcmp(argv[i], "--no-manifold-plus") == 0)
       {
         params.mani_plus = false;
-      }
-      if (strcmp(argv[i], "-sdm") == 0 || strcmp(argv[i], "--sdf-manifold") == 0)
-      {
-        params.sdf_mani = true;
-      }
-      if (strcmp(argv[i], "-nc") == 0 || strcmp(argv[i], "--no-cout") == 0)
-      {
-        params.if_cout = false;
-      }
-      if (strcmp(argv[i], "-nl") == 0 || strcmp(argv[i], "--no-log") == 0)
-      {
-        params.if_log = false;
       }
       if (strcmp(argv[i], "--pca") == 0)
       {
@@ -105,13 +89,13 @@ int main(int argc, char *argv[])
     ext = params.input_model.substr(params.input_model.length() - 4);
     if (ext != ".obj")
     {
-      logger(params.if_cout, false) << "Error: Input must be OBJ format!" << endl;
+      logger::critical("Input must be OBJ format!");
       exit(0);
     }
   }
   else
   {
-    logger(params.if_cout, false) << "Error: Input Filename Error!" << endl;
+    logger::critical("Input Filename Error!");
     exit(0);
   }
 
@@ -119,27 +103,19 @@ int main(int argc, char *argv[])
     ext = params.output_name.substr(params.output_name.length() - 4);
   else
   {
-    logger(params.if_cout, false) << "Error: Output Filename Error! You can set the output filename as either .OBJ or .WRL!" << endl;
+    logger::critical("Output Filename Error! You can set the output filename as either .OBJ or .WRL!");
     exit(0);
   }
-  if (params.logfile == "")
+  if (ext != ".obj" && ext != ".wrl")
   {
-
-    if (ext == ".obj")
-      params.logfile = regex_replace(params.output_name, regex(".obj"), "_log.txt");
-    else if (ext == ".wrl")
-      params.logfile = regex_replace(params.output_name, regex(".wrl"), "_log.txt");
-    else
-    {
-      logger(params.if_cout, false) << "Error: Output Filename must be .OBJ or .WRL format!" << endl;
-      exit(0);
-    }
+    logger::critical("Output Filename must be .OBJ or .WRL format!");
+    exit(0);
   }
 
   if (params.threshold < 0.01)
-    logger(params.if_cout, false) << "Warning: Threshold t exceeds the lower bound and is automatically set as 0.01!" << endl;
+    logger::warn("Threshold t exceeds the lower bound and is automatically set as 0.01!");
   else if (params.threshold > 1)
-    logger(params.if_cout, false) << "Warning: Threshold t exceeds the higher bound and is automatically set as 1!" << endl;
+    logger::warn("Threshold t exceeds the higher bound and is automatically set as 1!");
   params.threshold = min(max(params.threshold, 0.01), 1.0);
 
   Model m, n, pos, neg;
@@ -155,12 +131,12 @@ int main(int argc, char *argv[])
     rot = m.PCA();
 
   vector<Model> parts = Compute(m, params);
-  
+
   RecoverParts(parts, bbox, rot, params);
 
   string objName = regex_replace(params.output_name, regex("wrl"), "obj");
   string wrlName = regex_replace(params.output_name, regex("obj"), "wrl");
-  
+
   SaveVRML(wrlName, parts, params);
   SaveOBJ(objName, parts, params);
 

@@ -33,9 +33,6 @@ add_library(coacd STATIC
 
 target_include_directories(coacd PUBLIC public)
 target_include_directories(coacd PRIVATE src)
-target_include_directories(coacd PRIVATE 3rd/eigen)
-target_include_directories(coacd PRIVATE 3rd/glm)
-target_include_directories(coacd PRIVATE 3rd/libigl/include)
 target_include_directories(coacd PRIVATE 3rd/cdt/CDT)
 
 find_library(HALF_LIBRARY libHalf.so)
@@ -48,5 +45,3 @@ target_link_libraries(coacd -lopenvdb -lboost_iostreams -ltbb)
 add_executable(main main.cpp)
 target_link_libraries(main coacd)
 target_include_directories(main PRIVATE src)
-target_include_directories(main PRIVATE 3rd/eigen)
-target_include_directories(main PRIVATE 3rd/glm)

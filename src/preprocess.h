@@ -16,5 +16,5 @@ using namespace openvdb;
 
 namespace coacd
 {
-    void SDFManifold(Model &input, Model &output, bool if_cout, bool if_log, string logfile, double scale=10.0f);
+    void SDFManifold(Model &input, Model &output, double scale=10.0f);
 }

@@ -1,12 +1,19 @@
 #include "preprocess.h"
+#include "logger.h"
 
 namespace coacd
 {
-    void SDFManifold(Model &input, Model &output, bool if_cout, bool if_log, string logfile, double scale)
+    void SDFManifold(Model &input, Model &output, double scale)
     {
         std::vector<Vec3s> points;
         std::vector<Vec3I> tris;
         std::vector<Vec4I> quads;
+
+        logger::info(" - Preprocess");
+        logger::info("Preprocess resolution: {}", scale);
+
+        clock_t start, end;
+        start = clock();
         
         for (int i = 0; i < input.points.size(); ++i)
         {
@@ -42,6 +49,9 @@ namespace coacd
             output.triangles.push_back({newQuads[i][0], newQuads[i][2], newQuads[i][1]});
             output.triangles.push_back({newQuads[i][0], newQuads[i][3], newQuads[i][2]});
         }
+        end = clock();
+        
+        logger::info("Preprocess Time: {}s", double(end - start) / CLOCKS_PER_SEC);
 
     }
 

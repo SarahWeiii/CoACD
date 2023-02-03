@@ -503,7 +503,7 @@ namespace coacd
         }
         else
         {
-            logger(true, false) << "Open File Error!" << endl;
+            logger::error("Open File Error!");
             return false;
         }
         return true;

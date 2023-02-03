@@ -13,8 +13,7 @@ namespace coacd
     {
         Model tmp = m;
         m.Clear();
-        SDFManifold(tmp, m, params.if_cout, params.if_log, params.logfile, params.prep_resolution);
-        
+        SDFManifold(tmp, m, params.prep_resolution);
     }
 
     void MergeCH(Model &ch1, Model &ch2, Model &ch)
@@ -31,7 +30,7 @@ namespace coacd
 
     double MergeConvexHulls(Model &m, vector<Model> &meshs, vector<Model> &cvxs, Params &params, double epsilon, double threshold)
     {
-        logger(params.if_cout, false) << " - Merge Convex Hulls" << endl;
+        logger::info(" - Merge Convex Hulls");
         size_t nConvexHulls = (size_t)cvxs.size();
         double h = 0;
 
@@ -185,28 +184,23 @@ namespace coacd
         start = clock();
 #endif
 
-        logger(false, params.if_log, params.logfile) << "#Points: " << mesh.points.size() << endl;
-        logger(false, params.if_log, params.logfile) << "#Triangles: " << mesh.triangles.size() << endl;
-
-        logger(false, params.if_log, params.logfile) << " - Decomposition (MCTS)" << endl;
-        logger(params.if_cout, false) << " - Decomposition (MCTS)" << endl;
+        logger::info("#Points: {}", mesh.points.size());
+        logger::info("#Triangles: {}", mesh.triangles.size());
+        logger::info(" - Decomposition (MCTS)");
 
         size_t iter = 0;
         double cut_area;
         while ((int)InputParts.size() > 0)
         {
             vector<Model> tmp;
-            logger(false, params.if_log, params.logfile) << "iter " << iter << " ---- "
-                                                         << "waiting pool: " << InputParts.size() << endl;
-            logger(params.if_cout, false) << "iter " << iter << " ---- "
-                                          << "waiting pool: " << InputParts.size() << endl;
+            logger::info("iter {} ---- waiting pool: {}", iter, InputParts.size());
 #ifdef _OPENMP
 #pragma omp parallel for default(none) shared(InputParts, params, mesh, writelock, parts, pmeshs, tmp) private(cut_area)
 #endif
             for (int p = 0; p < (int)InputParts.size(); p++)
             {
                 if (p % ((int)InputParts.size() / 10 + 1) == 0)
-                    logger(params.if_cout, false) << "Processing [" << p * 100.0 / (int)InputParts.size() << "%]" << endl;
+                    logger::info("Processing [{}%]", p * 100.0 / (int)InputParts.size());
 
                 Model pmesh = InputParts[p], pCH;
                 Plane bestplane;
@@ -243,7 +237,7 @@ namespace coacd
                         bool clipf = Clip(pmesh, pos, neg, bestplane, cut_area);
                         if (!clipf)
                         {
-                            logger(params.if_cout, false) << "Wrong clip proposal!" << endl;
+                            logger::error("Wrong clip proposal!");
                             exit(0);
                         }
 #ifdef _OPENMP
@@ -270,7 +264,7 @@ namespace coacd
 #endif
                 }
             }
-            logger(params.if_cout, false) << "Processing [100%]" << endl;
+            logger::info("Processing [100%]");
             InputParts.clear();
             InputParts = tmp;
             tmp.clear();
@@ -281,16 +275,12 @@ namespace coacd
 
 #ifdef _OPENMP
         end = omp_get_wtime();
-        logger(false, params.if_log, params.logfile) << "Compute Time: " << double(end - start) << "s" << endl;
-        logger(params.if_cout, false) << "Compute Time: " << double(end - start) << "s" << endl;
+        logger::info("Compute Time: {}s", double(end - start));
 #else
         end = clock();
-        logger(false, params.if_log, params.logfile) << "Compute Time: " << double(end - start) / CLOCKS_PER_SEC << "s" << endl;
-        logger(params.if_cout, false) << "Compute Time: " << double(end - start) / CLOCKS_PER_SEC << "s" << endl;
+        logger::info("Compute Time: {}s", double(end - start) / CLOCKS_PER_SEC);
 #endif
-
-        logger(false, params.if_log, params.logfile) << "#Convex After Merge: " << (int)parts.size() << endl;
-        logger(params.if_cout, false) << "#Convex After Merge: " << (int)parts.size() << endl;
+        logger::info("#Convex After Merge: {}", (int)parts.size());
 
         return parts;
     }

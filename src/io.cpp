@@ -5,37 +5,20 @@ namespace coacd
 {
     void SaveConfig(Params params)
     {
-        logger(false, params.if_log, params.logfile) << " - Config" << endl;
-        logger(false, params.if_log, params.logfile) << "\tInput Path:                        " << params.input_model << endl;
-        logger(false, params.if_log, params.logfile) << "\tOutput Path:                       " << params.output_name << endl;
-        logger(false, params.if_log, params.logfile) << "\tLog Path:                          " << params.logfile << endl;
-        logger(false, params.if_log, params.logfile) << "\tTerminal Threshold:                " << params.threshold << endl;
-        logger(false, params.if_log, params.logfile) << "\tMCTS Node Number:                  " << params.downsampling << endl;
-        logger(false, params.if_log, params.logfile) << "\tMCTS Iteration:                    " << params.mcts_iteration << endl;
-        logger(false, params.if_log, params.logfile) << "\tMCTS Max Depth:                    " << params.mcts_max_depth << endl;
-        logger(false, params.if_log, params.logfile) << "\tManifold Preprocess (ON/OFF):      " << params.preprocess << endl;
-        logger(false, params.if_log, params.logfile) << "\tPreprocess Resolution:             " << params.prep_resolution << endl;
-        logger(false, params.if_log, params.logfile) << "\tMerge Postprocess (ON/OFF):        " << params.merge << endl;
-        logger(false, params.if_log, params.logfile) << "\tPCA (ON/OFF):                      " << params.pca << endl;
-        logger(false, params.if_log, params.logfile) << "\tk for Rv:                          " << params.rv_k << endl;
-        logger(false, params.if_log, params.logfile) << "\tHausdorff Sampling Resolution:     " << params.resolution << endl;
-        logger(false, params.if_log, params.logfile) << "\tRandom Seed:                       " << params.seed << endl;
-
-        logger(params.if_cout, false) << " - Config" << endl;
-        logger(params.if_cout, false) << "\tInput Path:                      " << params.input_model << endl;
-        logger(params.if_cout, false) << "\tOutput Path:                     " << params.output_name << endl;
-        logger(params.if_cout, false) << "\tLog Path:                        " << params.logfile << endl;
-        logger(params.if_cout, false) << "\tTerminal Threshold:              " << params.threshold << endl;
-        logger(params.if_cout, false) << "\tMCTS Node Number:                " << params.downsampling << endl;
-        logger(params.if_cout, false) << "\tMCTS Iteration:                  " << params.mcts_iteration << endl;
-        logger(params.if_cout, false) << "\tMCTS Max Depth:                  " << params.mcts_max_depth << endl;
-        logger(params.if_cout, false) << "\tManifold Preprocess (ON/OFF):    " << params.preprocess << endl;
-        logger(params.if_cout, false) << "\tPreprocess Resolution:           " << params.prep_resolution << endl;
-        logger(params.if_cout, false) << "\tMerge Postprocess (ON/OFF):      " << params.merge << endl;
-        logger(params.if_cout, false) << "\tPCA (ON/OFF):                    " << params.pca << endl;
-        logger(params.if_cout, false) << "\tk for Rv:                        " << params.rv_k << endl;
-        logger(params.if_cout, false) << "\tHausdorff Sampling Resolution:   " << params.resolution << endl;
-        logger(params.if_cout, false) << "\tRandom Seed:                     " << params.seed << endl;
+        logger::info(" - Config");
+        logger::info("\tInput Path:                      {}", params.input_model);
+        logger::info("\tOutput Path:                     {}", params.output_name);
+        logger::info("\tTerminal Threshold:              {}", params.threshold);
+        logger::info("\tMCTS Node Number:                {}", params.downsampling);
+        logger::info("\tMCTS Iteration:                  {}", params.mcts_iteration);
+        logger::info("\tMCTS Max Depth:                  {}", params.mcts_max_depth);
+        logger::info("\tManifold Preprocess (ON/OFF):    {}", params.preprocess);
+        logger::info("\tPreprocess Resolution:           {}", params.prep_resolution);
+        logger::info("\tMerge Postprocess (ON/OFF):      {}", params.merge);
+        logger::info("\tPCA (ON/OFF):                    {}", params.pca);
+        logger::info("\tk for Rv:                        {}", params.rv_k);
+        logger::info("\tHausdorff Sampling Resolution:   {}", params.resolution);
+        logger::info("\tRandom Seed:                     {}", params.seed);
     }
 
     void SaveOBJ(const string &filename, vector<Model> parts, Params &params)
