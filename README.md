@@ -24,13 +24,13 @@ coacd INPUT_FILE OUTPUT_FILE
 ```
 
 ### How to use `coacd` in Python scripts
-You can find the example file by the follwing command:
+You can find the example file by the following command:
 ```
 which coacd
 # Output the example path
 ```
 
-## Compile from souce
+## Compile from source
 
 ### (1) Clone the code
 
@@ -38,7 +38,7 @@ which coacd
 git clone --recurse-submodules https://github.com/SarahWeiii/CoACD.git
 ```
 
-### (2) Install Dependency
+### (2) Install dependencies
 
 ```
 sudo apt update \
@@ -53,16 +53,16 @@ cd CoACD \
 && mkdir build \
 && cd build \
 && cmake .. -DCMAKE_BUILD_TYPE=Release \
-&& make -j
+&& make
 ```
 
-### (4) Quick Start
+### (4) Quick start
 We provide a set of default parameters, and you only need to specify the input and output path. You can take an arbitrary mesh as input (in `.obj` format, no need to be a manifold) and run the algorithm by the following command:
 ```
 ./main -i PATH_OF_YOUR_MESH -o PATH_OF_OUTPUT
 ```
 
-The running log and the generated convex components (in both `.obj` and `.wrl` formats) will be saved in PATH_OF_OUTPUT.
+The generated convex components (in both `.obj` and `.wrl` formats) will be saved in PATH_OF_OUTPUT.
 
 ## Examples
 
@@ -91,17 +91,17 @@ Here is the description of the parameters (sorted by importance).
 * `-k`: value of $k$ for $\operatorname{R_v}$ calculation, default = 0.3.
 * `--seed`: random seed used for sampling, default = random().
 
-A example of changing the parameters:
+An example of changing the parameters:
 ```
 ./main -i PATH_OF_YOUR_MESH -o PATH_OF_OUTPUT -t 0.05 -mi 200 -md 4 -mn 25
 ```
 
 Parameter tuning *tricks*: 
-1. In most cases, you only need to adjust the `threshold` (0.01~1) to balance the level of details and the number of decomposed components. A higher value gives coarser results, and a lower value gives finer-grained results. You can refer to Fig. 14 in our paper for more details.
+1. In most cases, you only need to adjust the `threshold` (0.01~1) to balance the level of detail and the number of decomposed components. A higher value gives coarser results, and a lower value gives finer-grained results. You can refer to Fig. 14 in our paper for more details.
 2. The default parameters are fast versions. If you care less about running time but more about the number of components, try to increase `searching depth (-md)`, `searching node (-mn)` and `searching iteration (-mi)` for better cutting strategies.
 3. `-pr` controls the quality of manifold preprocessing. A larger value can make the preprocessed mesh closer to the original mesh but also lead to more triangles and longer runtime.
-4. Make sure your input mesh is 2-manifold solid if you want to use the `-np` flag. Skipping manifold pre-processing can better preserve input details, but please don't specify the `-np` flag if your input mesh is non-manifold (the algorithm may crush).
-5. `--seed` is used for reproduction of same results as our algorithm is stochastic.
+4. Make sure your input mesh is 2-manifold solid if you want to use the `-np` flag. Skipping manifold pre-processing can better preserve input details, but please don't specify the `-np` flag if your input mesh is non-manifold (the algorithm may crush or generate wrong results).
+5. `--seed` is used for reproduction of the same results as our algorithm is stochastic.
 
 ## Citation
 
