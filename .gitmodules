@@ -1,3 +1,6 @@
 [submodule "3rd/cdt"]
 	path = 3rd/cdt
 	url = https://github.com/artem-ogre/CDT
+[submodule "3rd/spdlog"]
+	path = 3rd/spdlog
+	url = https://github.com/gabime/spdlog.git
