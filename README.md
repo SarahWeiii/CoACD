@@ -7,29 +7,6 @@ Approximate convex decomposition enables efficient geometry processing algorithm
 
 ![avatar](examples/teaser.png)
 
-## Install by [sapien](https://sapien.ucsd.edu/)
-
-```
-pip install "sapien>=2.2.0"
-```
-
-### Example
-
-```
-# print help info
-coacd -h
-
-# using default parameters
-coacd INPUT_FILE OUTPUT_FILE
-```
-
-### How to use `coacd` in Python scripts
-You can find the example file by the following command:
-```
-which coacd
-# Output the example path
-```
-
 ## Compile from source
 
 ### (1) Clone the code
@@ -102,6 +79,29 @@ Parameter tuning *tricks*:
 3. `-pr` controls the quality of manifold preprocessing. A larger value can make the preprocessed mesh closer to the original mesh but also lead to more triangles and longer runtime.
 4. Make sure your input mesh is 2-manifold solid if you want to use the `-np` flag. Skipping manifold pre-processing can better preserve input details, but please don't specify the `-np` flag if your input mesh is non-manifold (the algorithm may crush or generate wrong results).
 5. `--seed` is used for reproduction of the same results as our algorithm is stochastic.
+
+## Install by [sapien](https://sapien.ucsd.edu/)
+
+```
+pip install "sapien>=2.2.0"
+```
+
+### Example
+
+```
+# print help info
+coacd -h
+
+# using default parameters
+coacd INPUT_FILE OUTPUT_FILE
+```
+
+### How to use `coacd` in Python scripts
+You can find the example file by the following command:
+```
+which coacd
+# Output the example path
+```
 
 ## Citation
 
