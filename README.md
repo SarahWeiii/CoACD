@@ -1,7 +1,7 @@
 # Approximate Convex Decomposition for 3D Meshes with Collision-Aware Concavity and Tree Search [SIGGRAPH2022]
  [\[project\]](https://colin97.github.io/CoACD/) [\[paper\]](https://arxiv.org/pdf/2205.02961.pdf)
 
-[***News***] We have replaced the original non-commercial dependencies. So all of the code is MIT license now!
+[***News***] We have replaced the original non-commercial dependencies. All of our code is under MIT license, and all dependencies allow commercial use now!
 
 Approximate convex decomposition enables efficient geometry processing algorithms specifically designed for convex shapes (e.g., collision detection). We propose a method that is better to preserve collision conditions of the input shape with fewer components. It thus supports delicate and efficient object interaction in downstream applications.
 
@@ -21,7 +21,7 @@ git clone --recurse-submodules https://github.com/SarahWeiii/CoACD.git
 sudo apt update \
 && sudo apt install -y libtbb-dev libboost-all-dev libopenvdb-dev libspdlog-dev
 ```
-Note: Suggested OpenVDB version >= 8.2; if you are using Ubuntu <= 22.04, you should better compile the library from source.
+Note: If you are using Ubuntu 18.04, you may need to install [spdlog](https://github.com/gabime/spdlog) from source (```make && make install```). 
 
 ### (3) Compile
 
@@ -80,13 +80,15 @@ Parameter tuning *tricks*:
 4. Make sure your input mesh is 2-manifold solid if you want to use the `-np` flag. Skipping manifold pre-processing can better preserve input details, but please don't specify the `-np` flag if your input mesh is non-manifold (the algorithm may crush or generate wrong results).
 5. `--seed` is used for reproduction of the same results as our algorithm is stochastic.
 
-## Install by [sapien](https://sapien.ucsd.edu/)
+## Use in SAPIEN
+
+CoACD is also included in [SAPIEN](https://sapien.ucsd.edu/). You can install SAPIEN with pip:
 
 ```
 pip install "sapien>=2.2.0"
 ```
 
-### Example
+### Example Usage
 
 ```
 # print help info
@@ -96,8 +98,7 @@ coacd -h
 coacd INPUT_FILE OUTPUT_FILE
 ```
 
-### How to use `coacd` in Python scripts
-You can find the example file by the following command:
+You can also use `CoACD` in python scripts. Find the example file by the following command:
 ```
 which coacd
 # Output the example path
