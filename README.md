@@ -62,7 +62,7 @@ Here is the description of the parameters (sorted by importance).
 * `-mi/--mcts-iteration`: number of search iterations in MCTS (60~2000), default = 100.
 * `-md/--mcts-depth`: max search depth in MCTS (2~7), default = 3.
 * `-mn/--mcts-node`: max number of child nodes in MCTS (10~40), default = 20.
-* `-pr/--prep-resolution`: resolution for manifold preprocess (20~40), default = 30.
+* `-pr/--prep-resolution`: resolution for manifold preprocess (20~100), default = 50.
 * `-r/--resolution`: sampling resolution for Hausdorff distance calculation (1e3~1e4), default = 2000.
 * `--pca`: flag to enable PCA pre-processing, default = false.
 * `-k`: value of $k$ for $\operatorname{R_v}$ calculation, default = 0.3.

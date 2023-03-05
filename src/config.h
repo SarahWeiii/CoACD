@@ -50,7 +50,7 @@ namespace coacd
       seed = 1234;
       rv_k = 0.3;
       preprocess = true;
-      prep_resolution = 30;
+      prep_resolution = 50;
       pca = false;
       merge = true;
       mani_plus = true;
