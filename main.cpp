@@ -43,6 +43,10 @@ int main(int argc, char *argv[])
       {
         sscanf(argv[i + 1], "%u", &params.resolution);
       }
+      if (strcmp(argv[i], "-c") == 0 || strcmp(argv[i], "--max-convex-hull") == 0)
+      {
+        sscanf(argv[i + 1], "%u", &params.max_nConvexHull);
+      }
       if (strcmp(argv[i], "-np") == 0 || strcmp(argv[i], "--no-prepocess") == 0)
       {
         params.preprocess = false;

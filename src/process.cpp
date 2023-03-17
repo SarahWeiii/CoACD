@@ -76,13 +76,32 @@ namespace coacd
                 // Search for lowest cost
                 double bestCost = INF;
                 const size_t addr = FindMinimumElement(costMatrix, &bestCost, 0, (int32_t)costMatrix.size());
-                if (bestCost > params.threshold)
-                    break;
-                if (bestCost > max(params.threshold - precostMatrix[addr], 0.01))
+
+                if (params.max_nConvexHull <= 0)
                 {
-                    costMatrix[addr] = INF;
-                    continue;
+                    // if dose not set max nConvexHull, stop the merging when bestCost is larger than the threshold
+                    if (bestCost > params.threshold)
+                        break;
+                    if (bestCost > max(params.threshold - precostMatrix[addr], 0.01))   // avoid merging two parts that have already used up the treshold
+                    {
+                        costMatrix[addr] = INF;
+                        continue;
+                    }
                 }
+                else
+                {
+                    // if set the max nConvexHull, ignore the threshold limitation and stio the merging untill # part reach the constraint
+                    if (cvxs.size() <= params.max_nConvexHull && bestCost > params.threshold)
+                        break;
+                    if (cvxs.size() <= params.max_nConvexHull && bestCost > max(params.threshold - precostMatrix[addr], 0.01))   // avoid merging two parts that have already used up the treshold
+                    {
+                        costMatrix[addr] = INF;
+                        continue;
+                    }
+                }
+
+                
+
                 h = max(h, bestCost);
                 const size_t addrI = (static_cast<int32_t>(sqrt(1 + (8 * addr))) - 1) >> 1;
                 const size_t p1 = addrI + 1;

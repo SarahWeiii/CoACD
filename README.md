@@ -59,6 +59,7 @@ Here is the description of the parameters (sorted by importance).
 * `-t/--threshold`:  concavity threshold for terminating the decomposition (0.01~1), default = 0.05.
 * `-np/--no-prepocess`: flag to disable manifold preprocessing, default = false. If your input is already manifold mesh, disabling the preprocessing can avoid introducing extra artifacts.
 * `-nm/--no-merge`: flag to disable merge postprocessing, default = false.
+* `-c/--max-convex-hull`: max # convex hulls in the result, -1 for no maximum limitation, works **only when merge is enabled**, default = -1 (may introduce convex hull with a concavity larger than the threshold)
 * `-mi/--mcts-iteration`: number of search iterations in MCTS (60~2000), default = 100.
 * `-md/--mcts-depth`: max search depth in MCTS (2~7), default = 3.
 * `-mn/--mcts-node`: max number of child nodes in MCTS (10~40), default = 20.
