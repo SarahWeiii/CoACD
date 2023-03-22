@@ -73,6 +73,7 @@ std::vector<Mesh> CoACD(Mesh const &input, int downsampling, double threshold, i
   params.output_name = "";
   params.downsampling = downsampling;
   params.threshold = threshold;
+  params.max_convex_hull = max_convex_hull;
   params.resolution = resolution;
   params.seed = seed;
   params.preprocess = preprocess;
