@@ -48,16 +48,16 @@ if __name__ == "__main__":
     imesh.indices = mesh.faces
     parts = coacd.run_coacd(
         imesh,
-        mcts_nodes=args.mcts_nodes,
         threshold=args.threshold,
         max_convex_hull=args.max_convex_hull,
-        seed=args.seed,
         preprocess=args.preprocess,
         preprocess_resolution=args.preprocess_resolution,
-        pca=args.pca,
-        merge=args.merge,
+        mcts_nodes=args.mcts_nodes,
         mcts_iterations=args.mcts_iterations,
         mcts_max_depth=args.mcts_max_depth,
+        pca=args.pca,
+        merge=args.merge,
+        seed=args.seed,
     )
     mesh_parts = [
         trimesh.Trimesh(np.array(p.vertices), np.array(p.indices).reshape((-1, 3))) for p in parts

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+PACKAGE_VERSION="0.0.2"
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         35) VERSION="35";;
@@ -12,9 +13,6 @@ while [[ "$#" -gt 0 ]]; do
     esac
     shift
 done
-
-# rm -rf build dist wheelhouse
-# echo "deleting build, dist, wheelhouse"
 
 [ -z $VERSION ] && echo "Version not specified" && exit || echo "Compile for Python ${VERSION}"
 
@@ -55,7 +53,6 @@ function build_manylinux14_wheel() {
   echo "Running command ${COMMAND}"
   eval "$COMMAND"
 
-  PACKAGE_VERSION="0.0.1"
   echo "CoACD version ${PACKAGE_VERSION}"
   WHEEL_NAME="./dist/coacd-${PACKAGE_VERSION}-cp${PY_VERSION}-cp${PY_VERSION}${EXT}-linux_x86_64.whl"
   if test -f "$WHEEL_NAME"; then
