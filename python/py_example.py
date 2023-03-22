@@ -62,5 +62,10 @@ if __name__ == "__main__":
     mesh_parts = [
         trimesh.Trimesh(np.array(p.vertices), np.array(p.indices).reshape((-1, 3))) for p in parts
     ]
-    out_mesh = trimesh.util.concatenate(mesh_parts)
-    out_mesh.export(output_file)
+    scene = trimesh.Scene()
+
+    np.random.seed(0)
+    for p in mesh_parts:
+        p.visual.vertex_colors[:, :3] = (np.random.rand(3) * 255).astype(np.uint8)
+        scene.add_geometry(p)
+    scene.export(output_file)
