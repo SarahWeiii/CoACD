@@ -77,7 +77,7 @@ namespace coacd
                 double bestCost = INF;
                 const size_t addr = FindMinimumElement(costMatrix, &bestCost, 0, (int32_t)costMatrix.size());
 
-                if (params.max_nConvexHull <= 0)
+                if (params.max_convex_hull <= 0)
                 {
                     // if dose not set max nConvexHull, stop the merging when bestCost is larger than the threshold
                     if (bestCost > params.threshold)
@@ -91,9 +91,9 @@ namespace coacd
                 else
                 {
                     // if set the max nConvexHull, ignore the threshold limitation and stio the merging untill # part reach the constraint
-                    if (cvxs.size() <= params.max_nConvexHull && bestCost > params.threshold)
+                    if (cvxs.size() <= params.max_convex_hull && bestCost > params.threshold)
                         break;
-                    if (cvxs.size() <= params.max_nConvexHull && bestCost > max(params.threshold - precostMatrix[addr], 0.01))   // avoid merging two parts that have already used up the treshold
+                    if (cvxs.size() <= params.max_convex_hull && bestCost > max(params.threshold - precostMatrix[addr], 0.01))   // avoid merging two parts that have already used up the treshold
                     {
                         costMatrix[addr] = INF;
                         continue;

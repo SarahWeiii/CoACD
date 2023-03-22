@@ -28,11 +28,12 @@ Mesh Remesh(Mesh const &input, int resolution, double level_set) {
   return Mesh{.vertices = m.points, .indices = m.triangles};
 }
 
-std::vector<Mesh> CoACD(Mesh const &input, int downsampling, double threshold, int max_nConvexHull, int resolution,
+std::vector<Mesh> CoACD(Mesh const &input, int downsampling, double threshold, int max_convex_hull, int resolution,
                         unsigned int seed, bool preprocess, int prep_resolution, bool pca, bool merge, int mcts_iteration,
                         int mcts_max_depth) {
 
   logger::info("threshold               {}", threshold);
+  logger::info("max # convex hull       {}", max_convex_hull);
   logger::info("preprocess              {}", preprocess);
   logger::info("preprocess resolution   {}", prep_resolution);
   logger::info("pca                     {}", pca);

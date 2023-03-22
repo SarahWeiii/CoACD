@@ -9,7 +9,7 @@ namespace coacd
         logger::info("\tInput Path:                      {}", params.input_model);
         logger::info("\tOutput Path:                     {}", params.output_name);
         logger::info("\tTerminal Threshold:              {}", params.threshold);
-        logger::info("\tMax # Convex Hulls:              {}", params.max_nConvexHull);
+        logger::info("\tMax # Convex Hulls:              {}", params.max_convex_hull);
         logger::info("\tMCTS Node Number:                {}", params.downsampling);
         logger::info("\tMCTS Iteration:                  {}", params.mcts_iteration);
         logger::info("\tMCTS Max Depth:                  {}", params.mcts_max_depth);

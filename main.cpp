@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
       }
       if (strcmp(argv[i], "-c") == 0 || strcmp(argv[i], "--max-convex-hull") == 0)
       {
-        sscanf(argv[i + 1], "%u", &params.max_nConvexHull);
+        sscanf(argv[i + 1], "%u", &params.max_convex_hull);
       }
       if (strcmp(argv[i], "-np") == 0 || strcmp(argv[i], "--no-prepocess") == 0)
       {

@@ -7,6 +7,7 @@ except ModuleNotFoundError:
 import sys
 import os
 import argparse
+import numpy as np
 import coacd
 
 if __name__ == "__main__":
@@ -50,7 +51,6 @@ if __name__ == "__main__":
         mcts_nodes=args.mcts_nodes,
         threshold=args.threshold,
         max_convex_hull=args.max_convex_hull,
-        resolution=3000,
         seed=args.seed,
         preprocess=args.preprocess,
         preprocess_resolution=args.preprocess_resolution,
@@ -60,6 +60,7 @@ if __name__ == "__main__":
         mcts_max_depth=args.mcts_max_depth,
     )
     mesh_parts = [
-        trimesh.Trimesh(p.vertices, p.indices.reshape((-1, 3))) for p in parts
+        trimesh.Trimesh(np.array(p.vertices), np.array(p.indices).reshape((-1, 3))) for p in parts
     ]
-    trimesh.save(mesh_parts, output_file)
+    out_mesh = trimesh.util.concatenate(mesh_parts)
+    out_mesh.export(output_file)

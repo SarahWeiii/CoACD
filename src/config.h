@@ -35,7 +35,7 @@ namespace coacd
     bool pca;
     bool merge;
     bool mani_plus;
-    int max_nConvexHull;
+    int max_convex_hull;
 
     /////////////// MCTS Config ///////////////
     int mcts_iteration;
@@ -58,7 +58,7 @@ namespace coacd
 
       mcts_iteration = 150;
       mcts_max_depth = 3;
-      max_nConvexHull = -1;
+      max_convex_hull = -1;
     }
   };
 }

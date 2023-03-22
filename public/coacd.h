@@ -11,7 +11,7 @@ struct Mesh {
 };
 
 std::vector<Mesh> CoACD(Mesh const &input, int downsampling = 20, double threshold = 0.05,
-                        int max_nConvexHull = -1, int resolution = 2000, unsigned int seed = 1234,
+                        int max_convex_hull = -1, int resolution = 2000, unsigned int seed = 1234,
                         bool preprocess = true, int prep_resolution = 30, 
                         bool pca = false, bool merge = true,
                         int mcts_iteration = 150, int mcts_max_depth = 3);
