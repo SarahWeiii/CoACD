@@ -3,7 +3,7 @@
 
 namespace coacd
 {
-    void SDFManifold(Model &input, Model &output, double scale)
+    void SDFManifold(Model &input, Model &output, double scale, double level_set)
     {
         std::vector<Vec3s> points;
         std::vector<Vec3I> tris;

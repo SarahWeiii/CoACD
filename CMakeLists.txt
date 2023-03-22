@@ -27,21 +27,41 @@ if (OPENMP_FOUND)
 endif()
 
 file(GLOB_RECURSE MAIN_SRC "src/*.h" "src/*.cc" "src/*.hpp" "src/*.cpp")
-add_library(coacd STATIC
+add_library(_coacd STATIC
     ${MAIN_SRC}
 )
 
-target_include_directories(coacd PUBLIC public)
-target_include_directories(coacd PRIVATE src)
-target_include_directories(coacd PRIVATE 3rd/cdt/CDT)
+# use static if possible
+find_library(OPENVDB_STATIC libopenvdb.a)
+# find_library(Z_STATIC libz.a)
+find_library(TBB_STATIC libtbb.a)
+find_library(BLOSC_STATIC libblosc.a)
+if (OPENVDB_STATIC AND TBB_STATIC AND BLOSC_STATIC)
+    message("CoACD: using static libraries")
+    set(OPENVDB_LIBRARIES openvdb.a blosc.a tbb.a z)
+else()
+    message("CoACD: using dynamic libraries")
+    set(OPENVDB_LIBRARIES openvdb tbb)
+endif()
+
+include_directories("/usr/include/eigen3" "/usr/local/include/eigen3")
+
+target_include_directories(_coacd PUBLIC public)
+target_include_directories(_coacd PRIVATE src)
+target_include_directories(_coacd PRIVATE 3rd/cdt/CDT)
+target_link_libraries(_coacd ${OPENVDB_LIBRARIES} ${SPDLOG_LIBRARIES})
+set_target_properties(_coacd PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 find_library(HALF_LIBRARY libHalf.so)
 if (HALF_LIBRARY)
-    target_link_libraries(coacd ${HALF_LIBRARY})
+    target_link_libraries(_coacd ${HALF_LIBRARY})
 endif()
 
-target_link_libraries(coacd -lopenvdb -lboost_iostreams -ltbb)
-
 add_executable(main main.cpp)
-target_link_libraries(main coacd)
+target_link_libraries(main _coacd)
 target_include_directories(main PRIVATE src)
+
+# add_subdirectory("3rd/pybind11")
+# include_directories("python")
+# pybind11_add_module(coacd python/coacd/coacd.cpp public/coacd.cpp)
+# target_link_libraries(coacd PRIVATE _coacd)

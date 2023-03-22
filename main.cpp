@@ -71,7 +71,6 @@ int main(int argc, char *argv[])
       {
         sscanf(argv[i + 1], "%u", &params.seed);
       }
-
       if (strcmp(argv[i], "-mi") == 0 || strcmp(argv[i], "--mcts-iteration") == 0)
       {
         sscanf(argv[i + 1], "%d", &params.mcts_iteration);
