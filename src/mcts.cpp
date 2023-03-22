@@ -8,7 +8,7 @@ namespace coacd
         params = _params;
         current_mesh = mesh;
         next_choice = 0;
-        ComputeAxesAlignedClippingPlanes(mesh, params.downsampling, available_moves, true);
+        ComputeAxesAlignedClippingPlanes(mesh, params.mcts_nodes, available_moves, true);
     }
     Part Part::operator=(const Part &_part)
     {
@@ -357,7 +357,7 @@ namespace coacd
         if (fabs(bestplane.a - 1.0) < 1e-4 || !mode)
         {
             double left, right;
-            interval = max(0.01, abs(bbox[0] - bbox[1]) / ((double)params.downsampling + 1));
+            interval = max(0.01, abs(bbox[0] - bbox[1]) / ((double)params.mcts_nodes + 1));
             if (mode == true)
             {
                 left = max(bbox[0] + minItv, -1.0 * bestplane.d - interval);
@@ -371,7 +371,7 @@ namespace coacd
             if (mode && left > right)
                 return false;
             size_t iter = 0;
-            double res;
+            double res = 0;
             while (left + epsilon < right && iter++ < thres)
             {
                 Model pos1, neg1, posCH1, negCH1, pos2, neg2, posCH2, negCH2;
@@ -415,7 +415,7 @@ namespace coacd
         if (fabs(bestplane.b - 1.0) < 1e-4 || !mode)
         {
             double left, right;
-            interval = max(0.01, abs(bbox[2] - bbox[3]) / ((double)params.downsampling + 1));
+            interval = max(0.01, abs(bbox[2] - bbox[3]) / ((double)params.mcts_nodes + 1));
             if (mode == true)
             {
                 left = max(bbox[2] + minItv, -1.0 * bestplane.d - interval);
@@ -429,7 +429,7 @@ namespace coacd
             if (mode && left > right)
                 return false;
             size_t iter = 0;
-            double res;
+            double res = 0;
             while (left + epsilon < right && iter++ < thres)
             {
                 Model pos1, neg1, posCH1, negCH1, pos2, neg2, posCH2, negCH2;
@@ -472,7 +472,7 @@ namespace coacd
         if (fabs(bestplane.c - 1.0) < 1e-4 || !mode)
         {
             double left, right;
-            interval = max(0.01, abs(bbox[4] - bbox[5]) / ((double)params.downsampling + 1));
+            interval = max(0.01, abs(bbox[4] - bbox[5]) / ((double)params.mcts_nodes + 1));
             if (mode == true)
             {
                 left = max(bbox[4] + minItv, -1.0 * bestplane.d - interval);
@@ -486,7 +486,7 @@ namespace coacd
             if (mode && left > right)
                 return false;
             size_t iter = 0;
-            double res;
+            double res = 0;
             while (left + epsilon < right && iter++ < thres)
             {
                 Model pos1, neg1, posCH1, negCH1, pos2, neg2, posCH2, negCH2;
@@ -544,7 +544,7 @@ namespace coacd
         if (fabs(bestplane.a - 1.0) < 1e-4)
         {
             double left, right;
-            downsample = max(0.01, abs(bbox[0] - bbox[1]) / ((double)params.downsampling + 1));
+            downsample = max(0.01, abs(bbox[0] - bbox[1]) / ((double)params.mcts_nodes + 1));
             left = max(bbox[0] + interval, -1.0 * bestplane.d - downsample);
             right = min(bbox[1] - interval, -1.0 * bestplane.d + downsample);
 
@@ -564,7 +564,7 @@ namespace coacd
         else if (fabs(bestplane.b - 1.0) < 1e-4)
         {
             double left, right;
-            downsample = max(0.01, abs(bbox[2] - bbox[3]) / ((double)params.downsampling + 1));
+            downsample = max(0.01, abs(bbox[2] - bbox[3]) / ((double)params.mcts_nodes + 1));
             left = max(bbox[2] + interval, -1.0 * bestplane.d - downsample);
             right = min(bbox[3] - interval, -1.0 * bestplane.d + downsample);
 
@@ -584,7 +584,7 @@ namespace coacd
         else if (fabs(bestplane.c - 1.0) < 1e-4)
         {
             double left, right;
-            downsample = max(0.01, abs(bbox[4] - bbox[5]) / ((double)params.downsampling + 1));
+            downsample = max(0.01, abs(bbox[4] - bbox[5]) / ((double)params.mcts_nodes + 1));
             left = max(bbox[4] + interval, -1.0 * bestplane.d - downsample);
             right = min(bbox[5] - interval, -1.0 * bestplane.d + downsample);
 
@@ -605,22 +605,22 @@ namespace coacd
             throw runtime_error("RefineMCTS Error!");
     }
 
-    void ComputeAxesAlignedClippingPlanes(Model &m, const int downsampling, vector<Plane> &planes, bool shuffle)
+    void ComputeAxesAlignedClippingPlanes(Model &m, const int mcts_nodes, vector<Plane> &planes, bool shuffle)
     {
         double *bbox = m.GetBBox();
         double interval;
         double eps = 1e-6;
-        interval = max(0.01, abs(bbox[0] - bbox[1]) / ((double)downsampling + 1));
+        interval = max(0.01, abs(bbox[0] - bbox[1]) / ((double)mcts_nodes + 1));
         for (double i = bbox[0] + max(0.015, interval); i <= bbox[1] - max(0.015, interval) + eps; i += interval)
         {
             planes.push_back(Plane(1.0, 0.0, 0.0, -i));
         }
-        interval = max(0.01, abs(bbox[2] - bbox[3]) / ((double)downsampling + 1));
+        interval = max(0.01, abs(bbox[2] - bbox[3]) / ((double)mcts_nodes + 1));
         for (double i = bbox[2] + max(0.015, interval); i <= bbox[3] - max(0.015, interval) + eps; i += interval)
         {
             planes.push_back(Plane(0.0, 1.0, 0.0, -i));
         }
-        interval = max(0.01, abs(bbox[4] - bbox[5]) / ((double)downsampling + 1));
+        interval = max(0.01, abs(bbox[4] - bbox[5]) / ((double)mcts_nodes + 1));
         for (double i = bbox[4] + max(0.015, interval); i <= bbox[5] - max(0.015, interval) + eps; i += interval)
         {
             planes.push_back(Plane(0.0, 0.0, 1.0, -i));

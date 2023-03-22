@@ -25,7 +25,7 @@ namespace coacd
     /////////////// Basic Config ///////////////
     string input_model;
     string output_name;
-    int downsampling;
+    int mcts_nodes;
     double threshold;
     unsigned int resolution;
     unsigned int seed;
@@ -34,7 +34,6 @@ namespace coacd
     int prep_resolution;
     bool pca;
     bool merge;
-    bool mani_plus;
     int max_convex_hull;
 
     /////////////// MCTS Config ///////////////
@@ -45,7 +44,7 @@ namespace coacd
     {
       input_model = "../model.obj";
       output_name = "../output.obj";
-      downsampling = 20;
+      mcts_nodes = 20;
       threshold = 0.05;
       resolution = 2000;
       seed = 1234;
@@ -54,7 +53,6 @@ namespace coacd
       prep_resolution = 50;
       pca = false;
       merge = true;
-      mani_plus = true;
 
       mcts_iteration = 150;
       mcts_max_depth = 3;

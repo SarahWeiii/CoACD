@@ -55,10 +55,6 @@ int main(int argc, char *argv[])
       {
         params.merge = false;
       }
-      if (strcmp(argv[i], "-nmp") == 0 || strcmp(argv[i], "--no-manifold-plus") == 0)
-      {
-        params.mani_plus = false;
-      }
       if (strcmp(argv[i], "--pca") == 0)
       {
         params.pca = true;
@@ -81,7 +77,7 @@ int main(int argc, char *argv[])
       }
       if (strcmp(argv[i], "-mn") == 0 || strcmp(argv[i], "--mcts-node") == 0)
       {
-        sscanf(argv[i + 1], "%d", &params.downsampling);
+        sscanf(argv[i + 1], "%d", &params.mcts_nodes);
       }
     }
   }

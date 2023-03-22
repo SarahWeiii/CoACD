@@ -14,14 +14,14 @@ namespace coacd
 
         clock_t start, end;
         start = clock();
-        
-        for (int i = 0; i < input.points.size(); ++i)
+
+        for (unsigned int i = 0; i < input.points.size(); ++i)
         {
-            points.push_back({input.points[i][0]*scale, input.points[i][1]*scale, input.points[i][2]*scale});
+            points.push_back({input.points[i][0] * scale, input.points[i][1] * scale, input.points[i][2] * scale});
         }
-        for (int i = 0; i < input.triangles.size(); ++i)
+        for (unsigned int i = 0; i < input.triangles.size(); ++i)
         {
-            tris.push_back({input.triangles[i][0], input.triangles[i][1], input.triangles[i][2]});
+            tris.push_back({(unsigned int)input.triangles[i][0], (unsigned int)input.triangles[i][1], (unsigned int)input.triangles[i][2]});
         }
 
         math::Transform::Ptr xform = math::Transform::createLinearTransform();
@@ -36,23 +36,22 @@ namespace coacd
         tools::volumeToMesh(*sgrid, newPoints, newTriangles, newQuads, 0.55);
 
         output.Clear();
-        for (int i = 0; i < newPoints.size(); ++i)
+        for (unsigned int i = 0; i < newPoints.size(); ++i)
         {
-            output.points.push_back({newPoints[i][0]/scale, newPoints[i][1]/scale, newPoints[i][2]/scale});
+            output.points.push_back({newPoints[i][0] / scale, newPoints[i][1] / scale, newPoints[i][2] / scale});
         }
-        for (int i = 0; i < newTriangles.size(); ++i)
+        for (unsigned int i = 0; i < newTriangles.size(); ++i)
         {
-            output.triangles.push_back({newTriangles[i][0], newTriangles[i][2], newTriangles[i][1]});
+            output.triangles.push_back({(int)newTriangles[i][0], (int)newTriangles[i][2], (int)newTriangles[i][1]});
         }
-        for (int i = 0; i < newQuads.size(); ++i)
+        for (unsigned int i = 0; i < newQuads.size(); ++i)
         {
-            output.triangles.push_back({newQuads[i][0], newQuads[i][2], newQuads[i][1]});
-            output.triangles.push_back({newQuads[i][0], newQuads[i][3], newQuads[i][2]});
+            output.triangles.push_back({(int)newQuads[i][0], (int)newQuads[i][2], (int)newQuads[i][1]});
+            output.triangles.push_back({(int)newQuads[i][0], (int)newQuads[i][3], (int)newQuads[i][2]});
         }
         end = clock();
-        
-        logger::info("Preprocess Time: {}s", double(end - start) / CLOCKS_PER_SEC);
 
+        logger::info("Preprocess Time: {}s", double(end - start) / CLOCKS_PER_SEC);
     }
 
 }

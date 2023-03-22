@@ -28,7 +28,7 @@ namespace coacd
 
   constexpr int MCTS_RANDOM_CUT = 1;
 
-  void ComputeAxesAlignedClippingPlanes(Model &m, const int downsampling, vector<Plane> &planes, bool shuffle = false);
+  void ComputeAxesAlignedClippingPlanes(Model &m, const int mcts_nodes, vector<Plane> &planes, bool shuffle = false);
 
   class Part
   {
@@ -121,7 +121,7 @@ namespace coacd
   bool clip_by_path(Model &m, double &final_cost, Params &params, Plane &first_plane, vector<Plane> &best_path);
   bool TernaryMCTS(Model &m, Params &params, Plane &bestplane, vector<Plane> &best_path, double best_cost, bool mode = 1, double epsilon = 0.0001);
   void RefineMCTS(Model &m, Params &params, Plane &bestplane, vector<Plane> &best_path, double best_cost, double epsilon = 0.0001);
-  void ComputeAxesAlignedClippingPlanes(Model &m, const int downsampling, vector<Plane> &planes, bool shuffle);
+  void ComputeAxesAlignedClippingPlanes(Model &m, const int mcts_nodes, vector<Plane> &planes, bool shuffle);
   bool ComputeBestRvClippingPlane(Model &m, Params &params, vector<Plane> &planes, Plane &bestplane, double &bestcost);
   double ComputeReward(Params &params, double meshCH_v, vector<double> &current_costs, vector<Part> &current_parts, int &worst_part_idx, double ori_mesh_area, double ori_mesh_volume);
   void free_tree(Node *root, int idx);

@@ -38,7 +38,6 @@ namespace coacd
         {
             int bound = ((((nConvexHulls - 1) * nConvexHulls)) >> 1);
             // Populate the cost matrix
-            size_t idx = 0;
             vector<double> costMatrix, precostMatrix;
             costMatrix.resize(bound);    // only keeps the top half of the matrix
             precostMatrix.resize(bound); // only keeps the top half of the matrix
@@ -82,7 +81,7 @@ namespace coacd
                     // if dose not set max nConvexHull, stop the merging when bestCost is larger than the threshold
                     if (bestCost > params.threshold)
                         break;
-                    if (bestCost > max(params.threshold - precostMatrix[addr], 0.01))   // avoid merging two parts that have already used up the treshold
+                    if (bestCost > max(params.threshold - precostMatrix[addr], 0.01)) // avoid merging two parts that have already used up the treshold
                     {
                         costMatrix[addr] = INF;
                         continue;
@@ -91,16 +90,18 @@ namespace coacd
                 else
                 {
                     // if set the max nConvexHull, ignore the threshold limitation and stio the merging untill # part reach the constraint
-                    if (cvxs.size() <= params.max_convex_hull && bestCost > params.threshold)
+                    if ((int)cvxs.size() <= params.max_convex_hull && bestCost > params.threshold)
+                    {
+                        if (bestCost > params.threshold + 0.005 && (int)cvxs.size() == params.max_convex_hull)
+                            logger::warn("Max concavity {} exceeds the threshold {} due to {} convex hull limitation", bestCost, params.threshold, params.max_convex_hull);
                         break;
-                    if (cvxs.size() <= params.max_convex_hull && bestCost > max(params.threshold - precostMatrix[addr], 0.01))   // avoid merging two parts that have already used up the treshold
+                    }
+                    if ((int)cvxs.size() <= params.max_convex_hull && bestCost > max(params.threshold - precostMatrix[addr], 0.01)) // avoid merging two parts that have already used up the treshold
                     {
                         costMatrix[addr] = INF;
                         continue;
                     }
                 }
-
-                
 
                 h = max(h, bestCost);
                 const size_t addrI = (static_cast<int32_t>(sqrt(1 + (8 * addr))) - 1) >> 1;
@@ -203,8 +204,8 @@ namespace coacd
         start = clock();
 #endif
 
-        logger::info("#Points: {}", mesh.points.size());
-        logger::info("#Triangles: {}", mesh.triangles.size());
+        logger::info("# Points: {}", mesh.points.size());
+        logger::info("# Triangles: {}", mesh.triangles.size());
         logger::info(" - Decomposition (MCTS)");
 
         size_t iter = 0;
@@ -299,7 +300,7 @@ namespace coacd
         end = clock();
         logger::info("Compute Time: {}s", double(end - start) / CLOCKS_PER_SEC);
 #endif
-        logger::info("#Convex After Merge: {}", (int)parts.size());
+        logger::info("# Convex Hulls: {}", (int)parts.size());
 
         return parts;
     }

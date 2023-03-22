@@ -179,7 +179,6 @@ namespace coacd
             num_results = indexA.knnSearch(&query_pt[0], num_results, &ret_index[0], &out_dist_sqr[0]);
 
             double cmin = INF;
-            double idxmin = 0;
             for (int j = 0; j < (int)num_results; j++)
             {
                 double distance;
@@ -187,20 +186,14 @@ namespace coacd
                 if (distance < cmin)
                 {
                     cmin = distance;
-                    idxmin = j;
                     if (cmin < 1e-14)
                         break;
                 }
             }
             if (cmin > 10)
-            {
                 cmin = sqrt(out_dist_sqr[0]);
-                idxmin = 0;
-            }
             if (cmin > cmax && INF > cmin)
-            {
                 cmax = cmin;
-            }
         }
 
         for (int i = 0; i < nA; i++)
@@ -215,7 +208,6 @@ namespace coacd
             num_results = indexB.knnSearch(&query_pt[0], num_results, &ret_index[0], &out_dist_sqr[0]);
 
             double cmin = INF;
-            double idxmin = 0;
             for (int j = 0; j < (int)num_results; j++)
             {
                 double distance;
@@ -223,20 +215,14 @@ namespace coacd
                 if (distance < cmin)
                 {
                     cmin = distance;
-                    idxmin = j;
                     if (cmin < 1e-14)
                         break;
                 }
             }
             if (cmin > 10)
-            {
                 cmin = sqrt(out_dist_sqr[0]);
-                idxmin = 0;
-            }
             if (cmin > cmax && INF > cmin)
-            {
                 cmax = cmin;
-            }
         }
 
         return cmax;
