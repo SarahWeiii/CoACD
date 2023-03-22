@@ -1,13 +1,39 @@
 # Approximate Convex Decomposition for 3D Meshes with Collision-Aware Concavity and Tree Search [SIGGRAPH2022]
  [\[project\]](https://colin97.github.io/CoACD/) [\[paper\]](https://arxiv.org/pdf/2205.02961.pdf) [\[video\]](https://www.youtube.com/watch?v=r12O0z0723s)
 
-[***News***] CoACD is released on PyPI!
+[***News***] CoACD is released on PyPI for Linux!
 
 [***News***] We have replaced the original non-commercial dependencies. All of our code is under MIT license, and all dependencies allow commercial use now.
 
 Approximate convex decomposition enables efficient geometry processing algorithms specifically designed for convex shapes (e.g., collision detection). We propose a method that is better to preserve collision conditions of the input shape with fewer components. It thus supports delicate and efficient object interaction in downstream applications.
 
 ![avatar](examples/teaser.png)
+
+## PyPI
+
+Supporting Python 3.6, 3.7, 3.8, 3.9, 3.10 on Linux.
+
+### (1) Installation
+
+```
+pip install coacd
+```
+
+### (2) Usage
+```
+import coacd
+
+mesh = trimesh.load(input_file)
+imesh = coacd.Mesh()
+imesh.vertices = mesh.vertices
+imesh.indices = mesh.faces
+parts = coacd.run_coacd(imesh) # a list of convex hulls.
+```
+The complete example script is in `python/py_example.py`, run it by the following command:
+```
+cd python
+python py_example.py $InputFile $OutputFile
+```
 
 ## Compile from source
 
@@ -82,33 +108,6 @@ Parameter tuning *tricks*:
 3. `-pr` controls the quality of manifold preprocessing. A larger value can make the preprocessed mesh closer to the original mesh but also lead to more triangles and longer runtime.
 4. Make sure your input mesh is 2-manifold solid if you want to use the `-np` flag. Skipping manifold pre-processing can better preserve input details, but please don't specify the `-np` flag if your input mesh is non-manifold (the algorithm may crush or generate wrong results).
 5. `--seed` is used for reproduction of the same results as our algorithm is stochastic.
-
-
-## PyPI
-
-Supporting Python 3.6, 3.7, 3.8, 3.9, 3.10.
-
-### (1) Installation
-
-```
-pip install coacd
-```
-
-### (2) Usage
-```
-import coacd
-
-mesh = trimesh.load(input_file)
-imesh = coacd.Mesh()
-imesh.vertices = mesh.vertices
-imesh.indices = mesh.faces
-parts = coacd.run_coacd(imesh) # a list of convex hulls.
-```
-The complete example script is in `python/py_example.py`, run it by the following command:
-```
-cd python
-python py_example.py $InputFile $OutputFile
-```
 
 
 ## Use in SAPIEN
