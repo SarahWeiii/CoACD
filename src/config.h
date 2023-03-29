@@ -36,6 +36,7 @@ namespace coacd
     bool pca;
     bool merge;
     bool mani_plus;
+    int max_nConvexHull;
     bool sdf_mani;
     bool if_cout;
     bool if_log;
@@ -66,6 +67,7 @@ namespace coacd
 
       mcts_iteration = 150;
       mcts_max_depth = 3;
+      max_nConvexHull = -1;
     }
   };
 }
