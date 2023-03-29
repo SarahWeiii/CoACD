@@ -20,7 +20,7 @@ target_include_directories(coacd PRIVATE src)
 target_include_directories(coacd PRIVATE 3rd/eigen)
 target_include_directories(coacd PRIVATE 3rd/glm)
 target_include_directories(coacd PRIVATE 3rd/libigl/include)
-target_include_directories(coacd PRIVATE 3rd/cdt/CDT)
+target_include_directories(coacd PRIVATE 3rd/cdt/CDT/include)
 
 find_library(HALF_LIBRARY libHalf.so)
 if (HALF_LIBRARY)
