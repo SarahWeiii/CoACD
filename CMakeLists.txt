@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 
 find_package(OpenVDB REQUIRED)
-find_package(OpenMP REQUIRED)
+find_package(OpenMP)
 
 file(GLOB_RECURSE MAIN_SRC "src/*.h" "src/*.cc" "src/*.hpp" "src/*.cpp")
 add_library(coacd STATIC
@@ -28,5 +28,8 @@ if (HALF_LIBRARY)
 endif()
 
 target_link_libraries(coacd OpenVDB::openvdb)
-target_link_libraries(coacd boost_iostreams tbb)
 set_property(TARGET coacd PROPERTY COMPILE_WARNING_AS_ERROR OFF)
+
+if (MSVC)
+	target_compile_options(coacd PRIVATE /openmp)
+endif()
