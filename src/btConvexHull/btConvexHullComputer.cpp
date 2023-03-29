@@ -814,7 +814,7 @@ private:
 public:
     Vertex* vertexList;
 
-    void compute(vector<array<double, 3>> points);
+    void compute(std::vector<std::array<double, 3>> points);
 
     btVector3 getCoordinates(const Vertex* v);
 
@@ -1764,7 +1764,7 @@ static bool pointCmp(const btConvexHullInternal::Point32& p, const btConvexHullI
     return (p.y < q.y) || ((p.y == q.y) && ((p.x < q.x) || ((p.x == q.x) && (p.z < q.z))));
 }
 
-void btConvexHullInternal::compute(vector<array<double, 3>> vertices)
+void btConvexHullInternal::compute(std::vector<std::array<double, 3>> vertices)
 {
     btVector3 min(btScalar(1e30), btScalar(1e30), btScalar(1e30)), max(btScalar(-1e30), btScalar(-1e30), btScalar(-1e30));
     size_t count = (int)vertices.size();
@@ -2354,7 +2354,7 @@ static int32_t getVertexCopy(btConvexHullInternal::Vertex* vertex, btAlignedObje
     return index;
 }
 
-btScalar btConvexHullComputer::compute(vector<array<double, 3>> points, btScalar shrink, btScalar shrinkClamp)
+btScalar btConvexHullComputer::compute(std::vector<std::array<double, 3>> points, btScalar shrink, btScalar shrinkClamp)
 {
     size_t count = points.size();
     if (count <= 0) {

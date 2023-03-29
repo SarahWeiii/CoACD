@@ -5,47 +5,47 @@ namespace coacd
 {
     void SaveConfig(Params params)
     {
-        logger(false, params.if_log, params.logfile) << " - Config" << endl;
-        logger(false, params.if_log, params.logfile) << "\tInput Path:                        " << params.input_model << endl;
-        logger(false, params.if_log, params.logfile) << "\tOutput Path:                       " << params.output_name << endl;
-        logger(false, params.if_log, params.logfile) << "\tLog Path:                          " << params.logfile << endl;
-        logger(false, params.if_log, params.logfile) << "\tTerminal Threshold:                " << params.threshold << endl;
-        logger(false, params.if_log, params.logfile) << "\tMCTS Node Number:                  " << params.downsampling << endl;
-        logger(false, params.if_log, params.logfile) << "\tMCTS Iteration:                    " << params.mcts_iteration << endl;
-        logger(false, params.if_log, params.logfile) << "\tMCTS Max Depth:                    " << params.mcts_max_depth << endl;
-        logger(false, params.if_log, params.logfile) << "\tManifold Preprocess (ON/OFF):      " << params.preprocess << endl;
-        logger(false, params.if_log, params.logfile) << "\tPreprocess Resolution:             " << params.prep_resolution << endl;
-        logger(false, params.if_log, params.logfile) << "\tMerge Postprocess (ON/OFF):        " << params.merge << endl;
-        logger(false, params.if_log, params.logfile) << "\tPCA (ON/OFF):                      " << params.pca << endl;
-        logger(false, params.if_log, params.logfile) << "\tk for Rv:                          " << params.rv_k << endl;
-        logger(false, params.if_log, params.logfile) << "\tHausdorff Sampling Resolution:     " << params.resolution << endl;
-        logger(false, params.if_log, params.logfile) << "\tRandom Seed:                       " << params.seed << endl;
+        logger(false, params.if_log, params.logfile) << " - Config" << std::endl;
+        logger(false, params.if_log, params.logfile) << "\tInput Path:                        " << params.input_model << std::endl;
+        logger(false, params.if_log, params.logfile) << "\tOutput Path:                       " << params.output_name << std::endl;
+        logger(false, params.if_log, params.logfile) << "\tLog Path:                          " << params.logfile << std::endl;
+        logger(false, params.if_log, params.logfile) << "\tTerminal Threshold:                " << params.threshold << std::endl;
+        logger(false, params.if_log, params.logfile) << "\tMCTS Node Number:                  " << params.downsampling << std::endl;
+        logger(false, params.if_log, params.logfile) << "\tMCTS Iteration:                    " << params.mcts_iteration << std::endl;
+        logger(false, params.if_log, params.logfile) << "\tMCTS Max Depth:                    " << params.mcts_max_depth << std::endl;
+        logger(false, params.if_log, params.logfile) << "\tManifold Preprocess (ON/OFF):      " << params.preprocess << std::endl;
+        logger(false, params.if_log, params.logfile) << "\tPreprocess Resolution:             " << params.prep_resolution << std::endl;
+        logger(false, params.if_log, params.logfile) << "\tMerge Postprocess (ON/OFF):        " << params.merge << std::endl;
+        logger(false, params.if_log, params.logfile) << "\tPCA (ON/OFF):                      " << params.pca << std::endl;
+        logger(false, params.if_log, params.logfile) << "\tk for Rv:                          " << params.rv_k << std::endl;
+        logger(false, params.if_log, params.logfile) << "\tHausdorff Sampling Resolution:     " << params.resolution << std::endl;
+        logger(false, params.if_log, params.logfile) << "\tRandom Seed:                       " << params.seed << std::endl;
 
-        logger(params.if_cout, false) << " - Config" << endl;
-        logger(params.if_cout, false) << "\tInput Path:                      " << params.input_model << endl;
-        logger(params.if_cout, false) << "\tOutput Path:                     " << params.output_name << endl;
-        logger(params.if_cout, false) << "\tLog Path:                        " << params.logfile << endl;
-        logger(params.if_cout, false) << "\tTerminal Threshold:              " << params.threshold << endl;
-        logger(params.if_cout, false) << "\tMCTS Node Number:                " << params.downsampling << endl;
-        logger(params.if_cout, false) << "\tMCTS Iteration:                  " << params.mcts_iteration << endl;
-        logger(params.if_cout, false) << "\tMCTS Max Depth:                  " << params.mcts_max_depth << endl;
-        logger(params.if_cout, false) << "\tManifold Preprocess (ON/OFF):    " << params.preprocess << endl;
-        logger(params.if_cout, false) << "\tPreprocess Resolution:           " << params.prep_resolution << endl;
-        logger(params.if_cout, false) << "\tMerge Postprocess (ON/OFF):      " << params.merge << endl;
-        logger(params.if_cout, false) << "\tPCA (ON/OFF):                    " << params.pca << endl;
-        logger(params.if_cout, false) << "\tk for Rv:                        " << params.rv_k << endl;
-        logger(params.if_cout, false) << "\tHausdorff Sampling Resolution:   " << params.resolution << endl;
-        logger(params.if_cout, false) << "\tRandom Seed:                     " << params.seed << endl;
+        logger(params.if_cout, false) << " - Config" << std::endl;
+        logger(params.if_cout, false) << "\tInput Path:                      " << params.input_model << std::endl;
+        logger(params.if_cout, false) << "\tOutput Path:                     " << params.output_name << std::endl;
+        logger(params.if_cout, false) << "\tLog Path:                        " << params.logfile << std::endl;
+        logger(params.if_cout, false) << "\tTerminal Threshold:              " << params.threshold << std::endl;
+        logger(params.if_cout, false) << "\tMCTS Node Number:                " << params.downsampling << std::endl;
+        logger(params.if_cout, false) << "\tMCTS Iteration:                  " << params.mcts_iteration << std::endl;
+        logger(params.if_cout, false) << "\tMCTS Max Depth:                  " << params.mcts_max_depth << std::endl;
+        logger(params.if_cout, false) << "\tManifold Preprocess (ON/OFF):    " << params.preprocess << std::endl;
+        logger(params.if_cout, false) << "\tPreprocess Resolution:           " << params.prep_resolution << std::endl;
+        logger(params.if_cout, false) << "\tMerge Postprocess (ON/OFF):      " << params.merge << std::endl;
+        logger(params.if_cout, false) << "\tPCA (ON/OFF):                    " << params.pca << std::endl;
+        logger(params.if_cout, false) << "\tk for Rv:                        " << params.rv_k << std::endl;
+        logger(params.if_cout, false) << "\tHausdorff Sampling Resolution:   " << params.resolution << std::endl;
+        logger(params.if_cout, false) << "\tRandom Seed:                     " << params.seed << std::endl;
     }
 
-    void SaveOBJ(const string &filename, vector<Model> parts, Params &params)
+    void SaveOBJ(const std::string &filename, std::vector<Model> parts, Params &params)
     {
-        vector<int> v_numbers;
+        std::vector<int> v_numbers;
         v_numbers.push_back(0);
         std::ofstream os(filename);
         for (int n = 0; n < (int)parts.size(); n++)
         {
-            os << "o convex_" << n << endl;
+            os << "o convex_" << n << std::endl;
             for (int i = 0; i < (int)parts[n].points.size(); ++i)
             {
                 os << "v " << parts[n].points[i][0] << " " << parts[n].points[i][1] << " " << parts[n].points[i][2] << "\n";
@@ -61,14 +61,14 @@ namespace coacd
         os.close();
     }
 
-    void SaveOBJs(const string &foldername, const string &filename, vector<Model> parts, Params &params)
+    void SaveOBJs(const std::string &foldername, const std::string &filename, std::vector<Model> parts, Params &params)
     {
         int n_zero = 3;
         for (int n = 0; n < (int)parts.size(); n++)
         {
-            string num = to_string(n);
-            string idx = string(n_zero - num.length(), '0') + num;
-            ofstream os(foldername + "/" + filename + "_" + idx + ".obj");
+            std::string num = std::to_string(n);
+            std::string idx = std::string(n_zero - num.length(), '0') + num;
+            std::ofstream os(foldername + "/" + filename + "_" + idx + ".obj");
             for (int i = 0; i < (int)parts[n].points.size(); ++i)
             {
                 os << "v " << parts[n].points[i][0] << " " << parts[n].points[i][1] << " " << parts[n].points[i][2] << "\n";
@@ -83,7 +83,7 @@ namespace coacd
         }
     }
 
-    bool WriteVRML(ofstream &fout, Model mesh)
+    bool WriteVRML(std::ofstream &fout, Model mesh)
     {
         Material material;
         material.m_diffuseColor[0] = material.m_diffuseColor[1] = material.m_diffuseColor[2] = 0.0f;
@@ -93,28 +93,29 @@ namespace coacd
             material.m_diffuseColor[1] = (rand() % 100) / 100.0f;
             material.m_diffuseColor[2] = (rand() % 100) / 100.0f;
         }
+        using std::endl;
 
         int nPoints = (int)mesh.points.size();
         int nTriangles = (int)mesh.triangles.size();
         if (fout.is_open())
         {
-            fout.setf(ios::fixed, ios::floatfield);
-            fout.setf(ios::showpoint);
+            fout.setf(std::ios::fixed, std::ios::floatfield);
+            fout.setf(std::ios::showpoint);
             fout.precision(6);
-            fout << "#VRML V2.0 utf8" << endl;
-            fout << "" << endl;
-            fout << "# Vertices: " << nPoints << endl;
-            fout << "# Triangles: " << nTriangles << endl;
-            fout << "" << endl;
-            fout << "Group {" << endl;
-            fout << "    children [" << endl;
-            fout << "        Shape {" << endl;
-            fout << "            appearance Appearance {" << endl;
-            fout << "                material Material {" << endl;
+            fout << "#VRML V2.0 utf8" << std::endl;
+            fout << "" << std::endl;
+            fout << "# Vertices: " << nPoints << std::endl;
+            fout << "# Triangles: " << nTriangles << std::endl;
+            fout << "" << std::endl;
+            fout << "Group {" << std::endl;
+            fout << "    children [" << std::endl;
+            fout << "        Shape {" << std::endl;
+            fout << "            appearance Appearance {" << std::endl;
+            fout << "                material Material {" << std::endl;
             fout << "                    diffuseColor " << material.m_diffuseColor[0] << " "
                  << material.m_diffuseColor[1] << " "
-                 << material.m_diffuseColor[2] << endl;
-            fout << "                    ambientIntensity " << material.m_ambientIntensity << endl;
+                 << material.m_diffuseColor[2] << std::endl;
+            fout << "                    ambientIntensity " << material.m_ambientIntensity << std::endl;
             fout << "                    specularColor " << material.m_specularColor[0] << " "
                  << material.m_specularColor[1] << " "
                  << material.m_specularColor[2] << endl;
@@ -161,9 +162,9 @@ namespace coacd
         }
     }
 
-    void SaveVRML(const string &fileName, vector<Model>& meshes, Params &params)
+    void SaveVRML(const std::string &fileName, std::vector<Model>& meshes, Params &params)
     {
-        ofstream foutCH(fileName);
+        std::ofstream foutCH(fileName);
         if (foutCH.is_open())
         {
             for (int p = 0; p < (int)meshes.size(); ++p)

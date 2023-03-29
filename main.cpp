@@ -7,7 +7,6 @@
 #include "src/process.h"
 #include "src/logger.h"
 
-using namespace std;
 using namespace coacd;
 
 int main(int argc, char *argv[])

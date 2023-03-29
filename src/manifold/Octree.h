@@ -47,7 +47,6 @@ derivative works thereof, in binary and source code form.
 #include <map>
 #include "Intersection.h"
 
-using namespace std;
 
 class Grid_Index
 {
@@ -89,7 +88,7 @@ public:
 		occupied = 1;
 		exterior = 0;
 	}
-	Octree(glm::dvec3& min_c, glm::dvec3& max_c, vector<glm::ivec3>& faces, float thickness)
+	Octree(glm::dvec3& min_c, glm::dvec3& max_c, std::vector<glm::ivec3>& faces, float thickness)
 	{
 		memset(children, 0, sizeof(Octree*)*8);
 		memset(connection, 0, sizeof(Octree*)*6);
@@ -156,7 +155,7 @@ public:
 		return children[index]->Is_Exterior(p);
 	}
 
-	bool Intersection(int face_index, glm::dvec3& min_corner, glm::dvec3& length, vector<glm::dvec3>& vertices)
+	bool Intersection(int face_index, glm::dvec3& min_corner, glm::dvec3& length, std::vector<glm::dvec3>& vertices)
 	{
 		float boxcenter[3];
 		float boxhalfsize[3];
@@ -176,7 +175,7 @@ public:
 		return triBoxOverlap(boxcenter, boxhalfsize, triverts);
 	}
 
-	void Split(vector<glm::dvec3>& vertices)
+	void Split(std::vector<glm::dvec3>& vertices)
 	{
 		level += 1;
 		number = 0;
@@ -395,7 +394,7 @@ public:
 		}
 	}
 
-	void ExpandEmpty(list<Octree*>& empty_list, set<Octree*>& empty_set, int dim)
+	void ExpandEmpty(std::list<Octree*>& empty_list, std::set<Octree*>& empty_set, int dim)
 	{
 		if (!occupied)
 		{
@@ -452,7 +451,7 @@ public:
 		}
 	}
 
-	void ConstructFace(map<Grid_Index,int>& vcolor,const glm::ivec3& start,vector<glm::dvec3>& vertices,vector<glm::ivec4>& faces, vector<set<int> >& v_faces)
+	void ConstructFace(std::map<Grid_Index,int>& vcolor,const glm::ivec3& start,std::vector<glm::dvec3>& vertices,std::vector<glm::ivec4>& faces, std::vector<std::set<int> >& v_faces)
 	{
 		if (level == 0)
 		{
@@ -470,7 +469,7 @@ public:
 				{
 					if (connection[i] && connection[i]->occupied)
 					{
-						cout << "Error!\n";
+						std::cout << "Error!\n";
 						exit(0);
 					}
 					int id[4];
@@ -479,23 +478,23 @@ public:
 						glm::ivec3 vind = start + offset[i][j];
 						Grid_Index v_id;
 						v_id.id = vind * 2;
-						map<Grid_Index,int>::iterator it = vcolor.find(v_id);
+						std::map<Grid_Index,int>::iterator it = vcolor.find(v_id);
 						if (it == vcolor.end())
 						{
 							glm::dvec3 d = min_corner;
 							for (int k = 0; k < 3; ++k)
 								d[k] += offset[i][j][k] * length[k];
-							vcolor.insert(make_pair(v_id, vertices.size()));
+							vcolor.insert(std::make_pair(v_id, vertices.size()));
 							id[j] = vertices.size();
 							vertices.push_back(d);
-							v_faces.push_back(set<int>());
-							for (vector<int>::iterator it1 = face_ind.begin();
+							v_faces.push_back(std::set<int>());
+							for (std::vector<int>::iterator it1 = face_ind.begin();
 								it1 != face_ind.end(); ++it1)
 								v_faces[id[j]].insert(*it1);
 						}
 						else {
 							id[j] = it->second;
-							for (vector<int>::iterator it1 = face_ind.begin();
+							for (std::vector<int>::iterator it1 = face_ind.begin();
 								it1 != face_ind.end(); ++it1)
 								v_faces[it->second].insert(*it1);
 						}
@@ -527,10 +526,10 @@ public:
 	Octree* children[8];
 	Octree* connection[6];
 	Octree* empty_connection[6];
-	list<Octree*> empty_neighbors;
+	std::list<Octree*> empty_neighbors;
 
-	vector<glm::ivec3> face_indices;
-	vector<int> face_ind;
+	std::vector<glm::ivec3> face_indices;
+	std::vector<int> face_ind;
 };
 
 

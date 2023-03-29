@@ -43,7 +43,6 @@ derivative works thereof, in binary and source code form.
 #include <vector>
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
-using namespace std;
 
 class BV {
 public:
@@ -106,7 +105,7 @@ public:
         return min_x <= max_x && max_x >= 0;
     }
     
-    pair<glm::dvec3,bool> rayIntersectsTriangle(glm::dvec3& p, glm::dvec3& d) {
+    std::pair<glm::dvec3,bool> rayIntersectsTriangle(glm::dvec3& p, glm::dvec3& d) {
         glm::dvec3 e1, e2, h, s, q;
 
         double a,f,u,v;
@@ -117,31 +116,31 @@ public:
         a = glm::dot(e1, h);
 
         if (a > -0.00001 && a < 0.00001)
-            return make_pair(glm::dvec3(),false);
+            return std::make_pair(glm::dvec3(),false);
 
         f = 1/a;
         s = p - tris[0];
         u = f * glm::dot(s,h);
 
         if (u < 0.0 || u > 1.0)
-            return make_pair(glm::dvec3(),false);
+            return std::make_pair(glm::dvec3(),false);
 
         q = glm::cross(s,e1);
         v = f * glm::dot(d,q);
 
         if (v < 0.0 || u + v > 1.0)
-            return make_pair(glm::dvec3(),false);
+            return std::make_pair(glm::dvec3(),false);
 
         // at this stage we can compute t to find out where
         // the intersection point is on the line
         double t = f * glm::dot(e2,q);
 
         if (t > 0.00001) // ray intersection
-            return make_pair(tris[0] + u * e1 + v * e2, true);
+            return std::make_pair(tris[0] + u * e1 + v * e2, true);
 
         else // this means that there is a line intersection
              // but not a ray intersection
-            return make_pair(glm::dvec3(),false);
+            return std::make_pair(glm::dvec3(),false);
     }
 
     double operator()(int dim)
@@ -172,7 +171,7 @@ public:
         bv = 0;
     }
     void updateBVH(std::vector<BV*>& bvs, int dim, int l, int r);
-    pair<glm::dvec3,bool> rayIntersect(glm::dvec3& o, glm::dvec3& d);
+    std::pair<glm::dvec3,bool> rayIntersect(glm::dvec3& o, glm::dvec3& d);
     int axis;
     BVH *left, *right;
     BV* bv;

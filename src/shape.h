@@ -22,7 +22,6 @@
 #include <array>
 #include <limits>
 
-using namespace std;
 
 namespace coacd
 {
@@ -77,7 +76,7 @@ namespace coacd
     vec3d CalFaceNormal(vec3d p1, vec3d p2, vec3d p3);
     double Area(vec3d p0, vec3d p1, vec3d p2);
     double Volume(vec3d p1, vec3d p2, vec3d p3);
-    void Diagonalize(const array<array<double, 3>, 3>& A, array<array<double, 3>, 3>& Q, array<array<double, 3>, 3>& D);
+    void Diagonalize(const std::array<std::array<double, 3>, 3>& A, std::array<std::array<double, 3>, 3>& Q, std::array<std::array<double, 3>, 3>& D);
 
     inline bool SameVectorDirection(vec3d v, vec3d w)
     {
@@ -125,6 +124,8 @@ namespace coacd
 
     inline bool Plane::IntersectSegment(vec3d p1, vec3d p2, vec3d &pi, double eps)
     {
+        using std::max;
+        using std::min;
         pi[0] = (p1[0] * b * p2[1] + p1[0] * c * p2[2] + p1[0] * d - p2[0] * b * p1[1] - p2[0] * c * p1[2] - p2[0] * d) / (a * p2[0] - a * p1[0] + b * p2[1] - b * p1[1] + c * p2[2] - c * p1[2]);
         pi[1] = (a * p2[0] * p1[1] + c * p1[1] * p2[2] + p1[1] * d - a * p1[0] * p2[1] - c * p1[2] * p2[1] - p2[1] * d) / (a * p2[0] - a * p1[0] + b * p2[1] - b * p1[1] + c * p2[2] - c * p1[2]);
         pi[2] = (a * p2[0] * p1[2] + b * p2[1] * p1[2] + p1[2] * d - a * p1[0] * p2[2] - b * p1[1] * p2[2] - p2[2] * d) / (a * p2[0] - a * p1[0] + b * p2[1] - b * p1[1] + c * p2[2] - c * p1[2]);
@@ -170,7 +171,7 @@ namespace coacd
     };
 
     template <typename T>
-    void vec2PointCloud(PointCloud<T> &point, vector<vec3d> V)
+    void vec2PointCloud(PointCloud<T> &point, std::vector<vec3d> V)
     {
         point.pts.resize(V.size());
         for (size_t i = 0; i < V.size(); i++)

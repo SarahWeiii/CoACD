@@ -15,7 +15,6 @@
 
 #include "shape.h"
 
-using namespace std;
 
 namespace coacd
 {
@@ -23,10 +22,10 @@ namespace coacd
   {
   public:
     /////////////// Basic Config ///////////////
-    string input_model;
-    string output_name;
-    string logfile;
-    string mode;
+    std::string input_model;
+    std::string output_name;
+    std::string logfile;
+    std::string mode;
     int downsampling;
     double threshold;
     unsigned int resolution;

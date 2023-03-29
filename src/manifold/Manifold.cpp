@@ -1,7 +1,9 @@
 #include "Manifold.h"
 
-int Manifold(string input_model, Model &output, int resolution)
+int Manifold(std::string input_model, Model &output, int resolution)
 {
+    using std::cout; 
+    using std::endl; 
   clock_t start, end;
 
   Model_OBJ obj;
@@ -26,8 +28,9 @@ int Manifold(string input_model, Model &output, int resolution)
   return 0;
 }
 
-int Manifold(Model &input, Model &output, bool if_cout, bool if_log, string logfile, int resolution)
+int Manifold(Model &input, Model &output, bool if_cout, bool if_log, std::string logfile, int resolution)
 {
+    using std::endl;
   clock_t start, end;
 
   Model_OBJ obj{};

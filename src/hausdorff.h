@@ -17,10 +17,9 @@
 
 #include "nanoflann.hpp"
 #include "shape.h"
-using namespace std;
 using namespace nanoflann;
 
-#define INF numeric_limits<double>::max()
+#define INF std::numeric_limits<double>::max()
 
 namespace coacd
 {
@@ -50,7 +49,7 @@ namespace coacd
             proj_pt[0] = s1[0] + proj_dist / len_BC * BC[0];
             proj_pt[1] = s1[1] + proj_dist / len_BC * BC[1];
             proj_pt[2] = s1[2] + proj_dist / len_BC * BC[2];
-            cout << "v " << proj_pt[0] << ' ' << proj_pt[1] << ' ' << proj_pt[2] << endl;
+            std::cout << "v " << proj_pt[0] << ' ' << proj_pt[1] << ' ' << proj_pt[2] << std::endl;
         }
 
         // we should make sure the projected point is within the segment, otherwise not consider it
@@ -138,15 +137,15 @@ namespace coacd
             double dist_pt2C = dist_point2point(pt, tri_pt2);
 
             if (flag)
-                cout << dist_pt2AB << ' ' << dist_pt2BC << ' ' << dist_pt2CA << ' '
-                     << dist_pt2A << ' ' << dist_pt2B << ' ' << dist_pt2C << endl;
+                std::cout << dist_pt2AB << ' ' << dist_pt2BC << ' ' << dist_pt2CA << ' '
+                     << dist_pt2A << ' ' << dist_pt2B << ' ' << dist_pt2C << std::endl;
 
-            return min(min(min(dist_pt2AB, dist_pt2BC), dist_pt2CA),
-                       min(min(dist_pt2A, dist_pt2B), dist_pt2C));
+            return std::min(std::min(std::min(dist_pt2AB, dist_pt2BC), dist_pt2CA),
+                       std::min(std::min(dist_pt2A, dist_pt2B), dist_pt2C));
         }
     }
 
-    double face_hausdorff_distance(Model &meshA, vector<vec3d> &XA, vector<int> &idA, Model &meshB, vector<vec3d> &XB, vector<int> &idB, bool flag = false)
+    double face_hausdorff_distance(Model &meshA, std::vector<vec3d> &XA, std::vector<int> &idA, Model &meshB, std::vector<vec3d> &XB, std::vector<int> &idB, bool flag = false)
     {
         int nA = XA.size();
         int nB = XB.size();

@@ -56,7 +56,7 @@ namespace coacd
         return (1.0 / 6.0) * (-v321 + v231 + v312 - v132 - v213 + v123);
     }
 
-    void Diagonalize(const array<array<double, 3>, 3>& A, array<array<double, 3>, 3>& Q, array<array<double, 3>, 3>& D)
+    void Diagonalize(const std::array<std::array<double, 3>, 3>& A, std::array<std::array<double, 3>, 3>& Q, std::array<std::array<double, 3>, 3>& D)
     {
         // A must be a symmetric matrix.
         // returns Q and D such that

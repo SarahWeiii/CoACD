@@ -83,13 +83,13 @@ namespace coacd
         return true;
     }
 
-    vector<vec3d> Model::GetPoints(size_t resolution)
+    std::vector<vec3d> Model::GetPoints(size_t resolution)
     {
         if (resolution > (size_t)points.size())
             return points;
         else
         {
-            vector<vec3d> tmp;
+            std::vector<vec3d> tmp;
             for (int i = 0; i < (int)points.size(); i++)
             {
                 srand(i * (unsigned)time(NULL));
@@ -105,7 +105,7 @@ namespace coacd
         /* fast convex hull algorithm */
         bool flag = true;
         quickhull::QuickHull<float> qh; // Could be double as well
-        vector<quickhull::Vector3<float>> pointCloud;
+        std::vector<quickhull::Vector3<float>> pointCloud;
         // Add points to point cloud
         for (int i = 0; i < (int)points.size(); i++)
         {
@@ -157,9 +157,9 @@ namespace coacd
         }
     }
 
-    void Model::GetEigenValues(array<array<double, 3>, 3> eigen_values)
+    void Model::GetEigenValues(std::array<std::array<double, 3>, 3> eigen_values)
     {
-        array<array<double, 3>, 3> Q;
+        std::array<std::array<double, 3>, 3> Q;
         double barycenter[3] = {0};
         for (int i = 0; i < (int)points.size(); i++)
         {
@@ -171,7 +171,7 @@ namespace coacd
         barycenter[1] /= (int)points.size();
         barycenter[2] /= (int)points.size();
 
-        array<array<double, 3>, 3> covMat;
+        std::array<std::array<double, 3>, 3> covMat;
         double x, y, z;
         for (int i = 0; i < (int)points.size(); i++)
         {
@@ -209,7 +209,7 @@ namespace coacd
         barycenter[1] /= (int)points.size();
         barycenter[2] /= (int)points.size();
 
-        array<array<double, 3>, 3> covMat;
+        std::array<std::array<double, 3>, 3> covMat;
         double x, y, z;
         for (int i = 0; i < (int)points.size(); i++)
         {
@@ -232,14 +232,14 @@ namespace coacd
         covMat[1][0] = covMat[0][1];
         covMat[2][0] = covMat[0][2];
         covMat[2][1] = covMat[1][2];
-        array<array<double, 3>, 3> D;
+        std::array<std::array<double, 3>, 3> D;
         Diagonalize(covMat, m_rot, D);
     }
 
-    inline void addEdge(map<pair<int, int>, bool> &edge_map, int id1, int id2)
+    inline void addEdge(std::map<std::pair<int, int>, bool> &edge_map, int id1, int id2)
     {
-        pair<int, int> edge1 = make_pair(id1, id2);
-        pair<int, int> edge2 = make_pair(id2, id1);
+        std::pair<int, int> edge1 = std::make_pair(id1, id2);
+        std::pair<int, int> edge2 = std::make_pair(id2, id1);
         if (edge_map.find(edge1) == edge_map.end() && edge_map.find(edge2) == edge_map.end())
             edge_map[edge1] = true;
     }
@@ -292,17 +292,17 @@ namespace coacd
         return false;
     }
 
-    void WritePointSet(const string &fileName, vector<vec3d> &samples)
+    void WritePointSet(const std::string &fileName, std::vector<vec3d> &samples)
     {
         std::ofstream os(fileName);
         for (int i = 0; i < (int)samples.size(); i++)
         {
-            os << "v " << samples[i][0] << ' ' << samples[i][1] << ' ' << samples[i][2] << endl;
+            os << "v " << samples[i][0] << ' ' << samples[i][1] << ' ' << samples[i][2] << std::endl;
         }
         os.close();
     }
 
-    void Model::ExtractPointSet(vector<vec3d> &samples, vector<int> &sample_tri_ids, unsigned int seed, size_t resolution, double base, bool flag, Plane plane)
+    void Model::ExtractPointSet(std::vector<vec3d> &samples, std::vector<int> &sample_tri_ids, unsigned int seed, size_t resolution, double base, bool flag, Plane plane)
     {
         if (resolution == 0)
             return;
@@ -313,7 +313,7 @@ namespace coacd
         }
 
         if (base != 0)
-            resolution = size_t(max(1000, int(resolution * (aObj / base))));
+            resolution = size_t(std::max(1000, int(resolution * (aObj / base))));
 
         srand(seed);
         for (int i = 0; i < (int)triangles.size(); i++)
@@ -327,9 +327,9 @@ namespace coacd
             double area = Area(points[triangles[i][0]], points[triangles[i][1]], points[triangles[i][2]]);
             int N;
             if ((size_t)triangles.size() > resolution && resolution)
-                N = max(int(i % ((int)triangles.size() / resolution) == 0), int(resolution / aObj * area));
+                N = std::max(int(i % ((int)triangles.size() / resolution) == 0), int(resolution / aObj * area));
             else
-                N = max(int(i % 2 == 0), int(resolution / aObj * area));
+                N = std::max(int(i % 2 == 0), int(resolution / aObj * area));
 
             int seed = rand() % 1000;
             float r[2];
@@ -360,9 +360,9 @@ namespace coacd
         }
     }
 
-    void ExtractPointSet(Model convex1, Model convex2, unsigned int seed, vector<vec3d> &samples, size_t resolution)
+    void ExtractPointSet(Model convex1, Model convex2, unsigned int seed, std::vector<vec3d> &samples, size_t resolution)
     {
-        vector<vec3d> XA, XB;
+        std::vector<vec3d> XA, XB;
         double a1 = 0, a2 = 0;
         for (int i = 0; i < (int)convex1.triangles.size(); i++)
             a1 += Area(convex1.points[convex1.triangles[i][0]], convex1.points[convex1.triangles[i][1]], convex1.points[convex1.triangles[i][2]]);
@@ -372,7 +372,7 @@ namespace coacd
         Plane overlap_plane;
         bool flag = ComputeOverlapFace(convex1, convex2, overlap_plane);
 
-        vector<int> tmp1, tmp2;
+        std::vector<int> tmp1, tmp2;
         convex1.ExtractPointSet(XA, tmp1, seed, size_t(a1 / (a1 + a2) * resolution), 1, flag, overlap_plane);
         convex2.ExtractPointSet(XB, tmp2, seed, size_t(a2 / (a1 + a2) * resolution), 1, flag, overlap_plane);
 
@@ -380,10 +380,10 @@ namespace coacd
         samples.insert(samples.end(), XB.begin(), XB.end());
     }
 
-    void ExtractPointSet(Model &convex1, Model &convex2, vector<vec3d> &samples, vector<int> &sample_tri_ids, unsigned int seed, size_t resolution)
+    void ExtractPointSet(Model &convex1, Model &convex2, std::vector<vec3d> &samples, std::vector<int> &sample_tri_ids, unsigned int seed, size_t resolution)
     {
-        vector<vec3d> samples1, samples2;
-        vector<int> sample_tri_ids1, sample_tri_ids2;
+        std::vector<vec3d> samples1, samples2;
+        std::vector<int> sample_tri_ids1, sample_tri_ids2;
         double a1 = 0, a2 = 0;
         for (int i = 0; i < (int)convex1.triangles.size(); i++)
             a1 += Area(convex1.points[convex1.triangles[i][0]], convex1.points[convex1.triangles[i][1]], convex1.points[convex1.triangles[i][2]]);
@@ -417,10 +417,12 @@ namespace coacd
 
     /////////// IO /////////////
 
-    bool Model::LoadOBJ(const string &fileName)
+    bool Model::LoadOBJ(const std::string &fileName)
     {
         const unsigned int BufferSize = 1024;
         FILE *fid = fopen(fileName.c_str(), "r");
+        using std::max;
+        using std::min;
 
         if (fid)
         {
@@ -503,14 +505,16 @@ namespace coacd
         }
         else
         {
-            logger(true, false) << "Open File Error!" << endl;
+            logger(true, false) << "Open File Error!" << std::endl;
             return false;
         }
         return true;
     }
 
-    array<array<double, 3>, 3> Model::PCA()
+    std::array<std::array<double, 3>, 3> Model::PCA()
     {
+        using std::max;
+        using std::min;
         AlignToPrincipalAxes();
         double x_min = INF, x_max = -INF, y_min = INF, y_max = -INF, z_min = INF, z_max = -INF;
         for (int i = 0; i < (int)points.size(); i++)
@@ -540,13 +544,13 @@ namespace coacd
         return m_rot;
     }
 
-    vector<double> Model::Normalize()
+    std::vector<double> Model::Normalize()
     {
         double m_len;
         double m_Xmid, m_Ymid, m_Zmid;
         double x_min = bbox[0], x_max = bbox[1], y_min = bbox[2], y_max = bbox[3], z_min = bbox[4], z_max = bbox[5];
 
-        m_len = max(max(x_max - x_min, y_max - y_min), z_max - z_min);
+        m_len = std::max(std::max(x_max - x_min, y_max - y_min), z_max - z_min);
         m_Xmid = (x_max + x_min) / 2;
         m_Ymid = (y_max + y_min) / 2;
         m_Zmid = (z_max + z_min) / 2;
@@ -566,16 +570,16 @@ namespace coacd
         bbox[4] = -z_len / m_len;
         bbox[5] = z_len / m_len;
 
-        return vector<double> {x_min, x_max, y_min, y_max, z_min, z_max};
+        return std::vector<double> {x_min, x_max, y_min, y_max, z_min, z_max};
     }
 
-    void Model::Recover(vector<double> _bbox)
+    void Model::Recover(std::vector<double> _bbox)
     {
         double m_len;
         double m_Xmid, m_Ymid, m_Zmid;
         double x_min = _bbox[0], x_max = _bbox[1], y_min = _bbox[2], y_max = _bbox[3], z_min = _bbox[4], z_max = _bbox[5];
 
-        m_len = max(max(x_max - x_min, y_max - y_min), z_max - z_min);
+        m_len = std::max(std::max(x_max - x_min, y_max - y_min), z_max - z_min);
         m_Xmid = (x_max + x_min) / 2;
         m_Ymid = (y_max + y_min) / 2;
         m_Zmid = (z_max + z_min) / 2;
@@ -588,7 +592,7 @@ namespace coacd
         std::copy(_bbox.begin(), _bbox.end(), bbox);
     }
 
-    void Model::RevertPCA(array<array<double, 3>, 3> rot)
+    void Model::RevertPCA(std::array<std::array<double, 3>, 3> rot)
     {
         for (int i = 0; i < (int)points.size(); i++)
         {
@@ -607,7 +611,7 @@ namespace coacd
         triangles.clear();
     }
 
-    void Model::SaveOBJ(const string &filename)
+    void Model::SaveOBJ(const std::string &filename)
     {
         std::ofstream os(filename);
         for (int i = 0; i < (int)points.size(); ++i)
@@ -643,7 +647,7 @@ namespace coacd
         return volume;
     }
 
-    void RecoverParts(vector<Model> &meshes, vector<double> bbox, array<array<double, 3>, 3> rot, Params &params)
+    void RecoverParts(std::vector<Model> &meshes, std::vector<double> bbox, std::array<std::array<double, 3>, 3> rot, Params &params)
     {
         for (int i = 0; i < (int)meshes.size(); i++)
         {

@@ -32,8 +32,8 @@ namespace coacd
 
   double ComputeHb(Model &tmesh1, Model &tmesh2, unsigned int resolution, unsigned int seed, bool flag)
   {
-    vector<vec3d> samples1, samples2;
-    vector<int> sample_tri_ids1, sample_tri_ids2;
+    std::vector<vec3d> samples1, samples2;
+    std::vector<int> sample_tri_ids1, sample_tri_ids2;
 
     tmesh1.ExtractPointSet(samples1, sample_tri_ids1, seed, resolution, 1);
     tmesh2.ExtractPointSet(samples2, sample_tri_ids2, seed, resolution, 1);
@@ -51,8 +51,8 @@ namespace coacd
     if (cvx1.points.size() + cvx2.points.size() == cvxCH.points.size())
       return 0.0;
     Model cvx;
-    vector<vec3d> samples1, samples2;
-    vector<int> sample_tri_ids1, sample_tri_ids2;
+    std::vector<vec3d> samples1, samples2;
+    std::vector<int> sample_tri_ids1, sample_tri_ids2;
     MergeMesh(cvx1, cvx2, cvx);
     ExtractPointSet(cvx1, cvx2, samples1, sample_tri_ids1, seed, resolution);
     cvxCH.ExtractPointSet(samples2, sample_tri_ids2, seed, resolution, 1);
@@ -70,7 +70,7 @@ namespace coacd
     double h_pos = ComputeRv(volume1, volumeCH1, k, epsilon);
     double h_neg = ComputeRv(volume2, volumeCH2, k, epsilon);
 
-    return max(h_pos, h_neg);
+    return std::max(h_pos, h_neg);
   }
 
   double ComputeHCost(Model &tmesh1, Model &tmesh2, double k, unsigned int resolution, unsigned int seed, double epsilon, bool flag)
@@ -78,7 +78,7 @@ namespace coacd
     double h1 = ComputeRv(tmesh1, tmesh2, k, epsilon);
     double h2 = ComputeHb(tmesh1, tmesh2, resolution, seed, flag);
 
-    return max(h1, h2);
+    return std::max(h1, h2);
   }
 
   double ComputeHCost(Model &cvx1, Model &cvx2, Model &cvxCH, double k, unsigned int resolution, unsigned int seed, double epsilon)
@@ -86,19 +86,19 @@ namespace coacd
     double h1 = ComputeRv(cvx1, cvx2, cvxCH, k, epsilon);
     double h2 = ComputeHb(cvx1, cvx2, cvxCH, resolution + 2000, seed);
 
-    return max(h1, h2);
+    return std::max(h1, h2);
   }
 
   double ComputeEnergy(Model &mesh, Model &pos, Model &posCH, Model &neg, Model &negCH, double k, double cut_area, unsigned int resolution, unsigned int seed, double epsilon)
   {
     double h_pos = ComputeHCost(pos, posCH, k, resolution, seed, epsilon);
     double h_neg = ComputeHCost(neg, negCH, k, resolution, seed, epsilon);
-    return max(h_pos, h_neg);
+    return std::max(h_pos, h_neg);
   }
 
   double MeshDist(Model &ch1, Model &ch2)
   {
-    vector<vec3d> XA = ch1.points, XB = ch2.points;
+    std::vector<vec3d> XA = ch1.points, XB = ch2.points;
 
     int nA = XA.size();
 
@@ -127,7 +127,7 @@ namespace coacd
 
       num_results = indexB.knnSearch(&query_pt[0], num_results, &ret_index[0], &out_dist_sqr[0]);
       double dist = sqrt(out_dist_sqr[0]);
-      minDist = min(minDist, dist);
+      minDist = std::min(minDist, dist);
     }
 
     return minDist;

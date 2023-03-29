@@ -22,10 +22,10 @@ namespace coacd
 
   void ManifoldPreprocess(Params &params, Model &m);
   void MergeCH(Model &ch1, Model &ch2, Model &ch);
-  double MergeConvexHulls(Model &m, vector<Model> &meshs, vector<Model> &cvxs, Params &params, double epsilon = 0.02, double threshold = 0.01);
-  vector<Model> Compute(Model &mesh, Params &params);
+  double MergeConvexHulls(Model &m, std::vector<Model> &meshs, std::vector<Model> &cvxs, Params &params, double epsilon = 0.02, double threshold = 0.01);
+  std::vector<Model> Compute(Model &mesh, Params &params);
 
-  inline void addNeighbor(map<pair<int, int>, pair<int, int>> &edge_map, pair<int, int> &edge, vector<int> &neighbors, int idx)
+  inline void addNeighbor(std::map<std::pair<int, int>, std::pair<int, int>> &edge_map, std::pair<int, int> &edge, std::vector<int> &neighbors, int idx)
   {
     int first = edge_map[edge].first;
     int second = edge_map[edge].second;
@@ -35,7 +35,7 @@ namespace coacd
       neighbors.push_back(second);
   }
 
-  inline int32_t FindMinimumElement(const vector<double> d, double *const m, const int32_t begin, const int32_t end)
+  inline int32_t FindMinimumElement(const std::vector<double> d, double *const m, const int32_t begin, const int32_t end)
   {
     int32_t idx = -1;
     double min = (std::numeric_limits<double>::max)();

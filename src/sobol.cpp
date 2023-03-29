@@ -6,7 +6,6 @@
 # include <ctime>
 # include <cstring>
 
-using namespace std;
 
 # include "sobol.h"
 
@@ -321,6 +320,8 @@ void i4_sobol ( int dim_num, int *seed, float quasi[ ] )
 //    Output, float QUASI[DIM_NUM], the next quasirandom vector.
 //
 {
+    using std::cout;
+    using std::endl;
 # define DIM_MAX2 1111
 # define LOG_MAX 30
 
@@ -13708,6 +13709,7 @@ void i4_sobol ( int dim_num, int *seed, float quasi[ ] )
 //
 //  Check parameters.
 //
+    using std::cout; 
     if ( dim_num < 1 || DIM_MAX2 < dim_num )
     {
       cout << "\n";
@@ -13715,7 +13717,7 @@ void i4_sobol ( int dim_num, int *seed, float quasi[ ] )
       cout << "  The spatial dimension DIM_NUM should satisfy:\n";
       cout << "    1 <= DIM_NUM <= " << DIM_MAX2 << "\n";
       cout << "  But this input value is DIM_NUM = " << dim_num << "\n";
-      exit ( 1 );
+      std::exit ( 1 );
     }
 
     dim_num_save = dim_num;
@@ -14009,10 +14011,10 @@ int i4_uniform ( int a, int b, int *seed )
 
   if ( *seed == 0 )
   {
-    cerr << "\n";
-    cerr << "I4_UNIFORM - Fatal error!\n";
-    cerr << "  Input value of SEED = 0.\n";
-    exit ( 1 );
+    std::cerr << "\n";
+    std::cerr << "I4_UNIFORM - Fatal error!\n";
+    std::cerr << "  Input value of SEED = 0.\n";
+    std::exit ( 1 );
   }
 
   k = *seed / 127773;
@@ -27669,6 +27671,7 @@ void i8_sobol ( int dim_num, long long int *seed, double quasi[ ] )
 //
 //  Check parameters.
 //
+    using std::cout; 
     if ( dim_num < 1 || DIM_MAX2 < dim_num )
     {
       cout << "\n";
@@ -27676,7 +27679,7 @@ void i8_sobol ( int dim_num, long long int *seed, double quasi[ ] )
       cout << "  The spatial dimension DIM_NUM should satisfy:\n";
       cout << "    1 <= DIM_NUM <= " << DIM_MAX2 << "\n";
       cout << "  But this input value is DIM_NUM = " << dim_num << "\n";
-      exit ( 1 );
+      std::exit ( 1 );
     }
 
     dim_num_save = dim_num;
@@ -27827,6 +27830,7 @@ void i8_sobol ( int dim_num, long long int *seed, double quasi[ ] )
 //
 //  Check that the user is not calling too many times!
 //
+  using std::cout;
   if ( maxcol < l )
   {
     cout << "\n";
@@ -28049,9 +28053,9 @@ long long int i8_uniform ( long long int a, long long int b, int *seed )
 
   if ( *seed == 0 )
   {
-    cerr << "\n";
-    cerr << "I8_UNIFORM - Fatal error!\n";
-    cerr << "  Input value of SEED = 0.\n";
+    std::cerr << "\n";
+    std::cerr << "I8_UNIFORM - Fatal error!\n";
+    std::cerr << "  Input value of SEED = 0.\n";
     exit ( 1 );
   }
 
@@ -28255,10 +28259,10 @@ float r4_uniform_01 ( int *seed )
 
   if ( *seed == 0 )
   {
-    cerr << "\n";
-    cerr << "R4_UNIFORM_01 - Fatal error!\n";
-    cerr << "  Input value of SEED = 0.\n";
-    exit ( 1 );
+    std::cerr << "\n";
+    std::cerr << "R4_UNIFORM_01 - Fatal error!\n";
+    std::cerr << "  Input value of SEED = 0.\n";
+    std::exit ( 1 );
   }
 
   k = *seed / 127773;
@@ -28452,10 +28456,10 @@ double r8_uniform_01 ( int *seed )
 
   if ( *seed == 0 )
   {
-    cerr << "\n";
-    cerr << "R8_UNIFORM_01 - Fatal error!\n";
-    cerr << "  Input value of SEED = 0.\n";
-    exit ( 1 );
+    std::cerr << "\n";
+    std::cerr << "R8_UNIFORM_01 - Fatal error!\n";
+    std::cerr << "  Input value of SEED = 0.\n";
+    std::exit ( 1 );
   }
 
   k = *seed / 127773;
@@ -28513,7 +28517,7 @@ void r8mat_write ( string output_filename, int m, int n, double table[] )
 {
   int i;
   int j;
-  ofstream output;
+  std::ofstream output;
 //
 //  Open the file.
 //
@@ -28521,9 +28525,9 @@ void r8mat_write ( string output_filename, int m, int n, double table[] )
 
   if ( !output )
   {
-    cerr << "\n";
-    cerr << "R8MAT_WRITE - Fatal error!\n";
-    cerr << "  Could not open the output file.\n";
+    std::cerr << "\n";
+    std::cerr << "R8MAT_WRITE - Fatal error!\n";
+    std::cerr << "  Could not open the output file.\n";
     return;
   }
 //
@@ -28685,7 +28689,7 @@ void timestamp ( )
 
   strftime ( time_buffer, TIME_SIZE, "%d %B %Y %I:%M:%S %p", tm );
 
-  cout << time_buffer << "\n";
+  std::cout << time_buffer << "\n";
 
   return;
 # undef TIME_SIZE

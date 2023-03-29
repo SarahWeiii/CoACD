@@ -1,4 +1,6 @@
 #include <stdint.h>
+#include <random>
+#include <algorithm>
 #include "mcts.h"
 
 namespace coacd
@@ -58,7 +60,7 @@ namespace coacd
         ori_meshCH_volume = MeshVolume(ch);
         current_cost = 0; // accumulated score
     }
-    State::State(Params _params, vector<double> &_current_costs, vector<Part> &_current_parts, Model &_initial_part)
+    State::State(Params _params, std::vector<double> &_current_costs, std::vector<Part>& _current_parts, Model& _initial_part)
     {
         params = _params;
         terminal_threshold = params.threshold;
@@ -94,11 +96,11 @@ namespace coacd
         return (*this);
     }
 
-    void State::set_current_value(pair<Plane, int> value)
+    void State::set_current_value(std::pair<Plane, int> value)
     {
         current_value = value;
     }
-    pair<Plane, int> State::get_current_value()
+    std::pair<Plane, int> State::get_current_value()
     {
         return current_value;
     }
@@ -142,8 +144,8 @@ namespace coacd
         }
         else
         {
-            vector<double> _current_costs;
-            vector<Part> _current_parts;
+            std::vector<double> _current_costs;
+            std::vector<Part> _current_parts;
             for (int i = 0; i < (int)current_parts.size(); i++)
             {
                 if (i != worst_part_idx)
@@ -167,7 +169,7 @@ namespace coacd
             _current_costs.clear();
             _current_parts.clear();
 
-            next_state.current_value = make_pair(cutting_plane, worst_part_idx);
+            next_state.current_value = std::make_pair(cutting_plane, worst_part_idx);
             double single_reward = next_state.compute_reward();
             next_state.current_cost = current_cost + single_reward;
             next_state.current_round = current_round + 1;
@@ -218,7 +220,7 @@ namespace coacd
     {
         return parent;
     }
-    vector<Node *> Node::get_children()
+    std::vector<Node *> Node::get_children()
     {
         return children;
     }
@@ -244,7 +246,7 @@ namespace coacd
     }
     void Node::quality_value_add_n(double n)
     {
-        quality_value = min(quality_value, n);
+        quality_value = std::min(quality_value, n);
     }
     bool Node::is_all_expand()
     {
@@ -258,11 +260,11 @@ namespace coacd
         children.push_back(sub_node);
     }
 
-    bool clip_by_path(Model &m, double &final_cost, Params &params, Plane &first_plane, vector<Plane> &best_path)
+    bool clip_by_path(Model &m, double &final_cost, Params &params, Plane &first_plane, std::vector<Plane> &best_path)
     {
         int worst_idx = 0;
-        vector<double> scores;
-        vector<Model> parts;
+        std::vector<double> scores;
+        std::vector<Model> parts;
         bool flag;
         double tmp;
         double max_cost;
@@ -291,7 +293,7 @@ namespace coacd
         else
             worst_idx = 1;
 
-        final_cost = max(pos_cost, neg_cost);
+        final_cost = std::max(pos_cost, neg_cost);
         int N = (int)best_path.size();
         for (int i = 1; i < N; i++)
         {
@@ -307,8 +309,8 @@ namespace coacd
             double _pos_cost = ComputeRv(_pos, _posCH, params.rv_k);
             double _neg_cost = ComputeRv(_neg, _negCH, params.rv_k);
 
-            vector<double> _scores;
-            vector<Model> _parts;
+            std::vector<double> _scores;
+            std::vector<Model> _parts;
             for (int j = 0; j < (int)parts.size(); j++)
             {
                 if (j != worst_idx)
@@ -343,7 +345,7 @@ namespace coacd
         return true;
     }
 
-    bool TernaryMCTS(Model &m, Params &params, Plane &bestplane, vector<Plane> &best_path, double best_cost, bool mode, double epsilon)
+    bool TernaryMCTS(Model &m, Params &params, Plane &bestplane, std::vector<Plane> &best_path, double best_cost, bool mode, double epsilon)
     {
         double *bbox = m.GetBBox();
         double interval;
@@ -357,11 +359,11 @@ namespace coacd
         if (fabs(bestplane.a - 1.0) < 1e-4 || !mode)
         {
             double left, right;
-            interval = max(0.01, abs(bbox[0] - bbox[1]) / ((double)params.downsampling + 1));
+            interval = std::max(0.01, abs(bbox[0] - bbox[1]) / ((double)params.downsampling + 1));
             if (mode == true)
             {
-                left = max(bbox[0] + minItv, -1.0 * bestplane.d - interval);
-                right = min(bbox[1] - minItv, -1.0 * bestplane.d + interval);
+                left = std::max(bbox[0] + minItv, -1.0 * bestplane.d - interval);
+                right = std::min(bbox[1] - minItv, -1.0 * bestplane.d + interval);
             }
             else
             {
@@ -412,10 +414,12 @@ namespace coacd
                 }
             }
         }
+        using std::max;
+        using std::min;
         if (fabs(bestplane.b - 1.0) < 1e-4 || !mode)
         {
             double left, right;
-            interval = max(0.01, abs(bbox[2] - bbox[3]) / ((double)params.downsampling + 1));
+            interval = std::max(0.01, abs(bbox[2] - bbox[3]) / ((double)params.downsampling + 1));
             if (mode == true)
             {
                 left = max(bbox[2] + minItv, -1.0 * bestplane.d - interval);
@@ -535,8 +539,10 @@ namespace coacd
 
         return true;
     }
-    void RefineMCTS(Model &m, Params &params, Plane &bestplane, vector<Plane> &best_path, double best_cost, double epsilon)
+    void RefineMCTS(Model &m, Params &params, Plane &bestplane, std::vector<Plane> &best_path, double best_cost, double epsilon)
     {
+        using std::max; 
+        using std::min; 
         double *bbox = m.GetBBox();
         double downsample;
         double interval = 0.01;
@@ -602,11 +608,13 @@ namespace coacd
             }
         }
         else
-            throw runtime_error("RefineMCTS Error!");
+            throw std::runtime_error("RefineMCTS Error!");
     }
 
-    void ComputeAxesAlignedClippingPlanes(Model &m, const int downsampling, vector<Plane> &planes, bool shuffle)
+    void ComputeAxesAlignedClippingPlanes(Model &m, const int downsampling, std::vector<Plane> &planes, bool shuffle)
     {
+        using std::max;
+        using std::min;
         double *bbox = m.GetBBox();
         double interval;
         double eps = 1e-6;
@@ -627,10 +635,15 @@ namespace coacd
         }
 
         if (shuffle)
-            random_shuffle(planes.begin(), planes.end());
+        {
+			std::random_device rd;
+			std::mt19937 g(rd());
+			std::shuffle(planes.begin(), planes.end(), g);
+
+        }
     }
 
-    bool ComputeBestRvClippingPlane(Model &m, Params &params, vector<Plane> &planes, Plane &bestplane, double &bestcost)
+    bool ComputeBestRvClippingPlane(Model &m, Params &params, std::vector<Plane> &planes, Plane &bestplane, double &bestcost)
     {
         if ((int)planes.size() == 0)
             return false;
@@ -667,7 +680,7 @@ namespace coacd
         return true;
     }
 
-    double ComputeReward(Params &params, double meshCH_v, vector<double> &current_costs, vector<Part> &current_parts, int &worst_part_idx, double ori_mesh_area, double ori_mesh_volume)
+    double ComputeReward(Params &params, double meshCH_v, std::vector<double> &current_costs, std::vector<Part> &current_parts, int &worst_part_idx, double ori_mesh_area, double ori_mesh_volume)
     {
         double reward = 0;
         double h_max = 0;
@@ -703,7 +716,7 @@ namespace coacd
         return node;
     }
 
-    double default_policy(Node *node, Params &params, vector<Plane> &current_path) // evaluate the quality until the mesh is all cut MAX_ROUND times
+    double default_policy(Node *node, Params &params, std::vector<Plane> &current_path) // evaluate the quality until the mesh is all cut MAX_ROUND times
     {
         State *original_state = node->get_state();
         State current_state = *original_state;
@@ -712,7 +725,7 @@ namespace coacd
 
         while (current_state.is_terminal() == false)
         {
-            vector<Plane> planes;
+            std::vector<Plane> planes;
             Plane bestplane;
             double bestcost, cut_area;
             ComputeAxesAlignedClippingPlanes(current_state.current_parts[current_state.worst_part_idx].current_mesh, MCTS_RANDOM_CUT, planes);
@@ -725,10 +738,10 @@ namespace coacd
             Model pos, neg, posCH, negCH;
             bool clipf = Clip(current_state.current_parts[current_state.worst_part_idx].current_mesh, pos, neg, bestplane, cut_area);
             if (!clipf)
-                throw runtime_error("Wrong MCTS clip proposal!");
+                throw std::runtime_error("Wrong MCTS clip proposal!");
             current_path.push_back(bestplane);
-            vector<double> _current_costs;
-            vector<Part> _current_parts;
+            std::vector<double> _current_costs;
+            std::vector<Part> _current_parts;
             for (int i = 0; i < (int)current_state.current_parts.size(); i++)
             {
                 if (i != current_state.worst_part_idx)
@@ -780,7 +793,7 @@ namespace coacd
         double best_score = INF;
         Node *best_sub_node = NULL;
 
-        vector<Node *> children = node->get_children();
+        std::vector<Node *> children = node->get_children();
         for (int i = 0; i < (int)children.size(); i++)
         {
             double C;
@@ -804,9 +817,9 @@ namespace coacd
         return best_sub_node;
     }
 
-    void backup(Node *node, double reward, vector<Plane> &current_path, vector<Plane> &best_path)
+    void backup(Node *node, double reward, std::vector<Plane> &current_path, std::vector<Plane> &best_path)
     {
-        vector<Plane> tmp_path;
+        std::vector<Plane> tmp_path;
         int N = (int)current_path.size();
         for (int i = 0; i < N; i++)
             tmp_path.push_back(current_path[N - 1 - i]);
@@ -833,7 +846,7 @@ namespace coacd
             return;
         }
 
-        vector<Node *> children = root->get_children();
+        std::vector<Node *> children = root->get_children();
         while (idx < (int)children.size())
         {
             free_tree(children[idx++], 0);
@@ -842,13 +855,13 @@ namespace coacd
         return;
     }
 
-    Node *MonteCarloTreeSearch(Params &params, Node *node, vector<Plane> &best_path)
+    Node *MonteCarloTreeSearch(Params &params, Node *node, std::vector<Plane> &best_path)
     {
         int computation_budget = params.mcts_iteration;
         Model initial_mesh = node->get_state()->current_parts[0].current_mesh, initial_ch;
         initial_mesh.ComputeCH(initial_ch);
         double cost = ComputeRv(initial_mesh, initial_ch, params.rv_k) / params.mcts_max_depth;
-        vector<Plane> current_path;
+        std::vector<Plane> current_path;
         srand(params.seed);
 
         for (int i = 0; i < computation_budget; i++)

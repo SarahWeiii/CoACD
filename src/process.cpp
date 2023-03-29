@@ -29,18 +29,20 @@ namespace coacd
         merge.ComputeCH(ch);
     }
 
-    double MergeConvexHulls(Model &m, vector<Model> &meshs, vector<Model> &cvxs, Params &params, double epsilon, double threshold)
+    double MergeConvexHulls(Model &m, std::vector<Model> &meshs, std::vector<Model> &cvxs, Params &params, double epsilon, double threshold)
     {
-        logger(params.if_cout, false) << " - Merge Convex Hulls" << endl;
+        logger(params.if_cout, false) << " - Merge Convex Hulls" << std::endl;
         size_t nConvexHulls = (size_t)cvxs.size();
         double h = 0;
+        using std::max; 
+        using std::min; 
 
         if (nConvexHulls > 1)
         {
             int bound = ((((nConvexHulls - 1) * nConvexHulls)) >> 1);
             // Populate the cost matrix
             size_t idx = 0;
-            vector<double> costMatrix, precostMatrix;
+            std::vector<double> costMatrix, precostMatrix;
             costMatrix.resize(bound);    // only keeps the top half of the matrix
             precostMatrix.resize(bound); // only keeps the top half of the matrix
 
@@ -61,7 +63,7 @@ namespace coacd
                     MergeCH(cvxs[p1], cvxs[p2], combinedCH);
 
                     costMatrix[idx] = ComputeHCost(cvxs[p1], cvxs[p2], combinedCH, params.rv_k, params.resolution, params.seed);
-                    precostMatrix[idx] = max(ComputeHCost(meshs[p1], cvxs[p1], params.rv_k, 3000, params.seed),
+                    precostMatrix[idx] = std::max(ComputeHCost(meshs[p1], cvxs[p1], params.rv_k, 3000, params.seed),
                                              ComputeHCost(meshs[p2], cvxs[p2], params.rv_k, 3000, params.seed));
                 }
                 else
@@ -79,7 +81,7 @@ namespace coacd
                 const size_t addr = FindMinimumElement(costMatrix, &bestCost, 0, (int32_t)costMatrix.size());
                 if (bestCost > params.threshold)
                     break;
-                if (bestCost > max(params.threshold - precostMatrix[addr], 0.01))
+                if (bestCost > std::max(params.threshold - precostMatrix[addr], 0.01))
                 {
                     costMatrix[addr] = INF;
                     continue;
@@ -171,10 +173,11 @@ namespace coacd
         return h;
     }
 
-    vector<Model> Compute(Model &mesh, Params &params)
+    std::vector<Model> Compute(Model &mesh, Params &params)
     {
-        vector<Model> InputParts = {mesh};
-        vector<Model> parts, pmeshs;
+        using std::endl;
+        std::vector<Model> InputParts = {mesh};
+        std::vector<Model> parts, pmeshs;
 #ifdef _OPENMP
         omp_lock_t writelock;
         omp_init_lock(&writelock);
@@ -195,7 +198,7 @@ namespace coacd
         double cut_area;
         while ((int)InputParts.size() > 0)
         {
-            vector<Model> tmp;
+            std::vector<Model> tmp;
             logger(false, params.if_log, params.logfile) << "iter " << iter << " ---- "
                                                          << "waiting pool: " << InputParts.size() << endl;
             logger(params.if_cout, false) << "iter " << iter << " ---- "
@@ -215,7 +218,7 @@ namespace coacd
 
                 if (h > params.threshold)
                 {
-                    vector<Plane> planes, best_path;
+                    std::vector<Plane> planes, best_path;
 
                     // MCTS for cutting plane
                     Node *node = new Node(params);

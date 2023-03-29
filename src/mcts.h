@@ -28,7 +28,7 @@ namespace coacd
 
   constexpr int MCTS_RANDOM_CUT = 1;
 
-  void ComputeAxesAlignedClippingPlanes(Model &m, const int downsampling, vector<Plane> &planes, bool shuffle = false);
+  void ComputeAxesAlignedClippingPlanes(Model &m, const int downsampling, std::vector<Plane> &planes, bool shuffle = false);
 
   class Part
   {
@@ -36,20 +36,20 @@ namespace coacd
     Params params;
     Model current_mesh;
     int next_choice;
-    vector<Plane> available_moves;
+    std::vector<Plane> available_moves;
 
     Part(Params _params, Model mesh);
     Part operator=(const Part &_part);
     Plane get_one_move();
   };
 
-  double ComputeReward(Params &params, double meshCH_v, vector<double> &current_costs, vector<Part> &current_parts, int &worst_part_idx, double ori_mesh_area, double ori_mesh_volume);
+  double ComputeReward(Params &params, double meshCH_v, std::vector<double> &current_costs, std::vector<Part> &current_parts, int &worst_part_idx, double ori_mesh_area, double ori_mesh_volume);
 
   class State
   {
   public:
     double terminal_threshold;
-    pair<Plane, int> current_value;
+    std::pair<Plane, int> current_value;
     double current_cost;
     double current_score;
     int current_round;
@@ -57,20 +57,20 @@ namespace coacd
     double ori_mesh_area;
     double ori_mesh_volume;
     double ori_meshCH_volume;
-    vector<double> current_costs;
-    vector<Part> current_parts;
+    std::vector<double> current_costs;
+    std::vector<Part> current_parts;
     int worst_part_idx;
     Params params;
 
     State();
     State(Params _params);
     State(Params _params, Model &_initial_part);
-    State(Params _params, vector<double> &_current_costs, vector<Part> &_current_parts, Model &_initial_part);
+    State(Params _params, std::vector<double> &_current_costs, std::vector<Part> &_current_parts, Model &_initial_part);
 
     State operator=(const State &_state);
 
-    void set_current_value(pair<Plane, int> value);
-    pair<Plane, int> get_current_value();
+    void set_current_value(std::pair<Plane, int> value);
+    std::pair<Plane, int> get_current_value();
     void set_current_round(int round);
     int get_current_round();
     bool is_terminal();
@@ -83,7 +83,7 @@ namespace coacd
   {
   public:
     int idx;
-    vector<Node *> children;
+    std::vector<Node *> children;
 
     int visit_times;
     double quality_value;
@@ -100,7 +100,7 @@ namespace coacd
     State *get_state();
     void set_parent(Node *_parent);
     Node *get_parent();
-    vector<Node *> get_children();
+    std::vector<Node *> get_children();
     double get_visit_times();
     void set_visit_times(double _visit_times);
     void visit_times_add_one();
@@ -116,13 +116,13 @@ namespace coacd
   Node *expand(Node *node);
   Node *best_child(Node *node, bool is_exploration, double initial_cost = 0.1);
   void backup(Node *node, double reward);
-  Node *MonteCarloTreeSearch(Params &params, Node *node, vector<Plane> &best_path);
+  Node *MonteCarloTreeSearch(Params &params, Node *node, std::vector<Plane> &best_path);
 
-  bool clip_by_path(Model &m, double &final_cost, Params &params, Plane &first_plane, vector<Plane> &best_path);
-  bool TernaryMCTS(Model &m, Params &params, Plane &bestplane, vector<Plane> &best_path, double best_cost, bool mode = 1, double epsilon = 0.0001);
-  void RefineMCTS(Model &m, Params &params, Plane &bestplane, vector<Plane> &best_path, double best_cost, double epsilon = 0.0001);
-  void ComputeAxesAlignedClippingPlanes(Model &m, const int downsampling, vector<Plane> &planes, bool shuffle);
-  bool ComputeBestRvClippingPlane(Model &m, Params &params, vector<Plane> &planes, Plane &bestplane, double &bestcost);
-  double ComputeReward(Params &params, double meshCH_v, vector<double> &current_costs, vector<Part> &current_parts, int &worst_part_idx, double ori_mesh_area, double ori_mesh_volume);
+  bool clip_by_path(Model &m, double &final_cost, Params &params, Plane &first_plane, std::vector<Plane> &best_path);
+  bool TernaryMCTS(Model &m, Params &params, Plane &bestplane, std::vector<Plane> &best_path, double best_cost, bool mode = 1, double epsilon = 0.0001);
+  void RefineMCTS(Model &m, Params &params, Plane &bestplane, std::vector<Plane> &best_path, double best_cost, double epsilon = 0.0001);
+  void ComputeAxesAlignedClippingPlanes(Model &m, const int downsampling, std::vector<Plane> &planes, bool shuffle);
+  bool ComputeBestRvClippingPlane(Model &m, Params &params, std::vector<Plane> &planes, Plane &bestplane, double &bestcost);
+  double ComputeReward(Params &params, double meshCH_v, std::vector<double> &current_costs, std::vector<Part> &current_parts, int &worst_part_idx, double ori_mesh_area, double ori_mesh_volume);
   void free_tree(Node *root, int idx);
 }

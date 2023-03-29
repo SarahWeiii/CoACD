@@ -25,8 +25,8 @@ namespace coacd
 
     //////////////// IO ////////////////
     void SaveConfig(Params params);
-    void SaveOBJ(const string &filename, vector<Model> parts, Params &params);
-    void SaveOBJs(const string &foldername, const string &filename, vector<Model> parts, Params &params);
-    bool WriteVRML(ofstream &fout, Model mesh);
-    void SaveVRML(const string &fileName, vector<Model>& meshes, Params &params);
+    void SaveOBJ(const std::string &filename, std::vector<Model> parts, Params &params);
+    void SaveOBJs(const std::string &foldername, const std::string &filename, std::vector<Model> parts, Params &params);
+    bool WriteVRML(std::ofstream &fout, Model mesh);
+    void SaveVRML(const std::string &fileName, std::vector<Model>& meshes, Params &params);
 }

@@ -84,15 +84,15 @@ void BVH::updateBVH(std::vector<BV*>& bvs, int dim, int l, int r) {
     }
 }
 
-pair<glm::dvec3,bool> BVH::rayIntersect(glm::dvec3& o, glm::dvec3& d)
+std::pair<glm::dvec3,bool> BVH::rayIntersect(glm::dvec3& o, glm::dvec3& d)
 {
     if (left == 0 && right == 0)
     {
         if (!bv->tris || !bv->HitBox(o, d))
-            return make_pair(glm::dvec3(), false);
+            return std::make_pair(glm::dvec3(), false);
         return bv->rayIntersectsTriangle(o, d);
     }
-    pair<glm::dvec3,bool> p1, p2;
+    std::pair<glm::dvec3,bool> p1, p2;
     p1.second = false;
     p2.second = false;
     if (!bv->HitBox(o,d))

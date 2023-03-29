@@ -22,7 +22,7 @@ double r8_abs ( double x );
 int r8_nint ( double x );
 double r8_uniform_01 ( int *seed );
 
-void r8mat_write ( string output_filename, int m, int n, double table[] );
+void r8mat_write ( std::string output_filename, int m, int n, double table[] );
 
 int tau_sobol ( int dim_num );
 void timestamp ( );

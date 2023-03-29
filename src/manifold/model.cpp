@@ -40,6 +40,7 @@ Model_OBJ::Model_OBJ()
  
 int Model_OBJ::Load(char* filename)
 {
+	using std::endl; 
     const unsigned int BufferSize = 1024;
     FILE* fid = fopen(filename, "r");
 
@@ -95,7 +96,7 @@ int Model_OBJ::Load(char* filename)
         fclose(fid);
     }
     else {
-        cout << "Open File Error!" << endl;
+        std::cout << "Open File Error!" << std::endl;
     }
     return 0;
 	
@@ -152,8 +153,8 @@ void Model_OBJ::Build_Tree(int resolution)
 	tree->BuildConnection();
 	tree->BuildEmptyConnection();
 
-	list<Octree*> empty_list;
-	set<Octree*> empty_set;
+	std::list<Octree*> empty_list;
+	std::set<Octree*> empty_set;
 	for (int i = 0; i < 6; ++i)
 	{
 		tree->ExpandEmpty(empty_list, empty_set, i);
@@ -163,7 +164,7 @@ void Model_OBJ::Build_Tree(int resolution)
 	{
 		Octree* empty = empty_list.front();
 		empty->exterior = 1;
-		for (list<Octree*>::iterator it = empty->empty_neighbors.begin();
+		for (std::list<Octree*>::iterator it = empty->empty_neighbors.begin();
 			it != empty->empty_neighbors.end(); ++it)
 		{
 			if (empty_set.find(*it) == empty_set.end())
@@ -275,13 +276,13 @@ glm::dvec3 Model_OBJ::Closest_Point( const glm::dvec3 *triangle, const glm::dvec
 
 void Model_OBJ::Construct_Manifold()
 {
-	map<Grid_Index,int> vcolor;
-	vector<glm::dvec3> nvertices;
-	vector<glm::ivec4> nface_indices;
-	vector<glm::ivec3> triangles;
+	std::map<Grid_Index,int> vcolor;
+	std::vector<glm::dvec3> nvertices;
+	std::vector<glm::ivec4> nface_indices;
+	std::vector<glm::ivec3> triangles;
 	tree->ConstructFace(vcolor,glm::ivec3(0,0,0),nvertices,nface_indices, v_faces);
 	Split_Grid(vcolor, nvertices, nface_indices, v_faces, triangles);
-	vector<int> hash_v(nvertices.size(),0);
+	std::vector<int> hash_v(nvertices.size(),0);
 	for (int i = 0; i < (int)triangles.size(); ++i)
 	{
 		for (int j = 0; j < 3; ++j)
@@ -316,7 +317,7 @@ glm::dvec3 Model_OBJ::Find_Closest(int i)
 	glm::dvec3 cpoint = glm::dvec3(1e20,1e20,1e20);
 	glm::dvec3 tris[3];
 	glm::dvec3 normal;
-	for (set<int>::iterator it = v_faces[i].begin();
+	for (std::set<int>::iterator it = v_faces[i].begin();
 		it != v_faces[i].end(); ++it)
 	{
 		int face_ind = *it;
@@ -343,7 +344,7 @@ void Model_OBJ::Project_Manifold()
 	colors.clear();
 	colors.resize(vertices.size(),glm::dvec3(1,1,1));
 
-	vector<vector<int> > vertex_faces(vertices.size());
+	std::vector<std::vector<int> > vertex_faces(vertices.size());
 	face_normals.resize(face_indices.size());
 	for (int i = 0; i < (int)face_indices.size(); ++i)
 	{
@@ -356,7 +357,7 @@ void Model_OBJ::Project_Manifold()
 			vertex_faces[id[j]].push_back(i);
 		}
 	}
-	vector<int> vertices_hash(vertices.size(), 0);
+	std::vector<int> vertices_hash(vertices.size(), 0);
 	double min_step = 2.0 / ITER_NUM;
 
 for (int iter = 0; iter < ITER_NUM; ++iter) {
@@ -371,8 +372,8 @@ for (int iter = 0; iter < ITER_NUM; ++iter) {
 			vertices[id[2]] - vertices[id[0]]));
 	}
 
-	vector<int> invalid_vertices;
-	vector<int> invalid_indices(vertices.size(), -1);
+	std::vector<int> invalid_vertices;
+	std::vector<int> invalid_indices(vertices.size(), -1);
 
 	for (int i = 0; i < (int)vertices.size(); ++i)
 	{
@@ -474,7 +475,7 @@ for (int iter = 0; iter < ITER_NUM; ++iter) {
 		}
 	}
 //	cout << "Invalid " << invalid_vertices.size() << "\n";
-	vector<int> invalid_colors(invalid_vertices.size(), -1);
+	std::vector<int> invalid_colors(invalid_vertices.size(), -1);
 	int c = 0;
 	for (int i = 0; i < (int)invalid_vertices.size(); ++i)
 	{
@@ -482,7 +483,7 @@ for (int iter = 0; iter < ITER_NUM; ++iter) {
 		{
 //			colors[invalid_vertices[i]] = glm::dvec3(0,0,1);
 			invalid_colors[i] = c;
-			vector<int> queue;
+			std::vector<int> queue;
 			int f = 0;
 			queue.push_back(i);
 			while (f != (int)queue.size())
@@ -502,7 +503,7 @@ for (int iter = 0; iter < ITER_NUM; ++iter) {
 				}
 				f++;
 			}
-			for (vector<int>::reverse_iterator it = queue.rbegin();
+			for (std::vector<int>::reverse_iterator it = queue.rbegin();
 				it != queue.rend(); ++it)
 			{
 				glm::dvec3 midpoint(0,0,0);
@@ -557,7 +558,7 @@ for (int iter = 0; iter < ITER_NUM; ++iter) {
 
 bool Model_OBJ::Project(glm::dvec3& o, glm::dvec3& d)
 {
-	pair<glm::dvec3,bool> p = bvh->rayIntersect(o, d);
+	std::pair<glm::dvec3,bool> p = bvh->rayIntersect(o, d);
 	if (!p.second)
 		return false;
 	o = p.first;
@@ -593,8 +594,8 @@ void Model_OBJ::Process_Manifold(int resolution)
 
 	for (int iter = 0; iter < 1; ++iter)
 	{
-		vector<glm::dvec3> dis(vertices.size());
-		vector<int> dis_weight(vertices.size());
+		std::vector<glm::dvec3> dis(vertices.size());
+		std::vector<int> dis_weight(vertices.size());
 		for (int i = 0; i < (int)face_indices.size(); ++i)
 		{
 			for (int j = 0; j < 3; ++j)
@@ -616,25 +617,25 @@ void Model_OBJ::Process_Manifold(int resolution)
 	int flag = is_manifold();
 	if (flag != 0)
 	{
-		ofstream os("error.txt");
+		std::ofstream os("error.txt");
 		os << fn << "\n";
 		os.close();
-		cout << "Not a Manifold! " << flag << "\n";
+		std::cout << "Not a Manifold! " << flag << "\n";
 		exit(0);
 	}
 }
 
-bool Model_OBJ::Split_Grid(map<Grid_Index,int>& vcolor, vector<glm::dvec3>& nvertices, vector<glm::ivec4>& nface_indices, vector<set<int> >& v_faces, vector<glm::ivec3>& triangles)
+bool Model_OBJ::Split_Grid(std::map<Grid_Index,int>& vcolor, std::vector<glm::dvec3>& nvertices, std::vector<glm::ivec4>& nface_indices, std::vector<std::set<int> >& v_faces, std::vector<glm::ivec3>& triangles)
 {
 	double unit_len = 0;
 	v_info.resize(vcolor.size());
-	for (map<Grid_Index,int>::iterator it = vcolor.begin();
+	for (std::map<Grid_Index,int>::iterator it = vcolor.begin();
 		it != vcolor.end(); ++it)
 	{
 		v_info[it->second] = it->first;
 	}
-	set<int> marked_v;
-	map<pair<int,int>,list<pair<int,int> > > edge_info;
+	std::set<int> marked_v;
+	std::map<std::pair<int,int>,std::list<std::pair<int,int> > > edge_info;
 	for (int i = 0; i < (int)nface_indices.size(); ++i)
 	{
 		for (int j = 0; j < 4; ++j)
@@ -647,20 +648,20 @@ bool Model_OBJ::Split_Grid(map<Grid_Index,int>& vcolor, vector<glm::dvec3>& nver
 				x = y;
 				y = temp;
 			}
-			pair<int,int> edge = make_pair(x,y);
-			map<pair<int,int>, list<pair<int,int> > >::iterator it = edge_info.find(edge);
+			std::pair<int,int> edge = std::make_pair(x,y);
+			std::map<std::pair<int,int>, std::list<std::pair<int,int> > >::iterator it = edge_info.find(edge);
 			if (it != edge_info.end())
 			{
-				it->second.push_back(make_pair(i,j));
+				it->second.push_back(std::make_pair(i,j));
 			} else
 			{
-				list<pair<int,int> > buf;
-				buf.push_back(make_pair(i,j));
-				edge_info.insert(make_pair(edge, buf));
+				std::list<std::pair<int,int> > buf;
+				buf.push_back(std::make_pair(i,j));
+				edge_info.insert(std::make_pair(edge, buf));
 			}
 		}
 	}
-	for (map<pair<int,int>,list<pair<int,int> > >::iterator it = edge_info.begin();
+	for (std::map<std::pair<int,int>,std::list<std::pair<int,int> > >::iterator it = edge_info.begin();
 		it != edge_info.end(); ++it)
 	{
 		if (it->second.size() > 2) {
@@ -692,10 +693,10 @@ bool Model_OBJ::Split_Grid(map<Grid_Index,int>& vcolor, vector<glm::dvec3>& nver
 		Grid_Index pt3 = (v_info[ind[2]] + v_info[ind[3]]) / 2;
 		Grid_Index pt4 = (v_info[ind[1]] + v_info[ind[2]]) / 2;
 		int ind1, ind2, ind3, ind4;
-		map<Grid_Index,int>::iterator it = vcolor.find(pt1);
+		std::map<Grid_Index,int>::iterator it = vcolor.find(pt1);
 		if (it == vcolor.end())
 		{
-			vcolor.insert(make_pair(pt1,nvertices.size()));
+			vcolor.insert(std::make_pair(pt1,nvertices.size()));
 			v_info.push_back(pt1);
 			ind1 = (int)nvertices.size();
 			nvertices.push_back((nvertices[ind[0]]+nvertices[ind[1]])*0.5);
@@ -705,7 +706,7 @@ bool Model_OBJ::Split_Grid(map<Grid_Index,int>& vcolor, vector<glm::dvec3>& nver
 		it = vcolor.find(pt2);
 		if (it == vcolor.end())
 		{
-			vcolor.insert(make_pair(pt2,nvertices.size()));
+			vcolor.insert(std::make_pair(pt2,nvertices.size()));
 			v_info.push_back(pt2);
 			ind2 = (int)nvertices.size();
 			v_faces.push_back(v_faces[ind[0]]);
@@ -717,7 +718,7 @@ bool Model_OBJ::Split_Grid(map<Grid_Index,int>& vcolor, vector<glm::dvec3>& nver
 			it = vcolor.find(pt4);
 			if (it == vcolor.end())
 			{
-				vcolor.insert(make_pair(pt4,nvertices.size()));
+				vcolor.insert(std::make_pair(pt4,nvertices.size()));
 				v_info.push_back(pt4);
 				ind4 = (int)nvertices.size();
 				nvertices.push_back((nvertices[ind[1]]+nvertices[ind[2]])*0.5);
@@ -733,7 +734,7 @@ bool Model_OBJ::Split_Grid(map<Grid_Index,int>& vcolor, vector<glm::dvec3>& nver
 			it = vcolor.find(pt3);
 			if (it == vcolor.end())
 			{
-				vcolor.insert(make_pair(pt3,nvertices.size()));
+				vcolor.insert(std::make_pair(pt3,nvertices.size()));
 				v_info.push_back(pt3);
 				ind3 = (int)nvertices.size();
 				nvertices.push_back((nvertices[ind[2]]+nvertices[ind[3]])*0.5);
@@ -793,7 +794,7 @@ bool Model_OBJ::Split_Grid(map<Grid_Index,int>& vcolor, vector<glm::dvec3>& nver
 			triangles.push_back(glm::ivec3(ind1,ind3,ind4));
 		}
 	}
-	for (set<int>::iterator it = marked_v.begin();
+	for (std::set<int>::iterator it = marked_v.begin();
 		it != marked_v.end(); ++it)
 	{
 		glm::dvec3 p = nvertices[*it];
@@ -812,7 +813,7 @@ bool Model_OBJ::Split_Grid(map<Grid_Index,int>& vcolor, vector<glm::dvec3>& nver
 						ind3.id[2] += dimz;
 						if (vcolor.find(ind1) == vcolor.end())
 						{
-							vcolor.insert(make_pair(ind1, nvertices.size()));
+							vcolor.insert(std::make_pair(ind1, nvertices.size()));
 							v_info.push_back(ind1);
 
 							nvertices.push_back(glm::dvec3(p[0]+half_len*dimx,p[1],p[2]));
@@ -820,7 +821,7 @@ bool Model_OBJ::Split_Grid(map<Grid_Index,int>& vcolor, vector<glm::dvec3>& nver
 						}
 						if (vcolor.find(ind2) == vcolor.end())
 						{
-							vcolor.insert(make_pair(ind2, nvertices.size()));
+							vcolor.insert(std::make_pair(ind2, nvertices.size()));
 							v_info.push_back(ind2);
 
 							nvertices.push_back(glm::dvec3(p[0],p[1]+half_len*dimy,p[2]));
@@ -828,7 +829,7 @@ bool Model_OBJ::Split_Grid(map<Grid_Index,int>& vcolor, vector<glm::dvec3>& nver
 						}
 						if (vcolor.find(ind3) == vcolor.end())
 						{
-							vcolor.insert(make_pair(ind3, nvertices.size()));
+							vcolor.insert(std::make_pair(ind3, nvertices.size()));
 							v_info.push_back(ind3);
 
 							nvertices.push_back(glm::dvec3(p[0],p[1],p[2]+half_len*dimz));
@@ -847,9 +848,9 @@ bool Model_OBJ::Split_Grid(map<Grid_Index,int>& vcolor, vector<glm::dvec3>& nver
 			}
 		}
 	}
-	map<int,set<pair<int,int> > > ocs, ecs;
-	set<int> odds;
-	set<int> evens;
+	std::map<int,std::set<std::pair<int,int> > > ocs, ecs;
+	std::set<int> odds;
+	std::set<int> evens;
 	for (int i = 0; i < (int)nvertices.size(); ++i)
 	{
 		bool flag = false;
@@ -858,7 +859,7 @@ bool Model_OBJ::Split_Grid(map<Grid_Index,int>& vcolor, vector<glm::dvec3>& nver
 				flag = true;
 		if (flag) {
 			odds.insert(i);
-			ocs.insert(make_pair(i,set<pair<int,int> >()));
+			ocs.insert(std::make_pair(i,std::set<std::pair<int,int> >()));
 		}
 	}
 	for (int i = 0; i < (int)nvertices.size(); ++i)
@@ -879,7 +880,7 @@ bool Model_OBJ::Split_Grid(map<Grid_Index,int>& vcolor, vector<glm::dvec3>& nver
 			{
 				Grid_Index ind1 = ind;
 				ind1.id[k] += j;
-				map<Grid_Index,int>::iterator it = vcolor.find(ind1);
+				std::map<Grid_Index,int>::iterator it = vcolor.find(ind1);
 				if (it == vcolor.end())
 				{
 					flag = 0;
@@ -887,11 +888,11 @@ bool Model_OBJ::Split_Grid(map<Grid_Index,int>& vcolor, vector<glm::dvec3>& nver
 				}
 				int y = it->second;
 				unit_len = glm::length(nvertices[y] - nvertices[i]);
-				pair<int,int> edge_id;
+				std::pair<int,int> edge_id;
 				if (i < y)
-					edge_id = make_pair(i,y);
+					edge_id = std::make_pair(i,y);
 				else
-					edge_id = make_pair(y,i);
+					edge_id = std::make_pair(y,i);
 				if (edge_info.find(edge_id) == edge_info.end())
 				{
 					flag = 0;
@@ -902,7 +903,7 @@ bool Model_OBJ::Split_Grid(map<Grid_Index,int>& vcolor, vector<glm::dvec3>& nver
 		if (flag < 3)
 			continue;
 		evens.insert(i);
-		ecs.insert(make_pair(i,set<pair<int,int> >()));
+		ecs.insert(std::make_pair(i,std::set<std::pair<int,int> >()));
 	}
 	for (int i = 0; i < (int)triangles.size(); ++i)
 	{
@@ -911,15 +912,15 @@ bool Model_OBJ::Split_Grid(map<Grid_Index,int>& vcolor, vector<glm::dvec3>& nver
 			int x = triangles[i][j];
 			if (odds.find(x) != odds.end())
 			{
-				ocs[x].insert(make_pair(i,j));
+				ocs[x].insert(std::make_pair(i,j));
 			}
 			if (evens.find(x) != evens.end())
 			{
-				ecs[x].insert(make_pair(i,j));
+				ecs[x].insert(std::make_pair(i,j));
 			}
 		}
 	}
-	for (set<int>::iterator it = evens.begin();
+	for (std::set<int>::iterator it = evens.begin();
 		it != evens.end(); ++it)
 	{
 		int i = *it;
@@ -938,8 +939,8 @@ bool Model_OBJ::Split_Grid(map<Grid_Index,int>& vcolor, vector<glm::dvec3>& nver
 		}
 		if (count > 2)
 			continue;
-		set<pair<int,int> >& p = ecs[i];
-		for (set<pair<int,int> >::iterator it1 = p.begin();
+		std::set<std::pair<int,int> >& p = ecs[i];
+		for (std::set<std::pair<int,int> >::iterator it1 = p.begin();
 			it1 != p.end(); ++it1)
 		{
 			assert(triangles[it1->first][it1->second] == i);
@@ -954,7 +955,7 @@ bool Model_OBJ::Split_Grid(map<Grid_Index,int>& vcolor, vector<glm::dvec3>& nver
 		nvertices.back() -= unit_len * dir;
 
 	}
-	for (set<int>::iterator it = odds.begin();
+	for (std::set<int>::iterator it = odds.begin();
 		it != odds.end(); ++it)
 	{
 		int i = *it;
@@ -974,7 +975,7 @@ bool Model_OBJ::Split_Grid(map<Grid_Index,int>& vcolor, vector<glm::dvec3>& nver
 			x = y;
 			y = temp;
 		}
-		if (edge_info[make_pair(x,y)].size() > 2)
+		if (edge_info[std::make_pair(x,y)].size() > 2)
 		{
 			glm::dvec3 vert = nvertices[x]-nvertices[y];
 			double len = glm::length(vert);
@@ -986,8 +987,8 @@ bool Model_OBJ::Split_Grid(map<Grid_Index,int>& vcolor, vector<glm::dvec3>& nver
 				dir = glm::cross(vert,dir);
 			}
 			dir = glm::normalize(dir);
-			set<pair<int,int> >& p = ocs[i];
-			for (set<pair<int,int> >::iterator it1 = p.begin();
+			std::set<std::pair<int,int> >& p = ocs[i];
+			for (std::set<std::pair<int,int> >::iterator it1 = p.begin();
 				it1 != p.end(); ++it1)
 			{
 				assert(triangles[it1->first][it1->second] == i);
@@ -1007,8 +1008,8 @@ bool Model_OBJ::Split_Grid(map<Grid_Index,int>& vcolor, vector<glm::dvec3>& nver
 
 int Model_OBJ::is_manifold()
 {
-	map<pair<int,int>,list<glm::dvec3> > edges;
-	vector<set<int> > graph(vertices.size());
+	std::map<std::pair<int,int>,std::list<glm::dvec3> > edges;
+	std::vector<std::set<int> > graph(vertices.size());
 	int flag = 0;
 	for (int i = 0; i < (int)face_indices.size(); ++i)
 	{
@@ -1026,11 +1027,11 @@ int Model_OBJ::is_manifold()
 			{
 				flag = -1;
 			}
-			pair<int,int> edge_id = make_pair(x,y);
-			map<pair<int,int>,list<glm::dvec3> >::iterator it = edges.find(edge_id);
+			std::pair<int,int> edge_id = std::make_pair(x,y);
+			std::map<std::pair<int,int>,std::list<glm::dvec3> >::iterator it = edges.find(edge_id);
 			if (it == edges.end())
 			{
-				list<glm::dvec3> l;
+				std::list<glm::dvec3> l;
 				l.push_back(vertices[face_indices[i][(j+2)%3]]);
 				edges.insert(make_pair(edge_id,l));
 			} else
@@ -1057,7 +1058,7 @@ int Model_OBJ::is_manifold()
 	}
 //	colors[15160] = glm::dvec3(0,0,1);
 //	colors[15159] = glm::dvec3(0,0,1);
-	for (map<pair<int,int>,list<glm::dvec3> >::iterator edge_it = edges.begin();
+	for (std::map<std::pair<int,int>,std::list<glm::dvec3> >::iterator edge_it = edges.begin();
 		edge_it != edges.end(); ++edge_it)
 	{
 		if (edge_it->second.size() == 1)

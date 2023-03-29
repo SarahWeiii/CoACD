@@ -20,7 +20,6 @@ subject to the following restrictions:
 #include <vector>
 #include <array>
 
-using namespace std;
 
 /// Convex hull implementation based on Preparata and Hong
 /// See http://code.google.com/p/bullet/issues/detail?id=275
@@ -97,7 +96,7 @@ public:
     // {
     //     return compute(points);
     // }
-    btScalar compute(vector<array<double, 3>> points, btScalar shrink, btScalar shrinkClamp);
+    btScalar compute(std::vector<std::array<double, 3>> points, btScalar shrink, btScalar shrinkClamp);
 };
 
 #endif //BT_CONVEX_HULL_COMPUTER_H
