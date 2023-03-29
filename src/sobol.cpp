@@ -28480,7 +28480,7 @@ double r8_uniform_01 ( int *seed )
 }
 //****************************************************************************80
 
-void r8mat_write ( string output_filename, int m, int n, double table[] )
+void r8mat_write ( std::string output_filename, int m, int n, double table[] )
 
 //****************************************************************************80
 //
@@ -28537,7 +28537,7 @@ void r8mat_write ( string output_filename, int m, int n, double table[] )
   {
     for ( i = 0; i < m; i++ )
     {
-      output << "  " << setw(24) << setprecision(16) << table[i+j*m];
+      output << "  " << std::setw(24) << std::setprecision(16) << table[i+j*m];
     }
     output << "\n";
   }

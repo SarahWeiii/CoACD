@@ -10,11 +10,11 @@ namespace coacd
         
         for (int i = 0; i < input.points.size(); ++i)
         {
-            points.push_back({input.points[i][0]*scale, input.points[i][1]*scale, input.points[i][2]*scale});
+            points.push_back({(float)input.points[i][0]*(float)scale, (float)input.points[i][1]*(float)scale, (float)input.points[i][2]*(float)scale});
         }
         for (int i = 0; i < input.triangles.size(); ++i)
         {
-            tris.push_back({input.triangles[i][0], input.triangles[i][1], input.triangles[i][2]});
+            tris.push_back({(unsigned)input.triangles[i][0], (unsigned)input.triangles[i][1], (unsigned)input.triangles[i][2]});
         }
 
         math::Transform::Ptr xform = math::Transform::createLinearTransform();
@@ -35,12 +35,12 @@ namespace coacd
         }
         for (int i = 0; i < newTriangles.size(); ++i)
         {
-            output.triangles.push_back({newTriangles[i][0], newTriangles[i][2], newTriangles[i][1]});
+            output.triangles.push_back({(int)newTriangles[i][0], (int)newTriangles[i][2], (int)newTriangles[i][1]});
         }
         for (int i = 0; i < newQuads.size(); ++i)
         {
-            output.triangles.push_back({newQuads[i][0], newQuads[i][2], newQuads[i][1]});
-            output.triangles.push_back({newQuads[i][0], newQuads[i][3], newQuads[i][2]});
+            output.triangles.push_back({(int)newQuads[i][0], (int)newQuads[i][2], (int)newQuads[i][1]});
+            output.triangles.push_back({(int)newQuads[i][0], (int)newQuads[i][3], (int)newQuads[i][2]});
         }
 
     }
