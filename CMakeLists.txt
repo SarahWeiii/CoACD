@@ -22,14 +22,28 @@ target_include_directories(coacd PRIVATE 3rd/glm)
 target_include_directories(coacd PRIVATE 3rd/libigl/include)
 target_include_directories(coacd PRIVATE 3rd/cdt/CDT/include)
 
-find_library(HALF_LIBRARY libHalf.so)
-if (HALF_LIBRARY)
-    target_link_libraries(coacd ${HALF_LIBRARY})
-endif()
-
 target_link_libraries(coacd OpenVDB::openvdb)
 set_property(TARGET coacd PROPERTY COMPILE_WARNING_AS_ERROR OFF)
 
 if (MSVC)
 	target_compile_options(coacd PRIVATE /openmp)
 endif()
+
+
+add_executable(coacdapp main.cpp)
+target_include_directories(coacdapp PUBLIC public)
+target_include_directories(coacdapp PRIVATE src)
+target_include_directories(coacdapp PRIVATE 3rd/eigen)
+target_include_directories(coacdapp PRIVATE 3rd/glm)
+target_include_directories(coacdapp PRIVATE 3rd/libigl/include)
+target_include_directories(coacdapp PRIVATE 3rd/cdt/CDT/include)
+
+target_link_libraries(coacdapp OpenVDB::openvdb)
+set_property(TARGET coacdapp PROPERTY COMPILE_WARNING_AS_ERROR OFF)
+
+if (MSVC)
+	target_compile_options(coacdapp PRIVATE /openmp)
+endif()
+
+
+target_link_libraries(coacdapp coacd)

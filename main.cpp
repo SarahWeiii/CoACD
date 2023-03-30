@@ -14,8 +14,9 @@ int main(int argc, char *argv[])
   Params params;
 
   // Model files
-  string input_model;
+  std::string input_model;
   params.seed = (unsigned)time(NULL);
+  using std::min, std::max;
 
   // args
   for (int i = 0; i < argc; ++i)
@@ -101,8 +102,10 @@ int main(int argc, char *argv[])
       }
     }
   }
+  using std::regex_replace;
 
-  string ext;
+  std::string ext;
+  using std::endl;
   if (params.input_model.length() > 4)
   {
     ext = params.input_model.substr(params.input_model.length() - 4);
@@ -129,9 +132,9 @@ int main(int argc, char *argv[])
   {
 
     if (ext == ".obj")
-      params.logfile = regex_replace(params.output_name, regex(".obj"), "_log.txt");
+      params.logfile = regex_replace(params.output_name, std::regex(".obj"), "_log.txt");
     else if (ext == ".wrl")
-      params.logfile = regex_replace(params.output_name, regex(".wrl"), "_log.txt");
+      params.logfile = regex_replace(params.output_name, std::regex(".wrl"), "_log.txt");
     else
     {
       logger(params.if_cout, false) << "Error: Output Filename must be .OBJ or .WRL format!" << endl;
@@ -146,23 +149,23 @@ int main(int argc, char *argv[])
   params.threshold = min(max(params.threshold, 0.01), 1.0);
 
   Model m, n, pos, neg;
-  array<array<double, 3>, 3> rot;
+  std::array<std::array<double, 3>, 3> rot;
 
   SaveConfig(params);
 
   m.LoadOBJ(params.input_model);
-  vector<double> bbox = m.Normalize();
+  std::vector<double> bbox = m.Normalize();
   if (params.preprocess)
     ManifoldPreprocess(params, m);
   if (params.pca)
     rot = m.PCA();
 
-  vector<Model> parts = Compute(m, params);
+  std::vector<Model> parts = Compute(m, params);
   
   RecoverParts(parts, bbox, rot, params);
 
-  string objName = regex_replace(params.output_name, regex("wrl"), "obj");
-  string wrlName = regex_replace(params.output_name, regex("obj"), "wrl");
+  std::string objName = regex_replace(params.output_name, std::regex("wrl"), "obj");
+  std::string wrlName = regex_replace(params.output_name, std::regex("obj"), "wrl");
   
   SaveVRML(wrlName, parts, params);
   SaveOBJ(objName, parts, params);
