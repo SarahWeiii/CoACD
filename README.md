@@ -35,7 +35,8 @@ which coacd
 ### (1) Clone the code
 
 ```
-git clone --recurse-submodules https://github.com/SarahWeiii/CoACD.git
+git clone --recursive https://github.com/yetigit/CoACD.git
+git checkout master
 ```
 
 ### (2) Install Dependency
