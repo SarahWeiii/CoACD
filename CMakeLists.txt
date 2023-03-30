@@ -15,7 +15,6 @@ add_library(coacd STATIC
     ${MAIN_SRC}
 )
 
-target_include_directories(coacd PUBLIC public)
 target_include_directories(coacd PRIVATE src)
 target_include_directories(coacd PRIVATE 3rd/eigen)
 target_include_directories(coacd PRIVATE 3rd/glm)
@@ -31,7 +30,6 @@ endif()
 
 
 add_executable(coacdapp main.cpp)
-target_include_directories(coacdapp PUBLIC public)
 target_include_directories(coacdapp PRIVATE src)
 target_include_directories(coacdapp PRIVATE 3rd/eigen)
 target_include_directories(coacdapp PRIVATE 3rd/glm)
