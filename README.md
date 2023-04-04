@@ -58,7 +58,7 @@ cd CoACD \
 && mkdir build \
 && cd build \
 && cmake .. -DCMAKE_BUILD_TYPE=Release \
-&& make
+&& make main -j
 ```
 
 ### (4) Quick start

@@ -31,6 +31,19 @@ add_library(_coacd STATIC
     ${MAIN_SRC}
 )
 
+if (WIN32)
+    option(DISABLE_SPDLOG "Disable spdlog" ON)
+else()
+    option(DISABLE_SPDLOG "Disable spdlog" OFF)
+endif()
+
+if (DISABLE_SPDLOG)
+    add_definitions(-DDISABLE_SPDLOG)
+else()
+    find_package(spdlog REQUIRED)
+endif()
+
+
 # use static if possible
 find_library(OPENVDB_STATIC libopenvdb.a)
 # find_library(Z_STATIC libz.a)
@@ -61,7 +74,7 @@ add_executable(main main.cpp)
 target_link_libraries(main _coacd)
 target_include_directories(main PRIVATE src)
 
-# add_subdirectory("3rd/pybind11")
-# include_directories("python")
-# pybind11_add_module(coacd python/coacd/coacd.cpp public/coacd.cpp)
-# target_link_libraries(coacd PRIVATE _coacd)
+add_subdirectory("3rd/pybind11")
+include_directories("python")
+pybind11_add_module(coacd python/coacd/coacd.cpp public/coacd.cpp)
+target_link_libraries(coacd PRIVATE _coacd)
