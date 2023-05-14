@@ -11,6 +11,7 @@
 #include <memory>
 #include "VertexDataSource.hpp"
 #include <unordered_map>
+#include <cstdint>
 
 /*
  * Implementation of the 3D QuickHull algorithm by Antti Kuukka

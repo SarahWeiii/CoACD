@@ -1,7 +1,7 @@
-#include "process.h"
+#include "./process.h"
 #include "mcts.h"
 #include "config.h"
-#include "preprocess.h"
+#include "./preprocess.h"
 
 #include <iostream>
 #include <cmath>

@@ -20,6 +20,11 @@
 #include "shape.h"
 #include "model_obj.h"
 
+using std::cout;
+using std::endl;
+using std::ios;
+using std::to_string;
+
 namespace coacd
 {
 

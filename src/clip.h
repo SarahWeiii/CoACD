@@ -3,6 +3,9 @@
 #include "model_obj.h"
 #include <deque>
 
+using std::deque;
+using std::endl;
+
 namespace coacd
 {
     void SimpleCyclesFromEdges(const vector<pair<int, int>> edges, vector<vector<int>> &simple_cycles);

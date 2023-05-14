@@ -1,4 +1,4 @@
-#include "preprocess.h"
+#include "./preprocess.h"
 #include "logger.h"
 
 namespace coacd

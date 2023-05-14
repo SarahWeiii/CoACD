@@ -15,8 +15,6 @@
 
 #include "shape.h"
 
-using namespace std;
-
 namespace coacd
 {
   class Params

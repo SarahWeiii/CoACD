@@ -43,15 +43,7 @@ python py_example.py $InputFile $OutputFile
 git clone --recurse-submodules https://github.com/SarahWeiii/CoACD.git
 ```
 
-### (2) Install dependencies
-
-```
-sudo apt update \
-&& sudo apt install -y libtbb-dev libboost-all-dev libopenvdb-dev libspdlog-dev
-```
-Note: If you are using Ubuntu 18.04, you may need to install [spdlog](https://github.com/gabime/spdlog) from source (```make && make install```). 
-
-### (3) Compile
+### (2) Compile
 
 ```
 cd CoACD \
@@ -60,6 +52,8 @@ cd CoACD \
 && cmake .. -DCMAKE_BUILD_TYPE=Release \
 && make main -j
 ```
+
+We support compiling Windows version with MinGW GCC. We have tested cross-compilation from Linux to Windows.
 
 ### (4) Quick start
 We provide a set of default parameters, and you only need to specify the input and output path. You can take an arbitrary mesh as input (in `.obj` format, no need to be a manifold) and run the algorithm by the following command:

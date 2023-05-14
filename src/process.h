@@ -11,7 +11,7 @@
 #include <assert.h>
 #include <regex>
 
-#include "io.h"
+#include "./io.h"
 #include "clip.h"
 #include "config.h"
 #include "model_obj.h"

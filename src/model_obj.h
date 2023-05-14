@@ -23,8 +23,7 @@
 #include "config.h"
 #include "logger.h"
 
-using namespace std;
-
+using std::map;
 
 namespace coacd
 {

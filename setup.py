@@ -15,12 +15,8 @@ class CMakeExtension(Extension):
 
 class CMakeBuild(build_ext):
     def build_extension(self, ext):
-        extdir = os.path.abspath(
-            os.path.dirname(self.get_ext_fullpath(ext.name))
-        )
-
-        if not extdir.endswith(os.path.sep):
-            extdir += os.path.sep
+        extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
+        extdir = os.path.join(extdir, self.distribution.get_name())
 
         cfg = "Debug" if self.debug else "Release"
 
@@ -29,10 +25,8 @@ class CMakeBuild(build_ext):
         # Set Python_EXECUTABLE instead if you use PYBIND11_FINDPYTHON
         cmake_args = [
             "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={}".format(extdir),
-            "-DPYTHON_EXECUTABLE={}".format(sys.executable),
-            "-DCMAKE_BUILD_TYPE={}".format(
-                cfg
-            ),  # not used on MSVC, but no harm
+            # "-DPYTHON_EXECUTABLE={}".format(sys.executable),
+            "-DCMAKE_BUILD_TYPE={}".format(cfg),  # not used on MSVC, but no harm
         ]
         build_args = []
 
@@ -53,13 +47,14 @@ class CMakeBuild(build_ext):
             ["cmake", ext.sourcedir] + cmake_args, cwd=self.build_temp
         )
         subprocess.check_call(
-            ["cmake", "--build", "."] + build_args, cwd=self.build_temp
+            ["cmake", "--build", ".", "--target", "_coacd"] + build_args,
+            cwd=self.build_temp,
         )
 
 
 setup(
     name="coacd",
-    version="0.0.2",
+    version="0.0.3",
     author_email="xiwei@ucsd.edu",
     keywords="collision convex decomposition",
     description="Approximate Convex Decomposition for 3D Meshes with Collision-Aware Concavity and Tree Search",
@@ -84,10 +79,11 @@ setup(
     ],
     license="MIT",
     url="https://colin97.github.io/CoACD/",
-    packages=find_packages(include="python/coacd"),
+    packages=["coacd"],
     python_requires=">=3.6",
-    # install_requires=["numpy", "trimesh"],
+    install_requires=["numpy"],
     ext_modules=[CMakeExtension("coacd")],
     cmdclass={"build_ext": CMakeBuild},
     zip_safe=False,
+    package_dir={"coacd": os.path.join("python/package")},
 )
