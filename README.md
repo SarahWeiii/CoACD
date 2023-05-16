@@ -44,6 +44,9 @@ git clone --recurse-submodules https://github.com/SarahWeiii/CoACD.git
 ```
 
 ### (2) Compile
+Install dependencies: `git`, `cmake >= 3.25`
+
+### (3) Compile
 
 ```
 cd CoACD \
