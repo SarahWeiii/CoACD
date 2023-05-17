@@ -1,7 +1,7 @@
 # Approximate Convex Decomposition for 3D Meshes with Collision-Aware Concavity and Tree Search [SIGGRAPH2022]
  [\[project\]](https://colin97.github.io/CoACD/) [\[paper\]](https://arxiv.org/pdf/2205.02961.pdf) [\[video\]](https://www.youtube.com/watch?v=r12O0z0723s)
 
-[***News***] CoACD is released on PyPI for Linux!
+[***News***] CoACD supports all versions of Python 3 on Linux (x86_64) and Windows (amd64) now!
 
 [***News***] We have replaced the original non-commercial dependencies. All of our code is under MIT license, and all dependencies allow commercial use now.
 
@@ -23,16 +23,14 @@ pip install coacd
 ```
 import coacd
 
-mesh = trimesh.load(input_file)
-imesh = coacd.Mesh()
-imesh.vertices = mesh.vertices
-imesh.indices = mesh.faces
-parts = coacd.run_coacd(imesh) # a list of convex hulls.
+mesh = trimesh.load(input_file, force="mesh")
+mesh = coacd.Mesh(mesh.vertices, mesh.faces)
+parts = coacd.run_coacd(mesh) # a list of convex hulls.
 ```
 The complete example script is in `python/py_example.py`, run it by the following command:
 ```
 cd python
-python py_example.py $InputFile $OutputFile
+python py_example.py -i $InputFile -o $OutputFile
 ```
 
 ## Compile from source (Linux)
@@ -43,7 +41,7 @@ python py_example.py $InputFile $OutputFile
 git clone --recurse-submodules https://github.com/SarahWeiii/CoACD.git
 ```
 
-### (2) Compile
+### (2) Dependencies
 Install dependencies: `git`, `cmake >= 3.24`, `g++ >= 9, < 12`
 
 ### (3) Compile
@@ -81,6 +79,7 @@ Here is the description of the parameters (sorted by importance).
 
 * `-i/--input`: path for input mesh (`.obj`).
 * `-o/--output`: path for output (`.obj` or `.wrl`).
+* `-pr/--prep-resolution`: resolution for manifold preprocess (20~100), default = 50.
 * `-t/--threshold`:  concavity threshold for terminating the decomposition (0.01~1), default = 0.05.
 * `-np/--no-prepocess`: flag to disable manifold preprocessing, default = false. If your input is already manifold mesh, disabling the preprocessing can avoid introducing extra artifacts.
 * `-nm/--no-merge`: flag to disable merge postprocessing, default = false.
@@ -88,10 +87,9 @@ Here is the description of the parameters (sorted by importance).
 * `-mi/--mcts-iteration`: number of search iterations in MCTS (60~2000), default = 100.
 * `-md/--mcts-depth`: max search depth in MCTS (2~7), default = 3.
 * `-mn/--mcts-node`: max number of child nodes in MCTS (10~40), default = 20.
-* `-pr/--prep-resolution`: resolution for manifold preprocess (20~100), default = 50.
 * `-r/--resolution`: sampling resolution for Hausdorff distance calculation (1e3~1e4), default = 2000.
 * `--pca`: flag to enable PCA pre-processing, default = false.
-* `-k`: value of $k$ for $\operatorname{R_v}$ calculation, default = 0.3.
+* `-k`: value of $k$ for R_v calculation, default = 0.3.
 * `--seed`: random seed used for sampling, default = random().
 
 An example of changing the parameters:
@@ -101,35 +99,10 @@ An example of changing the parameters:
 
 Parameter tuning *tricks*: 
 1. In most cases, you only need to adjust the `threshold` (0.01~1) to balance the level of detail and the number of decomposed components. A higher value gives coarser results, and a lower value gives finer-grained results. You can refer to Fig. 14 in our paper for more details.
-2. The default parameters are fast versions. If you care less about running time but more about the number of components, try to increase `searching depth (-md)`, `searching node (-mn)` and `searching iteration (-mi)` for better cutting strategies.
-3. `-pr` controls the quality of manifold preprocessing. A larger value can make the preprocessed mesh closer to the original mesh but also lead to more triangles and longer runtime.
+2. If your input mesh is not manifold, you should also adjust the `prep-resolution` (20~100) to control the detail level of the pre-processed mesh. A larger value can make the preprocessed mesh closer to the original mesh but also lead to more triangles and longer runtime.
+3. The default parameters are fast versions. If you care less about running time but more about the number of components, try to increase `searching depth (-md)`, `searching node (-mn)` and `searching iteration (-mi)` for better cutting strategies.
 4. Make sure your input mesh is 2-manifold solid if you want to use the `-np` flag. Skipping manifold pre-processing can better preserve input details, but please don't specify the `-np` flag if your input mesh is non-manifold (the algorithm may crush or generate wrong results).
 5. `--seed` is used for reproduction of the same results as our algorithm is stochastic.
-
-
-## Use in SAPIEN
-
-CoACD is also included in [SAPIEN](https://sapien.ucsd.edu/). You can install SAPIEN with pip:
-
-```
-pip install "sapien>=2.2.0"
-```
-
-### Example Usage
-
-```
-# print help info
-coacd -h
-
-# using default parameters
-coacd INPUT_FILE OUTPUT_FILE
-```
-
-You can also use `CoACD` in python scripts. Find the example file by the following command:
-```
-which coacd
-# Output the example path
-```
 
 ## Citation
 
