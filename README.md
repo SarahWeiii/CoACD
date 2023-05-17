@@ -11,7 +11,7 @@ Approximate convex decomposition enables efficient geometry processing algorithm
 
 ## PyPI
 
-Supporting Python 3.6, 3.7, 3.8, 3.9, 3.10 on Linux.
+Supporting all versions of Python 3 on Linux (x86_64) and Windows (amd64).
 
 ### (1) Installation
 
@@ -35,7 +35,7 @@ cd python
 python py_example.py $InputFile $OutputFile
 ```
 
-## Compile from source
+## Compile from source (Linux)
 
 ### (1) Clone the code
 
@@ -44,7 +44,7 @@ git clone --recurse-submodules https://github.com/SarahWeiii/CoACD.git
 ```
 
 ### (2) Compile
-Install dependencies: `git`, `cmake >= 3.25`
+Install dependencies: `git`, `cmake >= 3.24`, `g++ >= 9, < 12`
 
 ### (3) Compile
 
@@ -56,7 +56,7 @@ cd CoACD \
 && make main -j
 ```
 
-We support compiling Windows version with MinGW GCC. We have tested cross-compilation from Linux to Windows.
+The Windows version may be compiled with MinGW GCC. The current released Windows Python package is cross-compiled with MinGW from Linux.
 
 ### (4) Quick start
 We provide a set of default parameters, and you only need to specify the input and output path. You can take an arbitrary mesh as input (in `.obj` format, no need to be a manifold) and run the algorithm by the following command:

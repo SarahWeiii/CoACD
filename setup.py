@@ -73,6 +73,7 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Topic :: Education",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Utilities",
@@ -86,4 +87,5 @@ setup(
     cmdclass={"build_ext": CMakeBuild},
     zip_safe=False,
     package_dir={"coacd": os.path.join("python/package")},
+    scripts=["python/package/bin/coacd"]
 )
