@@ -1,64 +1,26 @@
 #!/usr/bin/env bash
 
-PACKAGE_VERSION="0.0.2"
-while [[ "$#" -gt 0 ]]; do
-    case $1 in
-        35) VERSION="35";;
-        36) VERSION="36";;
-        37) VERSION="37";;
-        38) VERSION="38";;
-        39) VERSION="39";;
-        310) VERSION="310";;
-        311) VERSION="311";;
-    esac
-    shift
-done
+PACKAGE_VERSION="0.0.3"
+PY_VERSION=311
+BIN=/opt/python/cp${PY_VERSION}-cp${PY_VERSION}/bin/python
+COMMAND="${BIN} setup.py bdist_wheel"
 
-[ -z $VERSION ] && echo "Version not specified" && exit || echo "Compile for Python ${VERSION}"
+echo "CoACD version ${PACKAGE_VERSION}"
+echo ${COMMAND}
+eval ${COMMAND}
 
-function build_manylinux14_wheel() {
-  PY_VERSION=$1
-  if [ "$PY_VERSION" -eq 35 ]; then
-      PY_DOT=3.5
-      EXT="m"
-  elif [ "$PY_VERSION" -eq 36 ]; then
-      PY_DOT=3.6
-      EXT="m"
-  elif [ "$PY_VERSION" -eq 37 ]; then
-      PY_DOT=3.7
-      EXT="m"
-  elif [ "$PY_VERSION" -eq 38 ]; then
-      PY_DOT=3.8
-      EXT=""
-  elif [ "$PY_VERSION" -eq 39 ]; then
-      PY_DOT=3.9
-      EXT=""
-  elif [ "$PY_VERSION" -eq 310 ]; then
-      PY_DOT=3.10
-      EXT=""
-  elif [ "$PY_VERSION" -eq 311 ]; then
-      PY_DOT=3.11
-      EXT=""
-  else
-    echo "Error, python version not found!"
-  fi
+WHEEL_NAME="./dist/coacd-${PACKAGE_VERSION}-cp${PY_VERSION}-cp${PY_VERSION}-linux_x86_64.whl"
+auditwheel repair ${WHEEL_NAME}
 
-  INCLUDE_PATH=/opt/python/cp${PY_VERSION}-cp${PY_VERSION}${EXT}/include/python${PY_DOT}${EXT}
-  BIN=/opt/python/cp${PY_VERSION}-cp${PY_VERSION}${EXT}/bin/python
-  echo "Using bin path ${BIN}"
-  echo "Using include path ${INCLUDE_PATH}"
+FIXED_WHEEL_NAME="coacd-${PACKAGE_VERSION}-cp${PY_VERSION}-cp${PY_VERSION}-manylinux2014_x86_64.whl"
+NEW_WHEEL_NAME="coacd-${PACKAGE_VERSION}-py3-none-manylinux2014_x86_64.whl"
 
-  export CPLUS_INCLUDE_PATH=$INCLUDE_PATH
-  COMMAND="${BIN} setup.py bdist_wheel"
-  echo "Running command ${COMMAND}"
-  eval "$COMMAND"
-
-  echo "CoACD version ${PACKAGE_VERSION}"
-  WHEEL_NAME="./dist/coacd-${PACKAGE_VERSION}-cp${PY_VERSION}-cp${PY_VERSION}${EXT}-linux_x86_64.whl"
-  if test -f "$WHEEL_NAME"; then
-    echo "$FILE exist, begin audit and repair"
-  fi
-  auditwheel repair ${WHEEL_NAME}
-}
-
-build_manylinux14_wheel $VERSION
+cd wheelhouse
+unzip ${FIXED_WHEEL_NAME}
+WHEEL_INFO_FILE="coacd-${PACKAGE_VERSION}.dist-info/WHEEL"
+echo "Wheel-Version: 1.0" > ${WHEEL_INFO_FILE}
+echo "Generator: bdist_wheel (0.38.4)" >> ${WHEEL_INFO_FILE}
+echo "Root-Is-Purelib: false" >> ${WHEEL_INFO_FILE}
+echo "Tag: py3-none-manylinux2014_x86_64" >> ${WHEEL_INFO_FILE}
+zip -r ${NEW_WHEEL_NAME} coacd coacd-${PACKAGE_VERSION}.data coacd-${PACKAGE_VERSION}.dist-info coacd.libs && \
+  rm -rf coacd coacd-${PACKAGE_VERSION}.data coacd-${PACKAGE_VERSION}.dist-info coacd.libs ${FIXED_WHEEL_NAME}

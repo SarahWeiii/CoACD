@@ -1,6 +1,6 @@
 #include "clip.h"
-#include "3rd/cdt/CDT/include/CDTUtils.h"
-#include "3rd/cdt/CDT/include/CDT.h"
+#include "include/CDTUtils.h"
+#include "include/CDT.h"
 
 namespace coacd
 {

@@ -22,7 +22,15 @@
 #include <array>
 #include <limits>
 
-using namespace std;
+using std::vector;
+using std::array;
+using std::min;
+using std::max;
+using std::string;
+using std::pair;
+using std::make_pair;
+using std::ofstream;
+using std::runtime_error;
 
 namespace coacd
 {
