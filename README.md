@@ -109,7 +109,7 @@ Parameter tuning *tricks*:
 If you find our code helpful, please cite our paper:
 
 ```
-@article{wei2022approximate,
+@article{wei2022coacd,
   title={Approximate convex decomposition for 3d meshes with collision-aware concavity and tree search},
   author={Wei, Xinyue and Liu, Minghua and Ling, Zhan and Su, Hao},
   journal={ACM Transactions on Graphics (TOG)},
