@@ -37,6 +37,7 @@ if __name__ == "__main__":
         help="termination criteria in [0.01, 1] (0.01: most fine-grained; 1: most coarse)",
     )
     parser.add_argument(
+        "-np",
         "--no-preprocess",
         action="store_true",
         help="No remeshing before running CoACD. Only suitable for manifold input.",
