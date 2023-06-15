@@ -111,11 +111,11 @@ namespace coacd
     void add_child(Node *sub_node);
   };
 
-  Node *tree_policy(Node *node);
-  double default_policy(Node *node, Params &params);
+  Node *tree_policy(Node *node, double initial_cost, bool &flag);
+  double default_policy(Node *node, Params &params, vector<Plane> &current_path);
   Node *expand(Node *node);
   Node *best_child(Node *node, bool is_exploration, double initial_cost = 0.1);
-  void backup(Node *node, double reward);
+  void backup(Node *node, double reward, vector<Plane> &current_path, vector<Plane> &best_path);
   Node *MonteCarloTreeSearch(Params &params, Node *node, vector<Plane> &best_path);
 
   bool clip_by_path(Model &m, double &final_cost, Params &params, Plane &first_plane, vector<Plane> &best_path);
