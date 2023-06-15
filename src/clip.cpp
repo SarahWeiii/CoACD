@@ -123,7 +123,6 @@ namespace coacd
         if (!flag)
             return 1;
 
-        Model a;
         vector<array<double, 2>> points, nodes;
 
         double x_min = INF, x_max = -INF, y_min = INF, y_max = -INF;
@@ -138,7 +137,6 @@ namespace coacd
             py = R[1][0] * x + R[1][1] * y + R[1][2] * z;
 
             points.push_back({px, py});
-            a.points.push_back({px, py, 0});
 
             x_min = min(x_min, px);
             x_max = max(x_max, px);
@@ -147,24 +145,30 @@ namespace coacd
         }
 
         int borderN = (int)points.size();
-        bool is_success;
 
         CDT::Triangulation<double> cdt;
-        cdt.insertVertices(
-            points.begin(),
-            points.end(),
-            [](const std::array<double, 2> &p)
-            { return p[0]; },
-            [](const std::array<double, 2> &p)
-            { return p[1]; });
-        cdt.insertEdges(
-            border_edges.begin(),
-            border_edges.end(),
-            [](const std::pair<int, int> &p)
-            { return (int)p.first - 1; },
-            [](const std::pair<int, int> &p)
-            { return (int)p.second - 1; });
-        cdt.eraseSuperTriangle();
+        try
+        {
+            cdt.insertVertices(
+                points.begin(),
+                points.end(),
+                [](const std::array<double, 2> &p)
+                { return p[0]; },
+                [](const std::array<double, 2> &p)
+                { return p[1]; });
+            cdt.insertEdges(
+                border_edges.begin(),
+                border_edges.end(),
+                [](const std::pair<int, int> &p)
+                { return (int)p.first - 1; },
+                [](const std::pair<int, int> &p)
+                { return (int)p.second - 1; });
+            cdt.eraseSuperTriangle();
+        }
+        catch (const std::runtime_error &e)
+        {
+            return 2;
+        }
 
         for (size_t i = 0; i < (size_t)cdt.triangles.size(); i++)
         {
@@ -172,10 +176,6 @@ namespace coacd
                                         (int)cdt.triangles[i].vertices[1] + 1,
                                         (int)cdt.triangles[i].vertices[2] + 1});
         }
-        is_success = true;
-
-        if (!is_success)
-            return 2;
 
         for (int i = (int)border.size(); i < borderN; i++)
         {
@@ -185,7 +185,6 @@ namespace coacd
             y = R[0][1] * vertex.x + R[1][1] * vertex.y + T[1];
             z = R[0][2] * vertex.x + R[1][2] * vertex.y + T[2];
             border.push_back({x, y, z});
-            a.points.push_back({vertex.x, vertex.y, 0});
         }
 
         return 0;
