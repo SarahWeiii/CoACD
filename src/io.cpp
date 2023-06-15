@@ -6,20 +6,20 @@ namespace coacd
     void SaveConfig(Params params)
     {
         logger::info(" - Config");
-        logger::info("\tInput Path:                      {}", params.input_model);
-        logger::info("\tOutput Path:                     {}", params.output_name);
-        logger::info("\tTerminal Threshold:              {}", params.threshold);
-        logger::info("\tMax # Convex Hulls:              {}", params.max_convex_hull);
-        logger::info("\tMCTS Node Number:                {}", params.mcts_nodes);
-        logger::info("\tMCTS Iteration:                  {}", params.mcts_iteration);
-        logger::info("\tMCTS Max Depth:                  {}", params.mcts_max_depth);
-        logger::info("\tManifold Preprocess (ON/OFF):    {}", params.preprocess);
-        logger::info("\tPreprocess Resolution:           {}", params.prep_resolution);
-        logger::info("\tMerge Postprocess (ON/OFF):      {}", params.merge);
-        logger::info("\tPCA (ON/OFF):                    {}", params.pca);
-        logger::info("\tk for Rv:                        {}", params.rv_k);
-        logger::info("\tHausdorff Sampling Resolution:   {}", params.resolution);
-        logger::info("\tRandom Seed:                     {}", params.seed);
+        logger::info("\tInput Path:                                {}", params.input_model);
+        logger::info("\tOutput Path:                               {}", params.output_name);
+        logger::info("\tTerminal Threshold:                        {}", params.threshold);
+        logger::info("\tMax # Convex Hulls:                        {}", params.max_convex_hull);
+        logger::info("\tMCTS Node Number:                          {}", params.mcts_nodes);
+        logger::info("\tMCTS Iteration:                            {}", params.mcts_iteration);
+        logger::info("\tMCTS Max Depth:                            {}", params.mcts_max_depth);
+        logger::info("\tManifold Preprocess Mode (auto/on/off):    {}", params.preprocess_mode);
+        logger::info("\tPreprocess Resolution:                     {}", params.prep_resolution);
+        logger::info("\tMerge Postprocess (on/off):                {}", params.merge);
+        logger::info("\tPCA (ON/OFF):                              {}", params.pca);
+        logger::info("\tk for Rv:                                  {}", params.rv_k);
+        logger::info("\tHausdorff Sampling Resolution:             {}", params.resolution);
+        logger::info("\tRandom Seed:                               {}", params.seed);
     }
 
     void SaveOBJ(const string &filename, vector<Model> parts, Params &params)

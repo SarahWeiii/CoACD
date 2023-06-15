@@ -28,7 +28,7 @@ namespace coacd
     unsigned int resolution;
     unsigned int seed;
     double rv_k;
-    bool preprocess;
+    string preprocess_mode;
     int prep_resolution;
     bool pca;
     bool merge;
@@ -47,7 +47,7 @@ namespace coacd
       resolution = 2000;
       seed = 1234;
       rv_k = 0.3;
-      preprocess = true;
+      preprocess_mode = "auto";
       prep_resolution = 50;
       pca = false;
       merge = true;

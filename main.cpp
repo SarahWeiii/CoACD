@@ -4,6 +4,7 @@
 #include <string>
 #include <time.h>
 
+#include "src/preprocess.h"
 #include "src/process.h"
 #include "src/logger.h"
 
@@ -47,10 +48,6 @@ int main(int argc, char *argv[])
       {
         sscanf(argv[i + 1], "%u", &params.max_convex_hull);
       }
-      if (strcmp(argv[i], "-np") == 0 || strcmp(argv[i], "--no-prepocess") == 0)
-      {
-        params.preprocess = false;
-      }
       if (strcmp(argv[i], "-nm") == 0 || strcmp(argv[i], "--no-merge") == 0)
       {
         params.merge = false;
@@ -58,6 +55,10 @@ int main(int argc, char *argv[])
       if (strcmp(argv[i], "--pca") == 0)
       {
         params.pca = true;
+      }
+      if (strcmp(argv[i], "-pm") == 0 || strcmp(argv[i], "--preprocess-mode") == 0)
+      {
+        params.preprocess_mode = argv[i + 1];
       }
       if (strcmp(argv[i], "-pr") == 0 || strcmp(argv[i], "--prep-resolution") == 0)
       {
@@ -117,15 +118,25 @@ int main(int argc, char *argv[])
     logger::warn("Threshold t exceeds the higher bound and is automatically set as 1!");
   params.threshold = min(max(params.threshold, 0.01), 1.0);
 
-  Model m, n, pos, neg;
+  Model m;
   array<array<double, 3>, 3> rot;
 
   SaveConfig(params);
 
   m.LoadOBJ(params.input_model);
   vector<double> bbox = m.Normalize();
-  if (params.preprocess)
+  m.SaveOBJ("normalized.obj");
+
+  if (params.preprocess_mode == "auto")
+  {
+    bool is_manifold = IsManifold(m);
+    logger::info("Mesh Manifoldness: {}", is_manifold);
+    if (!is_manifold)
+      ManifoldPreprocess(params, m);
+  }
+  else if (params.preprocess_mode == "on")
     ManifoldPreprocess(params, m);
+
   if (params.pca)
     rot = m.PCA();
 
