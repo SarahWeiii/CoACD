@@ -47,7 +47,7 @@ _lib.CoACD_run.argtypes = [
     POINTER(CoACD_Mesh),
     c_double,
     c_int,
-    c_bool,
+    c_int,
     c_int,
     c_int,
     c_int,
@@ -76,7 +76,7 @@ def run_coacd(
     mesh: Mesh,
     threshold: float = 0.05,
     max_convex_hull: int = -1,
-    preprocess: bool = True,
+    preprocess_mode: str = "auto",
     preprocess_resolution: int = 30,
     resolution: int = 2000,
     mcts_nodes: int = 20,
@@ -84,7 +84,7 @@ def run_coacd(
     mcts_max_depth: int = 3,
     pca: int = False,
     merge: bool = True,
-    seed: int = 1234,
+    seed: int = 0,
 ):
     vertices = np.ascontiguousarray(mesh.vertices, dtype=np.double)
     indices = np.ascontiguousarray(mesh.indices, dtype=np.int32)
@@ -103,11 +103,18 @@ def run_coacd(
     )
     mesh.triangles_count = indices.shape[0]
 
+    if preprocess_mode == "on":
+        pm = 1
+    elif preprocess_mode == "off":
+        pm = 2
+    else:
+        pm = 0
+
     mesh_array = _lib.CoACD_run(
         mesh,
         threshold,
         max_convex_hull,
-        preprocess,
+        pm,
         preprocess_resolution,
         resolution,
         mcts_nodes,

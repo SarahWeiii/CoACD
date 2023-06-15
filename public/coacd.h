@@ -6,9 +6,9 @@
 namespace coacd {
 
 #if _WIN32
-  #define COACD_API __declspec(dllexport)
+#define COACD_API __declspec(dllexport)
 #else
-  #define COACD_API
+#define COACD_API
 #endif
 
 struct Mesh {
@@ -21,7 +21,7 @@ std::vector<Mesh> CoACD(Mesh const &input, double threshold = 0.05,
                         int prep_resolution = 50, int sample_resolution = 2000,
                         int mcts_nodes = 20, int mcts_iteration = 150,
                         int mcts_max_depth = 3, bool pca = false,
-                        bool merge = true, unsigned int seed = 1234);
+                        bool merge = true, unsigned int seed = 0);
 
 void set_log_level(std::string_view level);
 
@@ -43,12 +43,16 @@ struct CoACD_MeshArray {
 
 void COACD_API CoACD_freeMeshArray(CoACD_MeshArray arr);
 
+constexpr int preprocess_auto = 0;
+constexpr int preprocess_on = 1;
+constexpr int preprocess_off = 2;
+
 CoACD_MeshArray COACD_API CoACD_run(CoACD_Mesh const &input, double threshold,
-                          int max_convex_hull, bool preprocess,
-                          int prep_resolution, int sample_resolution,
-                          int mcts_nodes, int mcts_iteration,
-                          int mcts_max_depth, bool pca, bool merge,
-                          unsigned int seed);
+                                    int max_convex_hull, int preprocess_mode,
+                                    int prep_resolution, int sample_resolution,
+                                    int mcts_nodes, int mcts_iteration,
+                                    int mcts_max_depth, bool pca, bool merge,
+                                    unsigned int seed);
 
 void COACD_API CoACD_setLogLevel(char const *level);
 }
