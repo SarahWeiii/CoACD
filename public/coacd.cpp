@@ -13,14 +13,14 @@ void RecoverParts(vector<Model> &meshes, vector<double> bbox,
 }
 
 std::vector<Mesh> CoACD(Mesh const &input, double threshold,
-                        int max_convex_hull, bool preprocess,
+                        int max_convex_hull, std::string preprocess_mode,
                         int prep_resolution, int sample_resolution,
                         int mcts_nodes, int mcts_iteration, int mcts_max_depth,
                         bool pca, bool merge, unsigned int seed) {
 
   logger::info("threshold               {}", threshold);
   logger::info("max # convex hull       {}", max_convex_hull);
-  logger::info("preprocess              {}", preprocess);
+  logger::info("preprocess mode         {}", preprocess_mode);
   logger::info("preprocess resolution   {}", prep_resolution);
   logger::info("pca                     {}", pca);
   logger::info("mcts max depth          {}", mcts_max_depth);
@@ -48,7 +48,7 @@ std::vector<Mesh> CoACD(Mesh const &input, double threshold,
   params.output_name = "";
   params.threshold = threshold;
   params.max_convex_hull = max_convex_hull;
-  params.preprocess = preprocess;
+  params.preprocess_mode = preprocess_mode;
   params.prep_resolution = prep_resolution;
   params.resolution = sample_resolution;
   params.mcts_nodes = mcts_nodes;
@@ -63,9 +63,16 @@ std::vector<Mesh> CoACD(Mesh const &input, double threshold,
   vector<double> bbox = m.Normalize();
   array<array<double, 3>, 3> rot{
       {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}}};
-  if (preprocess) {
+
+  if (params.preprocess_mode == std::string("auto")) {
+    bool is_manifold = IsManifold(m);
+    logger::info("Mesh Manifoldness: {}", is_manifold);
+    if (!is_manifold)
+      ManifoldPreprocess(params, m);
+  } else if (params.preprocess_mode == std::string("on")) {
     ManifoldPreprocess(params, m);
   }
+
   if (pca) {
     rot = m.PCA();
   }
@@ -114,7 +121,7 @@ void CoACD_freeMeshArray(CoACD_MeshArray arr) {
 }
 
 CoACD_MeshArray CoACD_run(CoACD_Mesh const &input, double threshold,
-                          int max_convex_hull, bool preprocess,
+                          int max_convex_hull, int preprocess_mode,
                           int prep_resolution, int sample_resolution,
                           int mcts_nodes, int mcts_iteration,
                           int mcts_max_depth, bool pca, bool merge,
@@ -130,7 +137,17 @@ CoACD_MeshArray CoACD_run(CoACD_Mesh const &input, double threshold,
                             input.triangles_ptr[3 * i + 1],
                             input.triangles_ptr[3 * i + 2]});
   }
-  auto meshes = coacd::CoACD(mesh, threshold, max_convex_hull, preprocess,
+
+  std::string pm;
+  if (preprocess_mode == preprocess_on) {
+    pm = "on";
+  } else if (preprocess_mode == preprocess_off) {
+    pm = "off";
+  } else {
+    pm = "auto";
+  }
+
+  auto meshes = coacd::CoACD(mesh, threshold, max_convex_hull, pm,
                              prep_resolution, sample_resolution, mcts_nodes,
                              mcts_iteration, mcts_max_depth, pca, merge, seed);
 

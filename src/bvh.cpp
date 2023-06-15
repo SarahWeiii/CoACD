@@ -169,7 +169,7 @@ namespace coacd
             return false;
         if (node.isLeaf())
         {
-            for (uint i = 0; i < (uint) node.numTri; i++)
+            for (int i = 0; i < node.numTri; i++)
             {
                 IntersectVector3 v0, v1, v2, u0, u1, u2;
                 const vec3i t0 = triangleIdx;

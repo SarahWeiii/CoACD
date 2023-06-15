@@ -11,3 +11,5 @@ RUN echo "#!/opt/python/cp38-cp38/bin/python" > /usr/local/bin/auditwheel && \
     echo "if __name__ == '__main__':" >> /usr/local/bin/auditwheel && \
     echo "    sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])" >> /usr/local/bin/auditwheel && \
     echo "    sys.exit(main())" >> /usr/local/bin/auditwheel
+
+RUN /opt/python/cp311-cp311/bin/python -m pip install wheel --upgrade
