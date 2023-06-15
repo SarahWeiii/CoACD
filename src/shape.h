@@ -79,7 +79,7 @@ namespace coacd
         }
     };
 
-    bool SamePointDetect(vec3d p0, vec3d p1);
+    bool SamePointDetect(vec3d p0, vec3d p1, float eps=1e-5);
     bool SameVectorDirection(vec3d v, vec3d w);
     vec3d CrossProduct(vec3d v, vec3d w);
     vec3d CalFaceNormal(vec3d p1, vec3d p2, vec3d p3);

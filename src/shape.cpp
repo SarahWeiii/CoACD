@@ -8,13 +8,13 @@ namespace coacd
         pFlag = false;
     }
 
-    bool SamePointDetect(vec3d p0, vec3d p1)
+    bool SamePointDetect(vec3d p0, vec3d p1, float eps)
     {
         double dx, dy, dz;
         dx = fabs(p0[0] - p1[0]);
         dy = fabs(p0[1] - p1[1]);
         dz = fabs(p0[2] - p1[2]);
-        if (dx < 1e-5 && dy < 1e-5 && dz < 1e-5)
+        if (dx < eps && dy < eps && dz < eps)
             return true;
         return false;
     }

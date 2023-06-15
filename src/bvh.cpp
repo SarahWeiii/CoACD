@@ -190,7 +190,10 @@ namespace coacd
 
                 if (t0[0] != t1[0] && t0[0] != t1[1] && t0[0] != t1[2] &&
                     t0[1] != t1[0] && t0[1] != t1[1] && t0[1] != t1[2] &&
-                    t0[2] != t1[0] && t0[2] != t1[1] && t0[2] != t1[2])
+                    t0[2] != t1[0] && t0[2] != t1[1] && t0[2] != t1[2] &&
+                    !SamePointDetect(p0_0, p1_0) && !SamePointDetect(p0_0, p1_1) && !SamePointDetect(p0_0, p1_2) &&
+                    !SamePointDetect(p0_1, p1_0) && !SamePointDetect(p0_1, p1_1) && !SamePointDetect(p0_1, p1_2) &&
+                    !SamePointDetect(p0_2, p1_0) && !SamePointDetect(p0_2, p1_1) && !SamePointDetect(p0_2, p1_2))
                 {
                     bool flag = threeyd::moeller::TriangleIntersects<IntersectVector3>::triangle(v0, v1, v2, u0, u1, u2);
                     if (flag)
