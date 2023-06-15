@@ -677,9 +677,9 @@ namespace coacd
     {
         for (int i = 0; i < (int)meshes.size(); i++)
         {
-            meshes[i].Recover(bbox);
             if (params.pca)
                 meshes[i].RevertPCA(rot);
+            meshes[i].Recover(bbox);
         }
     }
 }
