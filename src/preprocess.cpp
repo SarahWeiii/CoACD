@@ -1,7 +1,6 @@
 #include "preprocess.h"
 #include "logger.h"
 #include "shape.h"
-// #include "intersection.h"
 
 namespace coacd
 {
@@ -76,22 +75,42 @@ namespace coacd
             if (!edge_num.contains({idx0, idx1}))
                 edge_num[{idx0, idx1}] = 1;
             else
+            {
+                logger::info("\tWrong triangle orientation");
+                end = clock();
+                logger::info("Manifold Check Time: {}s", double(end - start) / CLOCKS_PER_SEC);
                 return false;
+            }
             if (!edge_num.contains({idx1, idx2}))
                 edge_num[{idx1, idx2}] = 1;
             else
+            {
+                logger::info("\tWrong triangle orientation");
+                end = clock();
+                logger::info("Manifold Check Time: {}s", double(end - start) / CLOCKS_PER_SEC);
                 return false;
+            }
             if (!edge_num.contains({idx2, idx0}))
                 edge_num[{idx2, idx0}] = 1;
             else
+            {
+                logger::info("\tWrong triangle orientation");
+                end = clock();
+                logger::info("Manifold Check Time: {}s", double(end - start) / CLOCKS_PER_SEC);
                 return false;
+            }
         }
 
         for (int i = 0; i < (int)edges.size(); i++)
         {
             pair<int, int> oppo_edge = {edges[i].second, edges[i].first};
             if (!edge_num.contains(oppo_edge))
+            {
+                logger::info("\tUnclosed mesh");
+                end = clock();
+                logger::info("Manifold Check Time: {}s", double(end - start) / CLOCKS_PER_SEC);
                 return false;
+            }
         }
         logger::info("[1/3] Edge check finish");
 
@@ -102,6 +121,9 @@ namespace coacd
             bool is_intersect = bvhTree.IntersectBVH(input.triangles[i], 0);
             if (is_intersect)
             {
+                logger::info("\tTriangle self-intersection");
+                end = clock();
+                logger::info("Manifold Check Time: {}s", double(end - start) / CLOCKS_PER_SEC);
                 return false;
             }
         }

@@ -12,7 +12,6 @@ namespace coacd
     void BVH::BuildBVH()
     {
         const int N = model.triangles.size();
-        // std::cout << "BuildBVH " << N << std::endl;
         bvhNode.resize(N * 2 - 1);
         rootNodeIdx = 0;
         nodesUsed = 1;
@@ -22,14 +21,8 @@ namespace coacd
         for (int i = 0; i < N; i++)
         {
             const vec3i tri = model.triangles[i];
-            // std::cout << "v " << model.points[tri[0]][0] << ' ' << model.points[tri[0]][1] << ' ' << model.points[tri[0]][2] << std::endl;
-            // std::cout << "v " << model.points[tri[1]][0] << ' ' << model.points[tri[1]][1] << ' ' << model.points[tri[1]][2] << std::endl;
-            // std::cout << "v " << model.points[tri[2]][0] << ' ' << model.points[tri[2]][1] << ' ' << model.points[tri[2]][2] << std::endl;
             for (int j = 0; j < 3; j++)
                 centroids[i][j] = (model.points[tri[0]][j] + model.points[tri[1]][j] + model.points[tri[2]][j]) / 3.0f;
-            // std::cout << "v " << centroids[i][0] << ' ' << centroids[i][1] << ' ' << centroids[i][2] << std::endl;
-            // std::cout << "f 1 2 3" << std::endl;
-            // getchar();
         }
         // assign all triangles to root node
         BVHNode &root = bvhNode[rootNodeIdx];
@@ -61,20 +54,10 @@ namespace coacd
 
     void BVH::Subdivide(int nodeIdx)
     {
-        // std::cout << "Subdivide " << nodeIdx << ' ' <<nodesUsed << std::endl;
         // terminate recursion
         BVHNode &node = bvhNode[nodeIdx];
-        // std::cout << "v " << bvhNode[nodeIdx].aabbMin[0] << ' ' << bvhNode[nodeIdx].aabbMin[1] << ' ' << bvhNode[nodeIdx].aabbMin[2] << std::endl;
-        // std::cout << "v " << bvhNode[nodeIdx].aabbMax[0] << ' ' << bvhNode[nodeIdx].aabbMax[1] << ' ' << bvhNode[nodeIdx].aabbMax[2] << std::endl;
-        // std::cout << "--- init ---" << std::endl;
-        // for (int k = node.firstTri; k < node.numTri; k++)
-        // {
-        //     std::cout << "v " << centroids[node.firstTri + k][0] << ' ' << centroids[node.firstTri + k][1] << ' ' << centroids[node.firstTri + k][2] << std::endl;
-        // }
-        // std::cout << "------" << std::endl;
         if (node.numTri <= 2)
         {
-            // std::cout << "terminate recursion due to <= 2" << std::endl;
             return;
         }
         // determine split axis and position
@@ -104,11 +87,11 @@ namespace coacd
         else
             axes[2] = 2;
 
+        // travers all the axes from widest to narrowest, in case long thin triangles problem
         for (int ax = 0; ax < 3; ax++)
         {
             int axis = axes[ax];
             double splitPos = node.aabbMin[axis] + extent[axis] * 0.5;
-            // std::cout << "axis " << axis << " splitPos " << splitPos << std::endl;
             // in-place partition
             int i = node.firstTri;
             int j = i + node.numTri - 1;
@@ -127,16 +110,6 @@ namespace coacd
             int leftCount = i - node.firstTri;
             if ((leftCount == 0 || leftCount == node.numTri) && ax != 2)
             {
-                // std::cout << "terminate recursion due to empty" << std::endl;
-                // std::cout << "leftCount " << leftCount << "node.numTri "<< node.numTri<< std::endl;
-                // std::cout << "v " << bvhNode[nodeIdx].aabbMin[0] << ' ' << bvhNode[nodeIdx].aabbMin[1] << ' ' << bvhNode[nodeIdx].aabbMin[2] << std::endl;
-                // std::cout << "v " << bvhNode[nodeIdx].aabbMax[0] << ' ' << bvhNode[nodeIdx].aabbMax[1] << ' ' << bvhNode[nodeIdx].aabbMax[2] << std::endl;
-
-                // for (int k = node.firstTri; k < node.numTri; k++)
-                // {
-                //     std::cout << "v " << centroids[node.firstTri + k][0] << ' ' << centroids[node.firstTri + k][1] << ' ' << centroids[node.firstTri + k][2] << std::endl;
-                // }
-                // getchar();
                 continue;
             }
             else if ((leftCount == 0 || leftCount == node.numTri) && ax == 2)
@@ -157,13 +130,6 @@ namespace coacd
             // update bounds
             UpdateNodeBounds(leftChildIdx);
             UpdateNodeBounds(rightChildIdx);
-            // std::cout << "left" << std::endl;
-            // std::cout << "v " << bvhNode[leftChildIdx].aabbMin[0] << ' ' << bvhNode[leftChildIdx].aabbMin[1] << ' ' << bvhNode[leftChildIdx].aabbMin[2] << std::endl;
-            // std::cout << "v " << bvhNode[leftChildIdx].aabbMax[0] << ' ' << bvhNode[leftChildIdx].aabbMax[1] << ' ' << bvhNode[leftChildIdx].aabbMax[2] << std::endl;
-
-            // std::cout << "right" << std::endl;
-            // std::cout << "v " << bvhNode[rightChildIdx].aabbMin[0] << ' ' << bvhNode[rightChildIdx].aabbMin[1] << ' ' << bvhNode[rightChildIdx].aabbMin[2] << std::endl;
-            // std::cout << "v " << bvhNode[rightChildIdx].aabbMax[0] << ' ' << bvhNode[rightChildIdx].aabbMax[1] << ' ' << bvhNode[rightChildIdx].aabbMax[2] << std::endl;
             // recurse
             Subdivide(leftChildIdx);
             Subdivide(rightChildIdx);
@@ -198,38 +164,29 @@ namespace coacd
 
     bool BVH::IntersectBVH(vec3i triangleIdx, const int nodeIdx)
     {
-        // std::cout << "IntersectBVH " << nodeIdx << std::endl;
         BVHNode &node = bvhNode[nodeIdx];
         if (!IntersectAABB(triangleIdx, node.aabbMin, node.aabbMax))
             return false;
         if (node.isLeaf())
         {
-            // std::cout << "IntersectBVH leaf" << std::endl;
-            // std::cout << "node.numTri : " << node.numTri << std::endl;
-            for (uint i = 0; i < node.numTri; i++)
+            for (uint i = 0; i < (uint) node.numTri; i++)
             {
-                // std::cout << i << std::endl;
                 IntersectVector3 v0, v1, v2, u0, u1, u2;
-                vec3i t0 = triangleIdx;
-
-                // std::cout << "IntersectBVH leaf0 " << node.numTri<< ' ' << node.firstTri + i << ' ' << model.points.size() << ' ' << model.triangles.size() << std::endl;
-
+                const vec3i t0 = triangleIdx;
                 const vec3i t1 = model.triangles[node.firstTri + i];
-                // std::cout << 'a' << std::endl;
-                const vec3d p0 = model.points[t1[0]];
-                // std::cout << 'b' << std::endl;
-                const vec3d p1 = model.points[t1[1]];
-                // std::cout << 'c' << std::endl;
-                const vec3d p2 = model.points[t1[2]];
-                // std::cout << "IntersectBVH leaf1 " << t1[0] << " " << t1[1] << " " << t1[2] << std::endl;
+                const vec3d p0_0 = model.points[t0[0]];
+                const vec3d p0_1 = model.points[t0[1]];
+                const vec3d p0_2 = model.points[t0[2]];
+                const vec3d p1_0 = model.points[t1[0]];
+                const vec3d p1_1 = model.points[t1[1]];
+                const vec3d p1_2 = model.points[t1[2]];
 
-                v0 = {float(model.points[t0[0]][0]), float(model.points[t0[0]][1]), float(model.points[t0[0]][2])};
-                v1 = {float(model.points[t0[1]][0]), float(model.points[t0[1]][1]), float(model.points[t0[1]][2])};
-                v2 = {float(model.points[t0[2]][0]), float(model.points[t0[2]][1]), float(model.points[t0[2]][2])};
-                u0 = {float(model.points[t1[0]][0]), float(model.points[t1[0]][1]), float(model.points[t1[0]][2])};
-                u1 = {float(model.points[t1[1]][0]), float(model.points[t1[1]][1]), float(model.points[t1[1]][2])};
-                u2 = {float(model.points[t1[2]][0]), float(model.points[t1[2]][1]), float(model.points[t1[2]][2])};
-                // std::cout << "IntersectBVH leaf2 " << v0[0] << ' ' << v0[1] << ' ' << v0[2] << std::endl;
+                v0 = {float(p0_0[0]), float(p0_0[1]), float(p0_0[2])};
+                v1 = {float(p0_1[0]), float(p0_1[1]), float(p0_1[2])};
+                v2 = {float(p0_2[0]), float(p0_2[1]), float(p0_2[2])};
+                u0 = {float(p1_0[0]), float(p1_0[1]), float(p1_0[2])};
+                u1 = {float(p1_1[0]), float(p1_1[1]), float(p1_1[2])};
+                u2 = {float(p1_2[0]), float(p1_2[1]), float(p1_2[2])};
 
                 if (t0[0] != t1[0] && t0[0] != t1[1] && t0[0] != t1[2] &&
                     t0[1] != t1[0] && t0[1] != t1[1] && t0[1] != t1[2] &&
@@ -238,26 +195,22 @@ namespace coacd
                     bool flag = threeyd::moeller::TriangleIntersects<IntersectVector3>::triangle(v0, v1, v2, u0, u1, u2);
                     if (flag)
                     {
-                        std::cout << "IntersectBVH leaf triangle" << std::endl;
-                        std::cout << "v " << v0[0] << ' ' << v0[1] << ' ' << v0[2] << std::endl;
-                        std::cout << "v " << v1[0] << ' ' << v1[1] << ' ' << v1[2] << std::endl;
-                        std::cout << "v " << v2[0] << ' ' << v2[1] << ' ' << v2[2] << std::endl;
-                        std::cout << "v " << u0[0] << ' ' << u0[1] << ' ' << u0[2] << std::endl;
-                        std::cout << "v " << u1[0] << ' ' << u1[1] << ' ' << u1[2] << std::endl;
-                        std::cout << "v " << u2[0] << ' ' << u2[1] << ' ' << u2[2] << std::endl;
-                        std::cout << "f 1 2 3" << std::endl;
-                        std::cout << "f 4 5 6" << std::endl;
-                        std::cout << "flag " << flag << std::endl;
+                        // std::cout << "v " << v0[0] << ' ' << v0[1] << ' ' << v0[2] << std::endl;
+                        // std::cout << "v " << v1[0] << ' ' << v1[1] << ' ' << v1[2] << std::endl;
+                        // std::cout << "v " << v2[0] << ' ' << v2[1] << ' ' << v2[2] << std::endl;
+                        // std::cout << "v " << u0[0] << ' ' << u0[1] << ' ' << u0[2] << std::endl;
+                        // std::cout << "v " << u1[0] << ' ' << u1[1] << ' ' << u1[2] << std::endl;
+                        // std::cout << "v " << u2[0] << ' ' << u2[1] << ' ' << u2[2] << std::endl;
+                        // std::cout << "f 1 2 3" << std::endl;
+                        // std::cout << "f 4 5 6" << std::endl;
                         return true;
                     }
                 }
             }
-            // std::cout << "end" << std::endl;
             return false;
         }
         else
         {
-            // std::cout << "IntersectBVH left" << std::endl;
             if (node.left != -1)
             {
                 bool left_intersect = IntersectBVH(triangleIdx, node.left);
@@ -266,9 +219,7 @@ namespace coacd
             }
             if (node.right != -1)
             {
-                // std::cout << "IntersectBVH right" << std::endl;
                 bool right_intersect = IntersectBVH(triangleIdx, node.right);
-                // std::cout << "IntersectBVH end" << std::endl;
                 return right_intersect;
             }
         }
