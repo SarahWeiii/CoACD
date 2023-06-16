@@ -1,9 +1,9 @@
 # Approximate Convex Decomposition for 3D Meshes with Collision-Aware Concavity and Tree Search [SIGGRAPH2022]
  [\[project\]](https://colin97.github.io/CoACD/) [\[paper\]](https://arxiv.org/pdf/2205.02961.pdf) [\[video\]](https://www.youtube.com/watch?v=r12O0z0723s)
 
-[***News***] CoACD supports all versions of Python 3 on Linux (x86_64) and Windows (amd64) now!
+[***News***] CoACD addes "auto" pre-processing mode, which produces better results for manifold meshes!
 
-[***News***] We have replaced the original non-commercial dependencies. All of our code is under MIT license, and all dependencies allow commercial use now.
+[***News***] CoACD supports all versions of Python 3 on Linux (x86_64) and Windows (amd64) now!
 
 Approximate convex decomposition enables efficient geometry processing algorithms specifically designed for convex shapes (e.g., collision detection). We propose a method that is better to preserve collision conditions of the input shape with fewer components. It thus supports delicate and efficient object interaction in downstream applications.
 
@@ -27,10 +27,10 @@ mesh = trimesh.load(input_file, force="mesh")
 mesh = coacd.Mesh(mesh.vertices, mesh.faces)
 parts = coacd.run_coacd(mesh) # a list of convex hulls.
 ```
-The complete example script is in `python/py_example.py`, run it by the following command:
+The complete example script is in `python/package/bin/coacd`, run it by the following command:
 ```
 cd python
-python py_example.py -i $InputFile -o $OutputFile
+python package/bin/coacd -i $InputFile -o $OutputFile
 ```
 
 ## Compile from source (Linux)
@@ -81,7 +81,7 @@ Here is the description of the parameters (sorted by importance).
 * `-o/--output`: path for output (`.obj` or `.wrl`).
 * `-pr/--prep-resolution`: resolution for manifold preprocess (20~100), default = 50.
 * `-t/--threshold`:  concavity threshold for terminating the decomposition (0.01~1), default = 0.05.
-* `-np/--no-prepocess`: flag to disable manifold preprocessing, default = false. If your input is already manifold mesh, disabling the preprocessing can avoid introducing extra artifacts.
+* `-pm/--preprocess-mode`: choose manifold preprocessing mode ('auto': automatically check input mesh manifoldness; 'on': force turn on the pre-processing; 'off': force turn off the pre-processing), default = 'auto'.
 * `-nm/--no-merge`: flag to disable merge postprocessing, default = false.
 * `-c/--max-convex-hull`: max # convex hulls in the result, -1 for no maximum limitation, works **only when merge is enabled**, default = -1 (may introduce convex hull with a concavity larger than the threshold)
 * `-mi/--mcts-iteration`: number of search iterations in MCTS (60~2000), default = 100.
