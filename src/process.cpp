@@ -243,6 +243,7 @@ namespace coacd
 #endif
                         parts.push_back(pCH);
                         pmeshs.push_back(pmesh);
+                        free_tree(node, 0);
 #ifdef _OPENMP
                         omp_unset_lock(&writelock);
 #endif
