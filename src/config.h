@@ -33,6 +33,7 @@ namespace coacd
     bool pca;
     bool merge;
     int max_convex_hull;
+    double dmc_thres;
 
     /////////////// MCTS Config ///////////////
     int mcts_iteration;
@@ -51,6 +52,7 @@ namespace coacd
       prep_resolution = 50;
       pca = false;
       merge = true;
+      dmc_thres = 0.55;
 
       mcts_iteration = 150;
       mcts_max_depth = 3;

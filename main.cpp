@@ -34,11 +34,11 @@ int main(int argc, char *argv[])
       }
       if (strcmp(argv[i], "-k") == 0)
       {
-        sscanf(argv[i + 1], "%lf", &params.rv_k);
+        sscanf(argv[i + 1], "%le", &params.rv_k);
       }
       if (strcmp(argv[i], "-t") == 0 || strcmp(argv[i], "--threshold") == 0)
       {
-        sscanf(argv[i + 1], "%lf", &params.threshold);
+        sscanf(argv[i + 1], "%le", &params.threshold);
       }
       if (strcmp(argv[i], "-r") == 0 || strcmp(argv[i], "--resolution") == 0)
       {
@@ -79,6 +79,10 @@ int main(int argc, char *argv[])
       if (strcmp(argv[i], "-mn") == 0 || strcmp(argv[i], "--mcts-node") == 0)
       {
         sscanf(argv[i + 1], "%d", &params.mcts_nodes);
+      }
+      if (strcmp(argv[i], "-dt") == 0 || strcmp(argv[i], "--dualmc-threshold") == 0)
+      {
+        sscanf(argv[i + 1], "%le", &params.dmc_thres);
       }
     }
   }

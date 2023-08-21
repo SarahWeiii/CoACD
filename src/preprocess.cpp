@@ -34,7 +34,7 @@ namespace coacd
         std::vector<Vec3s> newPoints;
         std::vector<Vec3I> newTriangles;
         std::vector<Vec4I> newQuads;
-        tools::volumeToMesh(*sgrid, newPoints, newTriangles, newQuads, 0.55);
+        tools::volumeToMesh(*sgrid, newPoints, newTriangles, newQuads, level_set);
 
         output.Clear();
         for (unsigned int i = 0; i < newPoints.size(); ++i)
