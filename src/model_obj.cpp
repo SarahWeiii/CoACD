@@ -472,6 +472,8 @@ namespace coacd
                         pch = strtok(str, " ");
                         if (pch && *pch != '\n')
                         {
+                            if (atoi(pch) == 0)
+                                continue;
                             ip[k++] = (unsigned int)atoi(pch) - 1;
                         }
                         else
