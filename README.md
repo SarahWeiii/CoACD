@@ -40,7 +40,7 @@ python package/bin/coacd -i $InputFile -o $OutputFile
 Supporting Unity 2020.1 or later (Windows amd64).
 See the example project in [`unity` branch](https://github.com/SarahWeiii/CoACD/tree/unity).
 
-<video src="assets/unity_video.mp4" controls="controls" style="max-width: 400px;" autoplay>
+<video src="https://github.com/SarahWeiii/CoACD/assets/23738781/bda0e0bb-b55c-4ccc-b6df-33d09a2bd7c2" controls="controls" style="max-width: 400px;" autoplay>
 </video>
 
 ### (1) Installation
@@ -56,11 +56,13 @@ https://github.com/SarahWeiii/CoACD.git?path=/Packages/info.flandre.coacd#unity
 ### (2) Usage
 
 1. Add a `CoACD` component to your object. You can tweak the parameters in the editor.
+
+<img width="320" alt="image" src="assets/unity_1.png">
+
 2. Right click the component header lane. Then select `Generate Collision Meshes` or
    `Generate Collision Meshes for Hierarchy` to generate collision for the current object or
    all children of the current object that contains a `MeshFilter`, respectively.
 
-<img width="320" alt="image" src="assets/unity_1.png">
 <img width="320" alt="image" src="assets/unity_2.png">
 
 3. Unity mesh colliders will be created in the scene under `Collision` as a child of each object.
