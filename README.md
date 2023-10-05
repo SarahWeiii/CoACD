@@ -1,7 +1,9 @@
 # Approximate Convex Decomposition for 3D Meshes with Collision-Aware Concavity and Tree Search [SIGGRAPH2022]
  [\[project\]](https://colin97.github.io/CoACD/) [\[paper\]](https://arxiv.org/pdf/2205.02961.pdf) [\[video\]](https://www.youtube.com/watch?v=r12O0z0723s)
 
-[***News***] CoACD addes "auto" pre-processing mode, which produces better results for manifold meshes!
+[***News***] CoACD is now supported in Unity (Windows) as a package!
+
+[***News***] CoACD adds "auto" pre-processing mode, which produces better results for manifold meshes!
 
 [***News***] CoACD supports all versions of Python 3 on Linux (x86_64) and Windows (amd64) now!
 
@@ -31,6 +33,43 @@ The complete example script is in `python/package/bin/coacd`, run it by the foll
 ```
 cd python
 python package/bin/coacd -i $InputFile -o $OutputFile
+```
+
+## Unity
+
+Supporting Unity 2020.1 or later (Windows amd64).
+
+<video src="https://github.com/SarahWeiii/CoACD/assets/23738781/bda0e0bb-b55c-4ccc-b6df-33d09a2bd7c2" controls="controls" style="max-width: 720px;" autoplay>
+</video>
+
+### (1) Installation
+
+1. Open the Package Manager from `Window` -> `Package Manager`.
+2. Find and click the + button in the upper lefthand corner of the window. Select `Add package from git URL`.
+3. Enter the following URL:
+```
+https://github.com/SarahWeiii/CoACD.git?path=/Packages/info.flandre.coacd#unity
+```
+4. Click `Add`.
+
+### (2) Usage
+
+1. Add a `CoACD` component to your object. You can tweak the parameters in the editor.
+2. Right click the component header lane. Then select `Generate Collision Meshes` or
+   `Generate Collision Meshes for Hierarchy` to generate collision for the current object or
+   all children of the current object that contains a `MeshFilter`, respectively.
+
+<img width="320" alt="image" src="https://github.com/SarahWeiii/CoACD/assets/23738781/3ddb1a40-2ac9-4eff-af37-c789f2a5b84f">
+<img width="320" alt="image" src="https://github.com/SarahWeiii/CoACD/assets/23738781/560afb1f-2fb0-4dbf-9905-88ff5a0343e2">
+
+3. Unity mesh colliders will be created in the scene under `Collision` as a child of each object.
+
+<img width="640" alt="image" src="https://github.com/SarahWeiii/CoACD/assets/23738781/afc4a271-6a6c-4d81-ac18-481f43758bde">
+
+4. Alternatively, you can call the runtime API as a method of the `CoACD` component:
+
+```csharp
+public List<Mesh> RunACD(Mesh mesh);
 ```
 
 ## Compile from source (Linux)
