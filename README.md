@@ -121,6 +121,7 @@ Here is the description of the parameters (sorted by importance).
 
 * `-i/--input`: path for input mesh (`.obj`).
 * `-o/--output`: path for output (`.obj` or `.wrl`).
+* `-ro/--remesh-output`: path for preprocessed mesh output (`.obj`).
 * `-pr/--prep-resolution`: resolution for manifold preprocess (20~100), default = 50.
 * `-t/--threshold`:  concavity threshold for terminating the decomposition (0.01~1), default = 0.05.
 * `-pm/--preprocess-mode`: choose manifold preprocessing mode ('auto': automatically check input mesh manifoldness; 'on': force turn on the pre-processing; 'off': force turn off the pre-processing), default = 'auto'.
