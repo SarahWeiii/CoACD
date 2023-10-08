@@ -1,0 +1,46 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { os: "linux", build-dir: "build-linux", toolchain-file: "" }
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: "true"
+      - name: Install Clang
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang libboost-all-dev
+      - name: Cache build artifacts
+        uses: actions/cache@v2
+        with:
+          path: ./${{ matrix.config.build-dir }}
+          key: ${{ runner.os }}-build-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-build-
+      - name: Create Build Directory, Change to it, Run CMake and Build with Make
+        run: |
+          mkdir -p ${{ matrix.config.build-dir }}
+          cd ${{ matrix.config.build-dir }}
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DTBB_TEST=OFF -DCMAKE_CXX_FLAGS="-fPIC"
+          make -j$(nproc)
+      - name: List Build Results
+        run: |
+          echo "${{ matrix.config.os }} build results:"
+          ls ${{ matrix.config.build-dir }}
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.config.os }}-build-artifacts
+          path: ./${{ matrix.config.build-dir }}/main*
