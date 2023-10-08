@@ -32,6 +32,10 @@ int main(int argc, char *argv[])
       {
         params.output_name = argv[i + 1];
       }
+      if (strcmp(argv[i], "-ro") == 0 || strcmp(argv[i], "--remesh-output") == 0)
+      {
+        params.remesh_output_name = argv[i + 1];
+      }
       if (strcmp(argv[i], "-k") == 0)
       {
         sscanf(argv[i + 1], "%le", &params.rv_k);
@@ -129,7 +133,7 @@ int main(int argc, char *argv[])
 
   m.LoadOBJ(params.input_model);
   vector<double> bbox = m.Normalize();
-  m.SaveOBJ("normalized.obj");
+  // m.SaveOBJ("normalized.obj");
 
   if (params.preprocess_mode == "auto")
   {
@@ -140,6 +144,8 @@ int main(int argc, char *argv[])
   }
   else if (params.preprocess_mode == "on")
     ManifoldPreprocess(params, m);
+
+  m.SaveOBJ(params.remesh_output_name);
 
   if (params.pca)
     rot = m.PCA();
