@@ -23,11 +23,11 @@ jobs:
       - name: Run `cmake`
         working-directory: ./${{ matrix.config.build-dir }}
         run: |
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DTBB_TEST=OFF -DCMAKE_CXX_FLAGS="-fPIC" ${{ matrix.config.build-dir == 'build-windows' && '-G "MinGW Makefiles"' || '' }}
-      - name: Run `make`
-        working-directory: ./${{ matrix.config.build-dir }}
-        run: |
-          make main -j2
+          cmake --build .. --target main -DCMAKE_BUILD_TYPE=Release -DTBB_TEST=OFF -DCMAKE_CXX_FLAGS="-fPIC ${{ matrix.config.build-dir == 'build-windows' && '-static-libgcc' || '' }}"
+      # - name: Run `make`
+      #   working-directory: ./${{ matrix.config.build-dir }}
+      #   run: |
+      #     make main -j2
       - name: List Build Results
         run: |
           ls ${{ matrix.config.build-dir }}
