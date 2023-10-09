@@ -22,7 +22,7 @@ jobs:
           mkdir -p ${{ matrix.config.build-dir }}
           cd ${{ matrix.config.build-dir }}
           cmake .. -DCMAKE_BUILD_TYPE=Release -DTBB_TEST=OFF -DCMAKE_CXX_FLAGS="-fPIC"
-          make main -j$(nproc)
+          make main -j2
       - name: List Build Results
         run: |
           ls ${{ matrix.config.build-dir }}
