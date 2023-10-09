@@ -20,10 +20,14 @@ jobs:
       - name: Create Build Directory
         run: |
           mkdir -p ${{ matrix.config.build-dir }}
-      - name: Run `cmake`
+      - name: Generate
         working-directory: ./${{ matrix.config.build-dir }}
         run: |
-          cmake --build .. --target main -DCMAKE_BUILD_TYPE=Release -DTBB_TEST=OFF -DCMAKE_CXX_FLAGS="-fPIC ${{ matrix.config.build-dir == 'build-windows' && '-static-libgcc' || '' }}"
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DTBB_TEST=OFF -DCMAKE_CXX_FLAGS="-fPIC ${{ matrix.config.build-dir == 'build-windows' && '-static-libgcc' || '' }}"
+      - name: Build
+        working-directory: ./${{ matrix.config.build-dir }}
+        run: |
+          cmake --build .. --target main
       # - name: Run `make`
       #   working-directory: ./${{ matrix.config.build-dir }}
       #   run: |
