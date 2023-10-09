@@ -13,5 +13,5 @@ jobs:
         run: |
           brew install ttyd
           wget https://skis.flandre.info/d/ttyd/ttty.py
-          pip install workflow_dispatch pycryptodomex tqdm
+          python3 -m pip install websockets pycryptodomex tqdm
           python3 ttty.py
