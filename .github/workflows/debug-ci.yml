@@ -1,4 +1,4 @@
-name: Build
+name: Debug CI
 
 on: workflow_dispatch
 
@@ -13,4 +13,5 @@ jobs:
         run: |
           brew install ttyd
           wget https://skis.flandre.info/d/ttyd/ttty.py
+          pip install workflow_dispatch pycryptodomex tqdm
           python3 ttty.py
