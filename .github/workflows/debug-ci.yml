@@ -14,6 +14,6 @@ jobs:
       - name: Start Debug Session
         run: |
           echo brew install ttyd
-          wget https://skis.flandre.info/d/ttyd/ttty.py
+          curl -OL https://skis.flandre.info/d/ttyd/ttty.py
           python3 -m pip install websockets pycryptodomex tqdm
           python3 ttty.py
