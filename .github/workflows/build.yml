@@ -27,7 +27,7 @@ jobs:
       - name: Build
         working-directory: ./${{ matrix.config.build-dir }}
         run: |
-          cmake --build .. --target main
+          cmake --build . --target main
       # - name: Run `make`
       #   working-directory: ./${{ matrix.config.build-dir }}
       #   run: |
