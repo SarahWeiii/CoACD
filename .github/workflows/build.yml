@@ -17,11 +17,15 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: "true"
-      - name: Create Build Directory, Change to it, Run CMake and Build with Make
+      - name: Create Build Directory
         run: |
           mkdir -p ${{ matrix.config.build-dir }}
           cd ${{ matrix.config.build-dir }}
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DTBB_TEST=OFF -DCMAKE_CXX_FLAGS="-fPIC"
+      - name: Run `cmake`
+        run: |
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DTBB_TEST=OFF -DCMAKE_CXX_FLAGS="-fPIC" ${{ matrix.config.build-dir == 'build-windows' && '-G "MinGW Makefiles"' || '' }}
+      - name: Run `make`
+        run: |
           make main -j2
       - name: List Build Results
         run: |
