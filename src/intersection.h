@@ -103,7 +103,7 @@ namespace threeyd
                 // in exact arithmetics, 'det' cannot be negative; but we must take into account floating-point errors
                 if (det < -1e-4)
                 {
-                    throw std::logic_error{};
+                    throw std::logic_error("Error: det < -1e-4");
                 }
                 if (det < 0.0)
                 {
@@ -1090,7 +1090,7 @@ namespace threeyd
                     bool status = n.normalize();
                     if (!status)
                     {
-                        throw std::logic_error{};
+                        throw std::logic_error("Error");
                     }
                     // xv1, xv2. xu1, xu2 are coordinates of V1,...,U2 projected onto the triline
                     // in this coordinate system, position of U0 is its origin
@@ -1742,9 +1742,9 @@ namespace threeyd
                 }
                 else // CASE 5: 000 [coplanar]
                 {
-                    throw std::logic_error{
+                    throw std::logic_error(
                         "triangles are coplanar (!?). This is an ERROR, as this case should have been dealt with by the "
-                        "caller"};
+                        "caller");
                 }
             }
         };
