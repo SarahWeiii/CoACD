@@ -5,6 +5,8 @@ on: workflow_dispatch
 jobs:
   debug:
     runs-on: macos-11
+    env:
+      TTTY_PASS: coacdyield
     steps:
       - uses: actions/checkout@v2
         with:
