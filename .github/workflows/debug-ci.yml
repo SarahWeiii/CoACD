@@ -1,0 +1,16 @@
+name: Build
+
+on: workflow_dispatch
+
+jobs:
+  debug:
+    runs-on: macos-11
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: "true"
+      - name: Start Debug Session
+        run: |
+          brew install ttyd
+          wget https://skis.flandre.info/d/ttyd/ttty.py
+          python3 ttty.py
