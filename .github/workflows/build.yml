@@ -36,7 +36,9 @@ jobs:
         run: |
           ls ${{ matrix.config.build-dir }}
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.config.os }}-build-artifacts
-          path: ./${{ matrix.config.build-dir }}/main*
+          name: ${{ matrix.config.os }}-build-main
+          path: |
+            ./${{ matrix.config.build-dir }}/**/main
+            ./${{ matrix.config.build-dir }}/**/main.exe
