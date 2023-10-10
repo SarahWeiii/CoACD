@@ -17,12 +17,11 @@ struct Mesh {
 };
 
 std::vector<Mesh> CoACD(Mesh const &input, double threshold = 0.05,
-                        int max_convex_hull = -1, bool preprocess = true,
+                        int max_convex_hull = -1, std::string preprocess = "auto",
                         int prep_resolution = 50, int sample_resolution = 2000,
                         int mcts_nodes = 20, int mcts_iteration = 150,
                         int mcts_max_depth = 3, bool pca = false,
                         bool merge = true, unsigned int seed = 0);
-
 void set_log_level(std::string_view level);
 
 } // namespace coacd

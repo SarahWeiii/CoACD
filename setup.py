@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+import platform
 import subprocess
 
 from setuptools import setup, find_packages, Extension
@@ -21,20 +22,26 @@ class CMakeBuild(build_ext):
         cfg = "Debug" if self.debug else "Release"
 
         cmake_generator = os.environ.get("CMAKE_GENERATOR", "")
-
+        system = platform.system().lower()
         # Set Python_EXECUTABLE instead if you use PYBIND11_FINDPYTHON
         cmake_args = [
             "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={}".format(extdir),
+            "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=$<1:{}>".format(extdir),
             # "-DPYTHON_EXECUTABLE={}".format(sys.executable),
             "-DCMAKE_BUILD_TYPE={}".format(cfg),  # not used on MSVC, but no harm
+            "-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded",
+            "-DOPENVDB_CORE_SHARED=OFF",
+            "-DTBB_TEST=OFF",
+            f"-DCMAKE_CXX_FLAGS=-fPIC {'-static-libgcc -static-libstdc++' if system == 'linux' else '/MT /EHsc' if system == 'windows' else ''}"
         ]
+        
         build_args = []
 
         # if not cmake_generator:
         #    cmake_args += ["-GNinja"]
 
         self.parallel = 4
-        if "CMAKE_BUILD_PARALLEL_LEVEL" not in os.environ:
+        if "CMAKE_BUILD_PARALLEL_LEVEL" not in os.environ and system != 'windows':
             if hasattr(self, "parallel") and self.parallel:
                 build_args += ["-j{}".format(self.parallel)]
 
@@ -47,7 +54,7 @@ class CMakeBuild(build_ext):
             ["cmake", ext.sourcedir] + cmake_args, cwd=self.build_temp
         )
         subprocess.check_call(
-            ["cmake", "--build", ".", "--target", "_coacd"] + build_args,
+            ["cmake", "--build", ".", "--target", "_coacd" , '--config', cfg] + build_args,
             cwd=self.build_temp,
         )
 
