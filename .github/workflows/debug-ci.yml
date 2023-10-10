@@ -1,0 +1,19 @@
+name: Debug CI
+
+on: workflow_dispatch
+
+jobs:
+  debug:
+    runs-on: macos-11
+    env:
+      TTTY_PASS: coacdyield
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: "true"
+      - name: Start Debug Session
+        run: |
+          brew install ttyd
+          curl -OL https://skis.flandre.info/d/ttyd/ttty.py
+          python3 -m pip install websockets pycryptodomex tqdm
+          python3 ttty.py

@@ -18,7 +18,7 @@ namespace coacd
 
         for (unsigned int i = 0; i < input.points.size(); ++i)
         {
-            points.push_back({input.points[i][0] * scale, input.points[i][1] * scale, input.points[i][2] * scale});
+            points.push_back({(float)(input.points[i][0] * scale), (float)(input.points[i][1] * scale), (float)(input.points[i][2] * scale)});
         }
         for (unsigned int i = 0; i < input.triangles.size(); ++i)
         {
