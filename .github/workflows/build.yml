@@ -23,7 +23,7 @@ jobs:
       - name: Generate
         working-directory: ./${{ matrix.config.build-dir }}
         run: |
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DTBB_TEST=OFF -DCMAKE_CXX_FLAGS="-fPIC ${{ matrix.config.build-dir == 'build-linux' && '-static-libgcc -static-libstdc++' || '' }} ${{ matrix.config.build-dir == 'build-windows' && '/MT -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DOPENVDB_CORE_SHARED=OFF' || '' }}"
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DOPENVDB_CORE_SHARED=OFF -DTBB_TEST=OFF -DCMAKE_CXX_FLAGS="-fPIC ${{ matrix.config.build-dir == 'build-linux' && '-static-libgcc -static-libstdc++' || '' }} ${{ matrix.config.build-dir == 'build-windows' && '/MT' || '' }}"
       - name: Build
         working-directory: ./${{ matrix.config.build-dir }}
         run: |
