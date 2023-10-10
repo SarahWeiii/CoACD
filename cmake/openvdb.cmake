@@ -29,17 +29,16 @@ FetchContent_Declare(
     GIT_TAG        v2021.8.0
 )
 
-set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS_OLD ${CMAKE_CXX_FLAGS})
 set(CMAKE_CXX_FLAGS -DTBB_ALLOCATOR_TRAITS_BROKEN)
 FetchContent_MakeAvailable(tbb)
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS_OLD})
-set(CMAKE_CXX_STANDARD 20)
 
 if (WIN32)
     set(OPENVDB_DISABLE_BOOST_IMPLICIT_LINKING OFF CACHE BOOL "" FORCE)
 endif()
 
+set(CMAKE_CXX_STANDARD 17)
 set(OPENVDB_ENABLE_UNINSTALL OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(openvdb)
 set_target_properties(openvdb_static PROPERTIES POSITION_INDEPENDENT_CODE ON)
@@ -56,4 +55,4 @@ target_include_directories(openvdb_static PUBLIC
 )
 
 add_library(Boost::disable_autolinking INTERFACE IMPORTED)
-
+set(CMAKE_CXX_STANDARD 20)
