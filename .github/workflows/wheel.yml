@@ -17,6 +17,9 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: "true"
+      - name: Install Dependencies
+        run: |
+          python3 -m pip install wheel
       - name: Wheel
         run: |
           python3 setup.py bdist_wheel
