@@ -107,7 +107,7 @@ namespace coacd
                 const size_t addrI = (static_cast<int32_t>(sqrt(1 + (8 * addr))) - 1) >> 1;
                 const size_t p1 = addrI + 1;
                 const size_t p2 = addr - ((addrI * (addrI + 1)) >> 1);
-                printf("addr %ld, addrI %ld, p1 %ld, p2 %ld\n", addr, addrI, p1, p2);
+                // printf("addr %ld, addrI %ld, p1 %ld, p2 %ld\n", addr, addrI, p1, p2);
                 assert(p1 >= 0);
                 assert(p2 >= 0);
                 assert(p1 < costSize);
