@@ -19,7 +19,7 @@ jobs:
           submodules: "true"
       - name: Wheel
         run: |
-          python setup.py bdist_wheel
+          python3 setup.py bdist_wheel
       - name: List Build Results
         run: |
           ls dist
