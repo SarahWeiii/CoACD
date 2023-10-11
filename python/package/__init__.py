@@ -15,10 +15,10 @@ from ctypes import (
 )
 
 
-try:
-    _lib = ctypes.CDLL(os.path.join(os.path.dirname(__file__), "lib_coacd.so"))
-except OSError:
-    _lib = ctypes.CDLL(os.path.join(os.path.dirname(__file__), "lib_coacd.dll"))
+_lib_files = os.listdir(os.path.dirname(os.path.abspath(__file__)))
+for _file in _lib_files:
+    if _file.startswith("lib_coacd"):
+        _lib = ctypes.CDLL(os.path.join(os.path.dirname(os.path.abspath(__file__)), _file))
 
 
 class CoACD_Mesh(ctypes.Structure):
