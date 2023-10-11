@@ -1,18 +1,18 @@
-name: Wheel
+name: Wheel and Test
 
 on: workflow_dispatch
 
 jobs:
   build:
     runs-on: ${{ matrix.config.os }}
-    name: Build on ${{ matrix.config.os }}
+    name: Build ${{ matrix.config.os }}-${{ matrix.config.arch }}
     strategy:
-      fail-fast: false
       matrix:
         config:
-          - { os: "ubuntu-20.04", build-dir: "build-linux" }
-          - { os: "windows-2019", build-dir: "build-windows" }
-          - { os: "macos-11", build-dir: "build-macos" }
+          - { os: "ubuntu-20.04", arch: "auto64" }
+          - { os: "windows-2019", arch: "auto64" }
+          - { os: "macos-11", arch: "auto64" }
+          - { os: "macos-11", arch: "universal2" }
     steps:
       - uses: actions/checkout@v2
         with:
@@ -20,14 +20,41 @@ jobs:
       - name: Install Dependencies
         run: |
           python3 -m pip install wheel
-      - name: Wheel
-        run: |
-          python3 setup.py bdist_wheel
+      - name: Build Wheels
+        uses: pypa/cibuildwheel@v2.16.2
+        env:
+          CIBW_ARCHS: ${{ matrix.config.arch }}
+          CIBW_BUILD: cp36-* cp38-macosx_universal2
+          MACOSX_DEPLOYMENT_TARGET: "10.14"
       - name: List Build Results
         run: |
-          ls dist
+          ls wheelhouse
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.config.os }}-build-wheel
-          path: ./dist/*.whl
+          name: wheels
+          path: ./wheelhouse/*.whl
+  run:
+    name: Test on ${{ matrix.os }} with python ${{ matrix.python-version }}
+    needs: [build]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, windows-2019, macos-11]
+        python-version: ['3.6', '3.11']
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/download-artifact@v2
+        with:
+          name: wheels
+          path: built_wheels
+      - name: Install Dependencies
+        run: python -m pip install trimesh numpy
+      - name: Install Packages
+        run: python -m pip install --no-index --find-links=./built_wheels coacd
+      - name: Run Tests
+        run: python run_tests.py -v

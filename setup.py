@@ -4,8 +4,20 @@ import sys
 import platform
 import subprocess
 
-from setuptools import setup, find_packages, Extension
+from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
+from wheel.bdist_wheel import bdist_wheel
+
+
+class bdist_wheel_abi3(bdist_wheel):
+    def get_tag(self):
+        python, abi, plat = super().get_tag()
+
+        if python.startswith("cp"):
+            # on CPython, our wheels are abi3 and compatible back to 3.6
+            return python, "abi3", plat
+
+        return python, abi, plat
 
 
 class CMakeExtension(Extension):
@@ -91,7 +103,7 @@ setup(
     python_requires=">=3.6",
     install_requires=["numpy"],
     ext_modules=[CMakeExtension("coacd")],
-    cmdclass={"build_ext": CMakeBuild},
+    cmdclass={"build_ext": CMakeBuild, "bdist_wheel": bdist_wheel_abi3},
     zip_safe=False,
     package_dir={"coacd": os.path.join("python/package")},
     scripts=["python/package/bin/coacd"]
