@@ -24,6 +24,7 @@ jobs:
         env:
           CIBW_ARCHS: auto64
           CIBW_BUILD: cp36-*
+          MACOSX_DEPLOYMENT_TARGET: "10.14"
       - name: List Build Results
         run: |
           ls wheelhouse
