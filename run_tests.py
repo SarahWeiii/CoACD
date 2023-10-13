@@ -2,6 +2,7 @@ import trimesh
 import os
 import glob
 import coacd
+import numpy
 import unittest
 
 
@@ -16,6 +17,17 @@ class TestExamples(unittest.TestCase):
             self.assertLessEqual(len(coacd.run_coacd(mesh)), 1000)
 
         return _test
+
+    def test_deterministic(self):
+        mesh = trimesh.load('examples/SnowFlake.obj', force="mesh")
+        coacd.set_log_level("debug")
+        mesh = coacd.Mesh(mesh.vertices, mesh.faces)
+        acd1 = coacd.run_coacd(mesh)
+        acd2 = coacd.run_coacd(mesh)
+        self.assertEqual(len(acd1), len(acd2))
+        for (v1, t1), (v2, t2) in zip(acd1, acd2):
+            self.assertTrue(numpy.allclose(v1, v2))
+            self.assertTrue(numpy.allclose(t1, t2))
 
 
 for f in glob.glob("examples/*.obj"):
