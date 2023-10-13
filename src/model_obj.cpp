@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include "model_obj.h"
+#include "process.h"
 #include "quickhull/QuickHull.hpp"
 #include "btConvexHull/btConvexHullComputer.h"
 #include "nanoflann.hpp"
@@ -315,7 +316,6 @@ namespace coacd
         if (base != 0)
             resolution = size_t(max(1000, int(resolution * (aObj / base))));
 
-        srand(seed);
         for (int i = 0; i < (int)triangles.size(); i++)
         {
             if (flag && plane.Side(points[triangles[i][0]], 1e-3) == 0 &&
@@ -331,16 +331,18 @@ namespace coacd
             else
                 N = max(int(i % 2 == 0), int(resolution / aObj * area));
 
-            int seed = rand() % 1000;
+            std::uniform_int_distribution<int> seeder(0, 1000);
+            int seed = seeder(coacd::random_engine);
             float r[2];
             for (int k = 0; k < N; k++)
             {
                 double a, b;
                 if (k % 3 == 0)
                 {
+                    std::uniform_real_distribution<double> uniform(0.0, 1.0);
                     //// random sample
-                    a = rand() / double(RAND_MAX);
-                    b = rand() / double(RAND_MAX);
+                    a = uniform(coacd::random_engine);
+                    b = uniform(coacd::random_engine);
                 }
                 else
                 {

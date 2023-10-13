@@ -90,6 +90,8 @@ std::vector<Mesh> CoACD(Mesh const &input, double threshold,
 void set_log_level(std::string_view level) {
   if (level == "off") {
     logger::get()->set_level(spdlog::level::off);
+  } else if (level == "debug") {
+    logger::get()->set_level(spdlog::level::debug);
   } else if (level == "info") {
     logger::get()->set_level(spdlog::level::info);
   } else if (level == "warn" || level == "warning") {

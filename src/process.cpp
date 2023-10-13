@@ -8,6 +8,7 @@
 
 namespace coacd
 {
+    thread_local std::mt19937 random_engine;
 
     void ManifoldPreprocess(Params &params, Model &m)
     {
@@ -220,8 +221,9 @@ namespace coacd
 #endif
             for (int p = 0; p < (int)InputParts.size(); p++)
             {
+                random_engine.seed(params.seed);
                 if (p % ((int)InputParts.size() / 10 + 1) == 0)
-                    logger::info("Processing [{}%]", p * 100.0 / (int)InputParts.size());
+                    logger::info("Processing [{:.1f}%]", p * 100.0 / (int)InputParts.size());
 
                 Model pmesh = InputParts[p], pCH;
                 Plane bestplane;
@@ -286,7 +288,7 @@ namespace coacd
 #endif
                 }
             }
-            logger::info("Processing [100%]");
+            logger::info("Processing [100.0%]");
             InputParts.clear();
             InputParts = tmp;
             tmp.clear();
