@@ -3,7 +3,7 @@
 
  [![Build](https://github.com/SarahWeiii/CoACD/actions/workflows/build.yml/badge.svg)](https://github.com/SarahWeiii/CoACD/actions/workflows/build.yml)
 
-[***News***] CoACD is now supported in Unity (Windows) as a package!
+[***News***] CoACD is now supported in Unity as a package!
 
 [***News***] CoACD adds "auto" pre-processing mode, which produces better results for manifold meshes!
 
@@ -39,7 +39,7 @@ python package/bin/coacd -i $InputFile -o $OutputFile
 
 ## Unity
 
-Supporting Unity 2020.1 or later (Windows amd64).
+Supporting Unity 2020.1 or later.
 See the example project in [`unity` branch](https://github.com/SarahWeiii/CoACD/tree/unity).
 
 <video src="https://github.com/SarahWeiii/CoACD/assets/23738781/bda0e0bb-b55c-4ccc-b6df-33d09a2bd7c2" controls="controls" style="max-width: 400px;" autoplay>
@@ -77,7 +77,7 @@ https://github.com/SarahWeiii/CoACD.git?path=/Packages/info.flandre.coacd#unity
 public List<Mesh> RunACD(Mesh mesh);
 ```
 
-## Compile from source (Linux)
+## Compile from source
 
 ### (1) Clone the code
 
@@ -86,19 +86,32 @@ git clone --recurse-submodules https://github.com/SarahWeiii/CoACD.git
 ```
 
 ### (2) Dependencies
-Install dependencies: `git`, `cmake >= 3.24`, `g++ >= 9, < 12`
+Install dependencies: `git` and `cmake >= 3.24`.
+Recommended compilers: Linux `g++ >= 9, < 12`; `clang` on MacOS `10.14` or higher; `MSVC 2019/2022` on Windows.
 
 ### (3) Compile
+
+First create the build directory:
 
 ```
 cd CoACD \
 && mkdir build \
 && cd build \
-&& cmake .. -DCMAKE_BUILD_TYPE=Release \
+```
+
+Then run `cmake`. On Linux and MacOS:
+
+```
+cmake .. -DCMAKE_BUILD_TYPE=Release \
 && make main -j
 ```
 
-The Windows version may be compiled with MinGW GCC. The current released Windows Python package is cross-compiled with MinGW from Linux.
+On Windows (MSVC):
+
+```
+cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DOPENVDB_CORE_SHARED=OFF -DTBB_TEST=OFF -DCMAKE_CXX_FLAGS="/MT /EHsc"
+cmake --build . --target main --config Release
+```
 
 ### (4) Quick start
 We provide a set of default parameters, and you only need to specify the input and output path. You can take an arbitrary mesh as input (in `.obj` format, no need to be a manifold) and run the algorithm by the following command:
