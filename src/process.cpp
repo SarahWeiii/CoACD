@@ -221,7 +221,7 @@ namespace coacd
             for (int p = 0; p < (int)InputParts.size(); p++)
             {
                 if (p % ((int)InputParts.size() / 10 + 1) == 0)
-                    logger::info("Processing [{}%]", p * 100.0 / (int)InputParts.size());
+                    logger::info("Processing [{:.1f}%]", p * 100.0 / (int)InputParts.size());
 
                 Model pmesh = InputParts[p], pCH;
                 Plane bestplane;
