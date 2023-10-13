@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <random>
 #include <fstream>
 #include <vector>
 #include <math.h>
@@ -19,6 +20,7 @@
 
 namespace coacd
 {
+  extern thread_local std::mt19937 random_engine;
 
   void ManifoldPreprocess(Params &params, Model &m);
   void MergeCH(Model &ch1, Model &ch2, Model &ch);

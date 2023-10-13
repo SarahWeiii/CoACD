@@ -1,6 +1,6 @@
 #include <stdint.h>
-#include <random>
 #include "mcts.h"
+#include "process.h"
 
 namespace coacd
 {
@@ -629,9 +629,7 @@ namespace coacd
 
         if (shuffle)
         {
-            std::random_device rd;
-            std::mt19937 g(rd());
-            std::shuffle(planes.begin(), planes.end(), g);
+            std::shuffle(planes.begin(), planes.end(), coacd::random_engine);
         }
     }
 
@@ -854,7 +852,6 @@ namespace coacd
         initial_mesh.ComputeCH(initial_ch);
         double cost = ComputeRv(initial_mesh, initial_ch, params.rv_k) / params.mcts_max_depth;
         vector<Plane> current_path;
-        srand(params.seed);
 
         for (int i = 0; i < computation_budget; i++)
         {
