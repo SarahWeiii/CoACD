@@ -12,7 +12,7 @@ jobs:
           - { os: "ubuntu-20.04", arch: "auto64" }
           - { os: "windows-2019", arch: "auto64" }
           - { os: "macos-11", arch: "auto64" }
-          - { os: "macos-11", arch: "arm64" }
+          - { os: "macos-11", arch: "universal2" }
     steps:
       - uses: actions/checkout@v2
         with:
@@ -24,7 +24,7 @@ jobs:
         uses: pypa/cibuildwheel@v2.16.2
         env:
           CIBW_ARCHS: ${{ matrix.config.arch }}
-          CIBW_BUILD: cp36-* cp38-macosx_arm64
+          CIBW_BUILD: cp36-* cp38-macosx_universal2
           MACOSX_DEPLOYMENT_TARGET: "10.14"
       - name: List Build Results
         run: |

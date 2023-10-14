@@ -39,6 +39,7 @@ class CMakeBuild(build_ext):
         cmake_args = [
             "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={}".format(extdir),
             "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=$<1:{}>".format(extdir),
+            "-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64",
             # "-DPYTHON_EXECUTABLE={}".format(sys.executable),
             "-DCMAKE_BUILD_TYPE={}".format(cfg),  # not used on MSVC, but no harm
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded",
