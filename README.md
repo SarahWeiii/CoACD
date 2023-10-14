@@ -2,6 +2,7 @@
  [\[project\]](https://colin97.github.io/CoACD/) [\[paper\]](https://arxiv.org/pdf/2205.02961.pdf) [\[video\]](https://www.youtube.com/watch?v=r12O0z0723s)
 
  [![Build](https://github.com/SarahWeiii/CoACD/actions/workflows/build.yml/badge.svg)](https://github.com/SarahWeiii/CoACD/actions/workflows/build.yml)
+ ![PyPI - Downloads](https://img.shields.io/pypi/dm/coacd)
 
 [***News***] CoACD is now supported in Unity as a package!
 
