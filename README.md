@@ -4,11 +4,11 @@
  [![Build](https://github.com/SarahWeiii/CoACD/actions/workflows/build.yml/badge.svg)](https://github.com/SarahWeiii/CoACD/actions/workflows/build.yml)
  ![PyPI - Downloads](https://img.shields.io/pypi/dm/coacd)
 
+[***News***] CoACD (both Python and C++) is supported on Linux (x86_64), Windows (amd64) and MacOS (x86_64 & apple sillicon) now!
+
 [***News***] CoACD is now supported in Unity as a package!
 
 [***News***] CoACD adds "auto" pre-processing mode, which produces better results for manifold meshes!
-
-[***News***] CoACD supports all versions of Python 3 on Linux (x86_64) and Windows (amd64) now!
 
 Approximate convex decomposition enables efficient geometry processing algorithms specifically designed for convex shapes (e.g., collision detection). We propose a method that is better to preserve collision conditions of the input shape with fewer components. It thus supports delicate and efficient object interaction in downstream applications.
 
