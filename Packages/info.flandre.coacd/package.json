@@ -1,6 +1,6 @@
 {
 	"name": "info.flandre.coacd",
-	"version": "0.0.5",
+	"version": "1.0.0",
 	"description": "A decomposition algorithm for simulation with non-convex meshes, as a better alternative to V-HACD: Approximate Convex Decomposition for 3D Meshes with Collision-Aware Concavity and Tree Search.",
 	"displayName": "CoACD for Unity",
 	"license": "Apache-2.0"
