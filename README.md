@@ -16,8 +16,6 @@ Approximate convex decomposition enables efficient geometry processing algorithm
 
 ## PyPI
 
-Supporting all versions of Python 3 on Linux (x86_64) and Windows (amd64).
-
 ### (1) Installation
 
 ```
