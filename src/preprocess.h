@@ -14,13 +14,11 @@
 
 #include "model_obj.h"
 #include "logger.h"
-#include "bvh.h"
 
 using namespace openvdb;
 
 namespace coacd
 {
-
     void SDFManifold(Model &input, Model &output, double scale = 50.0f, double level_set = 0.55f);
-    bool IsManifold(Model &input);
+    void ManifoldPreprocess(Params &params, Model &m);
 }

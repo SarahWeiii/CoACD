@@ -11,6 +11,9 @@
 #include <algorithm>
 #include <assert.h>
 #include <regex>
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 #include "./io.h"
 #include "clip.h"
@@ -22,10 +25,10 @@ namespace coacd
 {
   extern thread_local std::mt19937 random_engine;
 
-  void ManifoldPreprocess(Params &params, Model &m);
   void MergeCH(Model &ch1, Model &ch2, Model &ch);
   double MergeConvexHulls(Model &m, vector<Model> &meshs, vector<Model> &cvxs, Params &params, double epsilon = 0.02, double threshold = 0.01);
   vector<Model> Compute(Model &mesh, Params &params);
+  bool IsManifold(Model &input);
 
   inline void addNeighbor(map<pair<int, int>, pair<int, int>> &edge_map, pair<int, int> &edge, vector<int> &neighbors, int idx)
   {

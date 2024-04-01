@@ -4,7 +4,9 @@
 #include <string>
 #include <time.h>
 
-#include "src/preprocess.h"
+#if WITH_3RD_PARTY_LIBS
+  #include "src/preprocess.h"
+#endif
 #include "src/process.h"
 #include "src/logger.h"
 
@@ -135,15 +137,26 @@ int main(int argc, char *argv[])
   vector<double> bbox = m.Normalize();
   // m.SaveOBJ("normalized.obj");
 
-  if (params.preprocess_mode == "auto")
-  {
+  #if WITH_3RD_PARTY_LIBS
+    if (params.preprocess_mode == "auto")
+    {
+      bool is_manifold = IsManifold(m);
+      logger::info("Mesh Manifoldness: {}", is_manifold);
+      if (!is_manifold)
+        ManifoldPreprocess(params, m);
+    }
+    else if (params.preprocess_mode == "on")
+      ManifoldPreprocess(params, m);
+  #else
     bool is_manifold = IsManifold(m);
     logger::info("Mesh Manifoldness: {}", is_manifold);
     if (!is_manifold)
-      ManifoldPreprocess(params, m);
-  }
-  else if (params.preprocess_mode == "on")
-    ManifoldPreprocess(params, m);
+    {
+      logger::critical("The mesh is not a 2-manifold! Please enable WITH_3RD_PARTY_LIBS during compilation, or use third-party libraries to preprocess the mesh.");
+      exit(0);
+    }
+
+  #endif
 
   m.SaveOBJ(params.remesh_output_name);
 

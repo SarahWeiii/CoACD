@@ -1,7 +1,7 @@
 #include "./process.h"
 #include "mcts.h"
 #include "config.h"
-#include "./preprocess.h"
+#include "bvh.h"
 
 #include <iostream>
 #include <cmath>
@@ -10,11 +10,94 @@ namespace coacd
 {
     thread_local std::mt19937 random_engine;
 
-    void ManifoldPreprocess(Params &params, Model &m)
+    bool IsManifold(Model &input)
     {
-        Model tmp = m;
-        m.Clear();
-        SDFManifold(tmp, m, params.prep_resolution, params.dmc_thres);
+        logger::info(" - Manifold Check");
+        clock_t start, end;
+        start = clock();
+        // Check all edges are shared by exactly two triangles (watertight manifold)
+        vector<pair<int, int>> edges;
+        map<pair<int, int>, int> edge_num;
+        for (int i = 0; i < (int)input.triangles.size(); i++)
+        {
+            int idx0 = input.triangles[i][0];
+            int idx1 = input.triangles[i][1];
+            int idx2 = input.triangles[i][2];
+            edges.push_back({idx0, idx1});
+            edges.push_back({idx1, idx2});
+            edges.push_back({idx2, idx0});
+
+            if (!edge_num.contains({idx0, idx1}))
+                edge_num[{idx0, idx1}] = 1;
+            else
+            {
+                logger::info("\tWrong triangle orientation");
+                end = clock();
+                logger::info("Manifold Check Time: {}s", double(end - start) / CLOCKS_PER_SEC);
+                return false;
+            }
+            if (!edge_num.contains({idx1, idx2}))
+                edge_num[{idx1, idx2}] = 1;
+            else
+            {
+                logger::info("\tWrong triangle orientation");
+                end = clock();
+                logger::info("Manifold Check Time: {}s", double(end - start) / CLOCKS_PER_SEC);
+                return false;
+            }
+            if (!edge_num.contains({idx2, idx0}))
+                edge_num[{idx2, idx0}] = 1;
+            else
+            {
+                logger::info("\tWrong triangle orientation");
+                end = clock();
+                logger::info("Manifold Check Time: {}s", double(end - start) / CLOCKS_PER_SEC);
+                return false;
+            }
+        }
+
+        for (int i = 0; i < (int)edges.size(); i++)
+        {
+            pair<int, int> oppo_edge = {edges[i].second, edges[i].first};
+            if (!edge_num.contains(oppo_edge))
+            {
+                logger::info("\tUnclosed mesh");
+                end = clock();
+                logger::info("Manifold Check Time: {}s", double(end - start) / CLOCKS_PER_SEC);
+                return false;
+            }
+        }
+        logger::info("[1/3] Edge check finish");
+
+        // Check self-intersection
+        BVH bvhTree(input);
+        for (int i = 0; i < (int)input.triangles.size(); i++)
+        {
+            bool is_intersect = bvhTree.IntersectBVH(input.triangles[i], 0);
+            if (is_intersect)
+            {
+                logger::info("\tTriangle self-intersection");
+                end = clock();
+                logger::info("Manifold Check Time: {}s", double(end - start) / CLOCKS_PER_SEC);
+                return false;
+            }
+        }
+        logger::info("[2/3] Self-intersection check finish");
+
+        // Check triange orientation
+        double mesh_vol = MeshVolume(input);
+        if (mesh_vol < 0)
+        {
+            // Reverse all the triangles
+            for (int i = 0; i < (int)input.triangles.size(); i++)
+                std::swap(input.triangles[i][0], input.triangles[i][1]);
+        }
+        end = clock();
+
+        logger::info("[3/3] Triangle orientation check finish. Reversed: {}", mesh_vol < 0);
+        logger::info("Manifold Check Time: {}s", double(end - start) / CLOCKS_PER_SEC);
+
+        return true;
     }
 
     void MergeCH(Model &ch1, Model &ch2, Model &ch)
