@@ -21,7 +21,7 @@ jobs:
         run: |
           python3 -m pip install wheel
       - name: Build Wheels
-        uses: pypa/cibuildwheel@v2.16.2
+        uses: pypa/cibuildwheel@v2.17.0
         env:
           CIBW_ARCHS: ${{ matrix.config.arch }}
           CIBW_BUILD: cp36-* cp38-macosx_universal2
