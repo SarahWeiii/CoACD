@@ -62,21 +62,31 @@ public unsafe class CoACD : MonoBehaviour
 																												};
 
 		[Range(0.01f, 1f)]
+		[Tooltip("concavity threshold for terminating the decomposition")]
 		public double threshold;
+		[Tooltip("choose manifold preprocessing mode ('auto': automatically check input mesh manifoldness; 'on': force turn on the pre-processing; 'off': force turn off the pre-processing)")]
 		public PreprocessMode preprocessMode;
 		[Range(20, 100)]
+		[Tooltip("resolution for manifold preprocess")]
 		public int preprocessResolution;
 		[Range(1000, 10000)]
+		[Tooltip("sampling resolution for Hausdorff distance calculation")]
 		public int sampleResolution;
 		[Range(10, 40)]
+		[Tooltip("max number of child nodes in MCTS")]
 		public int mctsNodes;
 		[Range(60, 2000)]
+		[Tooltip("number of search iterations in MCTS")]
 		public int mctsIteration;
 		[Range(2, 7)]
+		[Tooltip("max search depth in MCTS")]
 		public int mctsMaxDepth;
+		[Tooltip("flag to enable PCA pre-processing")]
 		public bool pca;
 		public bool merge;
-		public int  maxConvexHull;
+		[Tooltip("max number of convex hulls generated, -1 for no limit")]
+		public int maxConvexHull;
+		[Tooltip("max # convex hulls in the result, -1 for no maximum limitation, works only when merge is enabled, default = -1 (may introduce convex hull with a concavity larger than the threshold)")]
 		public uint seed;
 	}
 	public Parameters parameters = Parameters.Init();
