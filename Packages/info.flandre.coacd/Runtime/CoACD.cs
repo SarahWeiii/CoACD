@@ -10,7 +10,8 @@ using System.IO;
 #endif
 using UnityEngine;
 
-//LL: noodled in Unity's V-HACD implementation to store mesh data neatly where the OG mesh resides
+//Calls CoACD binary, adds collider components on this gameobject and stores mesh assets in ScriptableObject
+[ExecuteAlways]
 public unsafe class CoACD : MonoBehaviour
 {
 	[Serializable]
@@ -64,7 +65,8 @@ public unsafe class CoACD : MonoBehaviour
 		[Range(0.01f, 1f)]
 		[Tooltip("concavity threshold for terminating the decomposition")]
 		public double threshold;
-		[Tooltip("choose manifold preprocessing mode ('auto': automatically check input mesh manifoldness; 'on': force turn on the pre-processing; 'off': force turn off the pre-processing)")]
+		[Tooltip(
+			"choose manifold preprocessing mode ('auto': automatically check input mesh manifoldness; 'on': force turn on the pre-processing; 'off': force turn off the pre-processing)")]
 		public PreprocessMode preprocessMode;
 		[Range(20, 100)]
 		[Tooltip("resolution for manifold preprocess")]
@@ -86,14 +88,33 @@ public unsafe class CoACD : MonoBehaviour
 		public bool merge;
 		[Tooltip("max number of convex hulls generated, -1 for no limit")]
 		public int maxConvexHull;
-		[Tooltip("max # convex hulls in the result, -1 for no maximum limitation, works only when merge is enabled, default = -1 (may introduce convex hull with a concavity larger than the threshold)")]
+		[Tooltip(
+			"max # convex hulls in the result, -1 for no maximum limitation, works only when merge is enabled, default = -1 (may introduce convex hull with a concavity larger than the threshold)")]
 		public uint seed;
 	}
 	public Parameters parameters = Parameters.Init();
 	[SerializeField]
 	CoACDColliderData _colliderData;
 	[SerializeField]
-	List<MeshCollider> _colliders;
+	List<MeshCollider> _colliders = new List<MeshCollider>();
+#if UNITY_EDITOR
+	bool _oldHideColliders,
+			_oldIsTrigger;
+	void OnValidate()
+	{
+		//remove component
+		if (this == null) { OnDestroy(); }
+		if (_oldHideColliders != hideColliders || _oldIsTrigger != isTrigger) {
+			foreach (var mc in _colliders) {
+				mc.hideFlags = hideColliders ? HideFlags.HideInInspector : HideFlags.None;
+				mc.isTrigger = isTrigger;
+			}
+			EditorUtility.SetDirty(gameObject);
+			_oldHideColliders = hideColliders;
+			_oldIsTrigger     = isTrigger;
+		}
+	}
+#endif
 
 	public List<Mesh> RunACD(Mesh mesh)
 	{
@@ -159,6 +180,7 @@ public unsafe class CoACD : MonoBehaviour
 					}
 					originalMeshes.Add(filter.sharedMesh);
 					path = AssetDatabase.GetAssetPath(filter.sharedMesh);
+					if (string.IsNullOrEmpty(path)) { path = "Assets/"; }
 				}
 			}
 		}
@@ -246,5 +268,65 @@ public unsafe class CoACD : MonoBehaviour
 			_colliders.RemoveAll(c => c == null);
 		}
 	}
+#endif
+
+	void OnDestroy()
+	{
+		if (_colliders.Count > 0) {
+			foreach (var c in _colliders) {
+				if (c) {
+					if (Application.isPlaying) { Destroy(c); }
+				#if UNITY_EDITOR
+					else {
+						EditorApplication.delayCall += () =>
+																					{
+																						if (c && !Application.isPlaying) { DestroyImmediate(c); }
+																					};
+					}
+				#endif
+				}
+			}
+		}
+		_colliders.Clear();
+		EditorUtility.SetDirty(gameObject);
+	}
+}
+//stores convex mesh assets
+public class CoACDColliderData : ScriptableObject
+{
+	public CoACD.Parameters parameters;
+	public Mesh[]           baseMeshes     = new Mesh[0];
+	public Mesh[]           computedMeshes = new Mesh[0];
+#if UNITY_EDITOR
+
+	public static CoACDColliderData CreateAsset(string path, CoACD.Parameters parameters, Mesh[] meshes, Mesh[] baseMeshes)
+	{
+		var obj = CreateInstance<CoACDColliderData>();
+		AssetDatabase.CreateAsset(obj, path);
+		var c = 0;
+		foreach (var mesh in meshes) {
+			mesh.name = $"Computed Mesh {c++}";
+			AssetDatabase.AddObjectToAsset(mesh, obj);
+		}
+		obj.parameters     = parameters;
+		obj.baseMeshes     = baseMeshes;
+		obj.computedMeshes = meshes;
+		return obj;
+	}
+
+	public void UpdateAsset(CoACD.Parameters parameters, Mesh[] meshes, Mesh[] baseMeshes)
+	{
+		foreach (var mesh in computedMeshes) { AssetDatabase.RemoveObjectFromAsset(mesh); }
+		computedMeshes = null;
+		var c = 0;
+		foreach (var mesh in meshes) {
+			mesh.name = $"Computed Mesh {c++}";
+			AssetDatabase.AddObjectToAsset(mesh, this);
+		}
+		this.parameters = parameters;
+		this.baseMeshes = baseMeshes;
+		computedMeshes  = meshes;
+	}
+
 #endif
 }
