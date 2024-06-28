@@ -102,8 +102,6 @@ public unsafe class CoACD : MonoBehaviour
 			_oldIsTrigger;
 	void OnValidate()
 	{
-		//remove component
-		if (this == null) { OnDestroy(); }
 		if (_oldHideColliders != hideColliders || _oldIsTrigger != isTrigger) {
 			foreach (var mc in _colliders) {
 				mc.hideFlags = hideColliders ? HideFlags.HideInInspector : HideFlags.None;
