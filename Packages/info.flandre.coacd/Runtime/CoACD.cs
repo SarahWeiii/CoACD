@@ -170,14 +170,20 @@ public unsafe class CoACD : MonoBehaviour
 		var meshesToDecompose = new List<Mesh>();
 		var transformsToCalc  = new List<Matrix4x4>();
 		{
-			if (transform.TryGetComponent<MeshFilter>(out var filter)) {
+			var  f  = transform.TryGetComponent<MeshFilter>(out var filter);
+			var  sm = transform.TryGetComponent<SkinnedMeshRenderer>(out var skinnedMesh);
+			Mesh m  = null;
+			if (f) { m  = filter.sharedMesh; }
+			if (sm) { m = skinnedMesh.sharedMesh; }
+			var matrix = f ? filter.transform.localToWorldMatrix : skinnedMesh.transform.localToWorldMatrix;
+			if (m) {
 				{
-					for (var j = 0; j < filter.sharedMesh.subMeshCount; j++) {
-						meshesToDecompose.Add(ExtractSubmesh(filter.sharedMesh, j));
-						transformsToCalc.Add(transform.transform.worldToLocalMatrix * filter.transform.localToWorldMatrix);
+					for (var i = 0; i < m.subMeshCount; i++) {
+						meshesToDecompose.Add(ExtractSubmesh(m, i));
+						transformsToCalc.Add(transform.worldToLocalMatrix * matrix);
 					}
-					originalMeshes.Add(filter.sharedMesh);
-					path = AssetDatabase.GetAssetPath(filter.sharedMesh);
+					originalMeshes.Add(m);
+					path = AssetDatabase.GetAssetPath(m);
 					if (string.IsNullOrEmpty(path)) { path = "Assets/"; }
 				}
 			}
