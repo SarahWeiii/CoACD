@@ -158,6 +158,8 @@ public unsafe class CoACD : MonoBehaviour
 	// ###### noodled from V-HACD
 #if SAINTSFIELD_SAINTS_EDITOR_APPLY
 	[Button]
+#else
+[ContextMenu("Calculate Colliders")]
 #endif
 	void CalculateColliders()
 	{
@@ -292,7 +294,9 @@ public unsafe class CoACD : MonoBehaviour
 			}
 		}
 		_colliders.Clear();
+	#if UNITY_EDITOR
 		EditorUtility.SetDirty(gameObject);
+	#endif
 	}
 }
 //stores convex mesh assets
