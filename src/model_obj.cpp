@@ -103,33 +103,28 @@ namespace coacd
 
     void Model::ComputeCH(Model &convex)
     {
-        /* fast convex hull algorithm */
-        bool flag = true;
-        quickhull::QuickHull<float> qh; // Could be double as well
-        vector<quickhull::Vector3<float>> pointCloud;
-        // Add points to point cloud
-        for (int i = 0; i < (int)points.size(); i++)
-        {
-            pointCloud.push_back(quickhull::Vector3<float>(points[i][0], points[i][1], points[i][2]));
-        }
+        // compute the box mesh according to the bounding box of the points
+        convex.points.push_back({bbox[1], bbox[2], bbox[5]});
+        convex.points.push_back({bbox[1], bbox[3], bbox[5]});
+        convex.points.push_back({bbox[0], bbox[3], bbox[5]});
+        convex.points.push_back({bbox[0], bbox[2], bbox[5]});
+        convex.points.push_back({bbox[1], bbox[2], bbox[4]});
+        convex.points.push_back({bbox[1], bbox[3], bbox[4]});
+        convex.points.push_back({bbox[0], bbox[3], bbox[4]});
+        convex.points.push_back({bbox[0], bbox[2], bbox[4]});
 
-        auto hull = qh.getConvexHull(pointCloud, true, false, flag);
-        if (!flag)
-        {
-            // backup convex hull algorithm, stable but slow
-            ComputeVCH(convex);
-            return;
-        }
-        const auto &indexBuffer = hull.getIndexBuffer();
-        const auto &vertexBuffer = hull.getVertexBuffer();
-        for (int i = 0; i < (int)vertexBuffer.size(); i++)
-        {
-            convex.points.push_back({vertexBuffer[i].x, vertexBuffer[i].y, vertexBuffer[i].z});
-        }
-        for (int i = 0; i < (int)indexBuffer.size(); i += 3)
-        {
-            convex.triangles.push_back({(int)indexBuffer[i + 2], (int)indexBuffer[i + 1], (int)indexBuffer[i]});
-        }
+        convex.triangles.push_back({0, 1, 3});
+        convex.triangles.push_back({1, 2, 3});
+        convex.triangles.push_back({1, 4, 5});
+        convex.triangles.push_back({0, 4, 1});
+        convex.triangles.push_back({6, 5, 4});
+        convex.triangles.push_back({4, 7, 6});
+        convex.triangles.push_back({3, 2, 6});
+        convex.triangles.push_back({6, 7, 3});
+        convex.triangles.push_back({1, 6, 2});
+        convex.triangles.push_back({5, 6, 1});
+        convex.triangles.push_back({0, 3, 4});
+        convex.triangles.push_back({3, 7, 4});
     }
 
     void Model::ComputeVCH(Model &convex)

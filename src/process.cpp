@@ -310,7 +310,7 @@ namespace coacd
 
                 Model pmesh = InputParts[p], pCH;
                 Plane bestplane;
-                pmesh.ComputeVCH(pCH);
+                pmesh.ComputeCH(pCH);
                 double h = ComputeHCost(pmesh, pCH, params.rv_k, params.resolution, params.seed, 0.0001, false);
 
                 if (h > params.threshold)
