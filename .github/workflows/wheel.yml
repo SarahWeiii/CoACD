@@ -20,6 +20,10 @@ jobs:
       - name: Install Dependencies
         run: |
           python3 -m pip install wheel
+      - name: Set CXXFLAGS for Windows
+        if: matrix.config.os == 'windows-2019'
+        run: |
+          set CXXFLAGS=/bigobj
       - name: Build Wheels
         uses: pypa/cibuildwheel@v2.17.0
         env:
