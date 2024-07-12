@@ -97,6 +97,13 @@ if __name__ == "__main__":
         action="store_true",
         help="Use PCA to align input mesh. Suitable for non-axis-aligned mesh.",
     )
+    parser.add_argument(
+        "-am",
+        "--apx-mode",
+        type=str,
+        default="ch",
+        help="Approximation shape mode (ch/box).",
+    )
     parser.add_argument("--seed", type=int, default=0, help="Random seed.")
 
     args = parser.parse_args()
@@ -125,6 +132,7 @@ if __name__ == "__main__":
         mcts_max_depth=args.mcts_max_depth,
         pca=args.pca,
         merge=not args.no_merge,
+        apx_mode=args.apx_mode,
         seed=args.seed,
     )
     mesh_parts = []

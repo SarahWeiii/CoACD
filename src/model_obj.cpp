@@ -101,7 +101,43 @@ namespace coacd
         }
     }
 
-    void Model::ComputeCH(Model &convex)
+    void Model::ComputeAPX(Model &convex, string apx_mode, bool if_vch)
+    {
+        if (apx_mode == "box")
+            ComputeBOX(convex);
+        else if (apx_mode == "ch" and !if_vch)
+            ComputeCH(convex);
+        else
+            ComputeVCH(convex);
+    }
+
+    void Model::ComputeBOX(Model &convex)
+    {
+        // compute the box mesh according to the bounding box of the points
+        convex.points.push_back({bbox[1], bbox[2], bbox[5]});
+        convex.points.push_back({bbox[1], bbox[3], bbox[5]});
+        convex.points.push_back({bbox[0], bbox[3], bbox[5]});
+        convex.points.push_back({bbox[0], bbox[2], bbox[5]});
+        convex.points.push_back({bbox[1], bbox[2], bbox[4]});
+        convex.points.push_back({bbox[1], bbox[3], bbox[4]});
+        convex.points.push_back({bbox[0], bbox[3], bbox[4]});
+        convex.points.push_back({bbox[0], bbox[2], bbox[4]});
+
+        convex.triangles.push_back({0, 1, 3});
+        convex.triangles.push_back({1, 2, 3});
+        convex.triangles.push_back({1, 4, 5});
+        convex.triangles.push_back({0, 4, 1});
+        convex.triangles.push_back({6, 5, 4});
+        convex.triangles.push_back({4, 7, 6});
+        convex.triangles.push_back({3, 2, 6});
+        convex.triangles.push_back({6, 7, 3});
+        convex.triangles.push_back({1, 6, 2});
+        convex.triangles.push_back({5, 6, 1});
+        convex.triangles.push_back({0, 3, 4});
+        convex.triangles.push_back({3, 7, 4});
+    }
+
+    void Model::ComputeCH(Model &convex, bool if_vch)
     {
         /* fast convex hull algorithm */
         bool flag = true;

@@ -55,6 +55,7 @@ _lib.CoACD_run.argtypes = [
     c_int,
     c_bool,
     c_bool,
+    c_int,
     c_uint,
 ]
 _lib.CoACD_run.restype = CoACD_MeshArray
@@ -84,6 +85,7 @@ def run_coacd(
     mcts_max_depth: int = 3,
     pca: int = False,
     merge: bool = True,
+    apx_mode: str = "ch",
     seed: int = 0,
 ):
     vertices = np.ascontiguousarray(mesh.vertices, dtype=np.double)
@@ -110,6 +112,11 @@ def run_coacd(
     else:
         pm = 0
 
+    if apx_mode == "ch":
+        apx = 0
+    elif apx_mode == "box":
+        apx = 1
+
     mesh_array = _lib.CoACD_run(
         mesh,
         threshold,
@@ -122,6 +129,7 @@ def run_coacd(
         mcts_max_depth,
         pca,
         merge,
+        apx,
         seed,
     )
 

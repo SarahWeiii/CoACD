@@ -12,7 +12,7 @@ jobs:
         config:
           - { os: "ubuntu-20.04", build-dir: "build-linux" }
           - { os: "windows-2019", build-dir: "build-windows" }
-          - { os: "macos-11", build-dir: "build-macos" }
+          - { os: "macos-12", build-dir: "build-macos" }
     steps:
       - uses: actions/checkout@v2
         with:

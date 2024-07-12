@@ -35,6 +35,7 @@ namespace coacd
     bool merge;
     int max_convex_hull;
     double dmc_thres;
+    string apx_mode;
 
     /////////////// MCTS Config ///////////////
     int mcts_iteration;
@@ -55,6 +56,7 @@ namespace coacd
       pca = false;
       merge = true;
       dmc_thres = 0.55;
+      apx_mode = "ch";
 
       mcts_iteration = 150;
       mcts_max_depth = 3;

@@ -16,7 +16,7 @@ std::vector<Mesh> CoACD(Mesh const &input, double threshold,
                         int max_convex_hull, std::string preprocess_mode,
                         int prep_resolution, int sample_resolution,
                         int mcts_nodes, int mcts_iteration, int mcts_max_depth,
-                        bool pca, bool merge, unsigned int seed) {
+                        bool pca, bool merge, std::string apx_mode, unsigned int seed) {
 
   logger::info("threshold               {}", threshold);
   logger::info("max # convex hull       {}", max_convex_hull);
@@ -27,6 +27,7 @@ std::vector<Mesh> CoACD(Mesh const &input, double threshold,
   logger::info("mcts nodes              {}", mcts_nodes);
   logger::info("mcts iterations         {}", mcts_iteration);
   logger::info("merge                   {}", merge);
+  logger::info("approximate mode        {}", apx_mode);
   logger::info("seed                    {}", seed);
 
   if (threshold < 0.01) {
@@ -56,6 +57,7 @@ std::vector<Mesh> CoACD(Mesh const &input, double threshold,
   params.mcts_max_depth = mcts_max_depth;
   params.pca = pca;
   params.merge = merge;
+  params.apx_mode = apx_mode;
   params.seed = seed;
 
   Model m;
@@ -127,7 +129,7 @@ CoACD_MeshArray CoACD_run(CoACD_Mesh const &input, double threshold,
                           int prep_resolution, int sample_resolution,
                           int mcts_nodes, int mcts_iteration,
                           int mcts_max_depth, bool pca, bool merge,
-                          unsigned int seed) {
+                          int apx_mode, unsigned int seed) {
   coacd::Mesh mesh;
   for (uint64_t i = 0; i < input.vertices_count; ++i) {
     mesh.vertices.push_back({input.vertices_ptr[3 * i],
@@ -140,7 +142,7 @@ CoACD_MeshArray CoACD_run(CoACD_Mesh const &input, double threshold,
                             input.triangles_ptr[3 * i + 2]});
   }
 
-  std::string pm;
+  std::string pm, apx;
   if (preprocess_mode == preprocess_on) {
     pm = "on";
   } else if (preprocess_mode == preprocess_off) {
@@ -149,9 +151,17 @@ CoACD_MeshArray CoACD_run(CoACD_Mesh const &input, double threshold,
     pm = "auto";
   }
 
+  if (apx_mode == apx_ch) {
+    apx = "ch";
+  } else if (apx_mode == apx_box) {
+    apx = "box";
+  } else {
+    throw std::runtime_error("invalid approximation mode " + std::to_string(apx_mode));
+  }
+
   auto meshes = coacd::CoACD(mesh, threshold, max_convex_hull, pm,
                              prep_resolution, sample_resolution, mcts_nodes,
-                             mcts_iteration, mcts_max_depth, pca, merge, seed);
+                             mcts_iteration, mcts_max_depth, pca, merge, apx, seed);
 
   CoACD_MeshArray arr;
   arr.meshes_ptr = new CoACD_Mesh[meshes.size()];

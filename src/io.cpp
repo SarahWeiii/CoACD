@@ -20,6 +20,7 @@ namespace coacd
         logger::info("\tPCA (ON/OFF):                              {}", params.pca);
         logger::info("\tk for Rv:                                  {}", params.rv_k);
         logger::info("\tHausdorff Sampling Resolution:             {}", params.resolution);
+        logger::info("\tApproximation Mode (ch/box):               {}", params.apx_mode);
         logger::info("\tRandom Seed:                               {}", params.seed);
     }
 
