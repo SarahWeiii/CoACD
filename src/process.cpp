@@ -100,7 +100,7 @@ namespace coacd
         return true;
     }
 
-    void MergeCH(Model &ch1, Model &ch2, Model &ch)
+    void MergeCH(Model &ch1, Model &ch2, Model &ch, Params &params)
     {
         Model merge;
         merge.points.insert(merge.points.end(), ch1.points.begin(), ch1.points.end());
@@ -109,7 +109,7 @@ namespace coacd
         for (int i = 0; i < (int)ch2.triangles.size(); i++)
             merge.triangles.push_back({int(ch2.triangles[i][0] + ch1.points.size()),
                                        int(ch2.triangles[i][1] + ch1.points.size()), int(ch2.triangles[i][2] + ch1.points.size())});
-        merge.ComputeCH(ch);
+        merge.ComputeAPX(ch, params.apx_mode, true);
     }
 
     double MergeConvexHulls(Model &m, vector<Model> &meshs, vector<Model> &cvxs, Params &params, double epsilon, double threshold)
@@ -140,7 +140,7 @@ namespace coacd
                 if (dist < threshold)
                 {
                     Model combinedCH;
-                    MergeCH(cvxs[p1], cvxs[p2], combinedCH);
+                    MergeCH(cvxs[p1], cvxs[p2], combinedCH, params);
 
                     costMatrix[idx] = ComputeHCost(cvxs[p1], cvxs[p2], combinedCH, params.rv_k, params.resolution, params.seed);
                     precostMatrix[idx] = max(ComputeHCost(meshs[p1], cvxs[p1], params.rv_k, 3000, params.seed),
@@ -199,7 +199,7 @@ namespace coacd
 
                 // Make the lowest cost row and column into a new hull
                 Model cch;
-                MergeCH(cvxs[p1], cvxs[p2], cch);
+                MergeCH(cvxs[p1], cvxs[p2], cch, params);
                 cvxs[p2] = cch;
 
                 std::swap(cvxs[p1], cvxs[cvxs.size() - 1]);
@@ -215,7 +215,7 @@ namespace coacd
                     if (dist < threshold)
                     {
                         Model combinedCH;
-                        MergeCH(cvxs[p2], cvxs[i], combinedCH);
+                        MergeCH(cvxs[p2], cvxs[i], combinedCH, params);
                         costMatrix[rowIdx] = ComputeHCost(cvxs[p2], cvxs[i], combinedCH, params.rv_k, params.resolution, params.seed);
                         precostMatrix[rowIdx++] = max(precostMatrix[p2] + bestCost, precostMatrix[i]);
                     }
@@ -230,7 +230,7 @@ namespace coacd
                     if (dist < threshold)
                     {
                         Model combinedCH;
-                        MergeCH(cvxs[p2], cvxs[i], combinedCH);
+                        MergeCH(cvxs[p2], cvxs[i], combinedCH, params);
                         costMatrix[rowIdx] = ComputeHCost(cvxs[p2], cvxs[i], combinedCH, params.rv_k, params.resolution, params.seed);
                         precostMatrix[rowIdx] = max(precostMatrix[p2] + bestCost, precostMatrix[i]);
                     }
@@ -310,7 +310,7 @@ namespace coacd
 
                 Model pmesh = InputParts[p], pCH;
                 Plane bestplane;
-                pmesh.ComputeCH(pCH);
+                pmesh.ComputeAPX(pCH, params.apx_mode, true);
                 double h = ComputeHCost(pmesh, pCH, params.rv_k, params.resolution, params.seed, 0.0001, false);
 
                 if (h > params.threshold)

@@ -147,6 +147,7 @@ Here is the description of the parameters (sorted by importance).
 * `-r/--resolution`: sampling resolution for Hausdorff distance calculation (1e3~1e4), default = 2000.
 * `--pca`: flag to enable PCA pre-processing, default = false.
 * `-k`: value of $k$ for R_v calculation, default = 0.3.
+* `-am/--approximate-mode`: approximation shape type ("ch" for convex hulls, "box" for cubes), default = "ch".
 * `--seed`: random seed used for sampling, default = random().
 
 An example of changing the parameters:

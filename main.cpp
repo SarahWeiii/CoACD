@@ -66,6 +66,10 @@ int main(int argc, char *argv[])
       {
         params.preprocess_mode = argv[i + 1];
       }
+      if (strcmp(argv[i], "-am") == 0 || strcmp(argv[i], "--approximate-mode") == 0)
+      {
+        params.apx_mode = argv[i + 1];
+      }
       if (strcmp(argv[i], "-pr") == 0 || strcmp(argv[i], "--prep-resolution") == 0)
       {
         sscanf(argv[i + 1], "%d", &params.prep_resolution);
