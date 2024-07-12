@@ -17,6 +17,7 @@ else()
 endif()
 
 if (MSVC)
+    add_compile_options("/bigobj")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W0 -fpermissive -D_USE_MATH_DEFINES")
     set(CMAKE_SHARED_LIBRARY_PREFIX "lib")
 else()
