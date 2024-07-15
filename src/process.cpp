@@ -100,6 +100,128 @@ namespace coacd
         return true;
     }
 
+    double pts_norm(vec3d pt, vec3d p)
+    {
+        return sqrt(pow(pt[0] - p[0], 2) + pow(pt[1] - p[1], 2) + pow(pt[2] - p[2], 2));
+    }
+
+    void DecimateCH(Model &ch, int tgt_pts)
+    {
+        if (tgt_pts >= (int)ch.points.size())
+            return;
+
+        vector<vec3d> new_pts;
+        vector<int> rm_pt_idxs;
+        int n_pts = (int)ch.points.size();
+        int tgt_n = min(tgt_pts, (int)ch.points.size());
+
+        // Compute edges
+        vector<pair<double, pair<int, int>>> edge_costs;
+        for (int i = 0; i < (int)ch.triangles.size(); i++)
+        {
+            for (int j = 0; j < 3; j++)
+                if (ch.triangles[i][j] > ch.triangles[i][(j + 1) % 3])
+                {
+                    double cost = pts_norm(ch.points[ch.triangles[i][j]], ch.points[ch.triangles[i][(j + 1) % 3]]);
+                    edge_costs.push_back({cost, {ch.triangles[i][j], ch.triangles[i][(j + 1) % 3]}});
+                }
+        }
+
+        // std::cout << "ch.points: " << ch.points.size() << std::endl;
+        while (n_pts > tgt_n)
+        {
+
+            // sort the points by the cost
+            sort(edge_costs.begin(), edge_costs.end());
+
+            SaveMesh("../ch.obj", ch);
+
+            // remove the edge with the smallest cost
+            pair<int, int> edge = edge_costs[0].second;
+            vec3d new_pt = {0.5 * (ch.points[edge.first][0] + ch.points[edge.second][0]),
+                            0.5 * (ch.points[edge.first][1] + ch.points[edge.second][1]),
+                            0.5 * (ch.points[edge.first][2] + ch.points[edge.second][2])};
+            
+            // check if already removed
+            if (find(rm_pt_idxs.begin(), rm_pt_idxs.end(), edge.first) != rm_pt_idxs.end())
+            {
+                std::cout << "duplicate edge.first: " << edge.first << std::endl;
+                getchar();
+            }
+            if (find(rm_pt_idxs.begin(), rm_pt_idxs.end(), edge.second) != rm_pt_idxs.end())
+            {
+                std::cout << "duplicate edge.second: " << edge.second << std::endl;
+                getchar();
+            }
+
+            rm_pt_idxs.push_back(edge.first);
+            rm_pt_idxs.push_back(edge.second);
+
+
+
+            // std::cout << "rm " << edge.first << ' ' << edge.second << ' ' << ch.points.size()-1 << std::endl;
+            ch.points.push_back(new_pt);
+            n_pts -= 1;
+            edge_costs[0].first = INF;
+
+            // // print rm_pt_idxs
+            // std::cout << "------" << std::endl;
+            // for (int i = 0; i < (int)rm_pt_idxs.size(); i++)
+            //     std::cout << rm_pt_idxs[i] << ' ';
+            // std::cout << "------" << std::endl;
+
+            // update the neighboring edge costs
+            int new_pt_idx = ch.points.size()-1;
+            for (int i = 0; i < (int)edge_costs.size(); i++)
+            {
+                if (edge_costs[i].second.first == edge.first && edge_costs[i].second.second == edge.second)
+                    edge_costs[i].first = INF;
+                else if (edge_costs[i].second.first == edge.first || edge_costs[i].second.first == edge.second)
+                {
+                    // std::cout << i << " new pt 1 " << edge_costs[i].second.first << " -> " << new_pt_idx << ' ' << edge_costs[i].second.second << std::endl;
+                    edge_costs[i].first = pts_norm(new_pt, ch.points[edge_costs[i].second.second]);
+                    edge_costs[i].second.first = new_pt_idx;
+                }
+                else if (edge_costs[i].second.second == edge.first || edge_costs[i].second.second == edge.second)
+                {
+                    // std::cout << i << " new pt 2 " << edge_costs[i].second.first << ' ' << edge_costs[i].second.second << " -> " << new_pt_idx << std::endl;
+                    edge_costs[i].first = pts_norm(new_pt, ch.points[edge_costs[i].second.first]);
+                    edge_costs[i].second.second = edge_costs[i].second.first;
+                    edge_costs[i].second.first = new_pt_idx; // larger idx should be the first!
+                }
+            }
+        }
+
+        // std::cout << "ch.points.size(): " << ch.points.size() << std::endl;
+
+
+        // remove the points and add new points
+        Model new_ch;
+        for (int i = 0; i < (int)ch.points.size(); i++)
+        {
+            if (find(rm_pt_idxs.begin(), rm_pt_idxs.end(), i) == rm_pt_idxs.end())
+                new_ch.points.push_back(ch.points[i]);
+        }
+
+        new_ch.ComputeAPX(ch, "ch", true);
+        // std::cout << "after: " << ch.points.size() << std::endl;
+
+        SaveMesh("../out.obj", ch);
+        // std::cout << "ch.points.size(): " << ch.points.size() << "rm_pt_idxs: " << rm_pt_idxs.size() << "new_ch: " << new_ch.points.size() << std::endl;
+        // std::cout << "n_pts: " << n_pts << "tgt_n: " << tgt_n << "new_pts: " << new_pts.size() << std::endl;
+        // getchar();
+
+    }
+
+    void DecimateConvexHulls(vector<Model> &cvxs, Params &params)
+    {
+        logger::info(" - Simplify Convex Hulls");
+        for (int i = 0; i < (int)cvxs.size(); i++)
+        {
+            DecimateCH(cvxs[i], params.max_ch_vertex);
+        }
+    }
+
     void MergeCH(Model &ch1, Model &ch2, Model &ch, Params &params)
     {
         Model merge;
@@ -379,6 +501,9 @@ namespace coacd
         }
         if (params.merge)
             MergeConvexHulls(mesh, pmeshs, parts, params);
+
+        if (params.decimate)
+            DecimateConvexHulls(parts, params);
 
 #ifdef _OPENMP
         end = omp_get_wtime();

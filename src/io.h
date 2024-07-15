@@ -29,6 +29,7 @@ namespace coacd
 {
 
     //////////////// IO ////////////////
+    void SaveMesh(const string &filename, Model &mesh);
     void SaveConfig(Params params);
     void SaveOBJ(const string &filename, vector<Model> parts, Params &params);
     void SaveOBJs(const string &foldername, const string &filename, vector<Model> parts, Params &params);

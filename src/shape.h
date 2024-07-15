@@ -87,6 +87,11 @@ namespace coacd
     double Volume(vec3d p1, vec3d p2, vec3d p3);
     void Diagonalize(const array<array<double, 3>, 3>& A, array<array<double, 3>, 3>& Q, array<array<double, 3>, 3>& D);
 
+    inline double pt_norm(vec3d p)
+    {
+        return sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]);
+    }
+
     inline bool SameVectorDirection(vec3d v, vec3d w)
     {
         if (v[0] * w[0] + v[1] * w[1] + v[2] * w[2] > 0)

@@ -17,11 +17,29 @@ namespace coacd
         logger::info("\tManifold Preprocess Mode (auto/on/off):    {}", params.preprocess_mode);
         logger::info("\tPreprocess Resolution:                     {}", params.prep_resolution);
         logger::info("\tMerge Postprocess (on/off):                {}", params.merge);
+        logger::info("\tDecimate Postprocess (on/off):             {}", params.decimate);
+        logger::info("\tMax Convex Hull Vertex:                    {}", params.max_ch_vertex);
         logger::info("\tPCA (ON/OFF):                              {}", params.pca);
         logger::info("\tk for Rv:                                  {}", params.rv_k);
         logger::info("\tHausdorff Sampling Resolution:             {}", params.resolution);
         logger::info("\tApproximation Mode (ch/box):               {}", params.apx_mode);
         logger::info("\tRandom Seed:                               {}", params.seed);
+    }
+
+    void SaveMesh(const string &filename, Model &mesh)
+    {
+        std::ofstream os(filename);
+        for (int i = 0; i < (int)mesh.points.size(); ++i)
+        {
+            os << "v " << mesh.points[i][0] << " " << mesh.points[i][1] << " " << mesh.points[i][2] << "\n";
+        }
+        for (int i = 0; i < (int)mesh.triangles.size(); ++i)
+        {
+            os << "f " << mesh.triangles[i][0] + 1
+                << " " << mesh.triangles[i][1] + 1
+                << " " << mesh.triangles[i][2] + 1 << "\n";
+        }
+        os.close();
     }
 
     void SaveOBJ(const string &filename, vector<Model> parts, Params &params)

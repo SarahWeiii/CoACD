@@ -25,7 +25,9 @@ namespace coacd
 {
   extern thread_local std::mt19937 random_engine;
 
-  void MergeCH(Model &ch1, Model &ch2, Model &ch);
+  void DecimateCH(Model &ch, int tgt_pts);
+    void DecimateConvexHulls(vector<Model> &cvxs, Params &params);
+  void MergeCH(Model &ch1, Model &ch2, Model &ch, Params &params);
   double MergeConvexHulls(Model &m, vector<Model> &meshs, vector<Model> &cvxs, Params &params, double epsilon = 0.02, double threshold = 0.01);
   vector<Model> Compute(Model &mesh, Params &params);
   bool IsManifold(Model &input);

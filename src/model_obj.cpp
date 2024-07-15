@@ -103,6 +103,10 @@ namespace coacd
 
     void Model::ComputeAPX(Model &convex, string apx_mode, bool if_vch)
     {
+        // clean convex points and triangles
+        convex.points.clear();
+        convex.triangles.clear();
+
         if (apx_mode == "box")
             ComputeBOX(convex);
         else if (apx_mode == "ch" and !if_vch)

@@ -58,6 +58,14 @@ int main(int argc, char *argv[])
       {
         params.merge = false;
       }
+      if (strcmp(argv[i], "-d") == 0 || strcmp(argv[i], "--decimate") == 0)
+      {
+        params.decimate = true;
+      }
+      if (strcmp(argv[i], "-dt") == 0 || strcmp(argv[i], "--decimate-target") == 0)
+      {
+        sscanf(argv[i + 1], "%d", &params.max_ch_vertex);
+      }
       if (strcmp(argv[i], "--pca") == 0)
       {
         params.pca = true;
