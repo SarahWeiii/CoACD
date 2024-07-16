@@ -16,7 +16,8 @@ std::vector<Mesh> CoACD(Mesh const &input, double threshold,
                         int max_convex_hull, std::string preprocess_mode,
                         int prep_resolution, int sample_resolution,
                         int mcts_nodes, int mcts_iteration, int mcts_max_depth,
-                        bool pca, bool merge, std::string apx_mode, unsigned int seed) {
+                        bool pca, bool merge, bool decimate, int max_ch_vertex,
+                        std::string apx_mode, unsigned int seed) {
 
   logger::info("threshold               {}", threshold);
   logger::info("max # convex hull       {}", max_convex_hull);
@@ -27,6 +28,8 @@ std::vector<Mesh> CoACD(Mesh const &input, double threshold,
   logger::info("mcts nodes              {}", mcts_nodes);
   logger::info("mcts iterations         {}", mcts_iteration);
   logger::info("merge                   {}", merge);
+  logger::info("decimate                {}", decimate);
+  logger::info("max_ch_vertex           {}", max_ch_vertex);
   logger::info("approximate mode        {}", apx_mode);
   logger::info("seed                    {}", seed);
 
@@ -57,6 +60,8 @@ std::vector<Mesh> CoACD(Mesh const &input, double threshold,
   params.mcts_max_depth = mcts_max_depth;
   params.pca = pca;
   params.merge = merge;
+  params.decimate = decimate;
+  params.max_ch_vertex = max_ch_vertex;
   params.apx_mode = apx_mode;
   params.seed = seed;
 
@@ -129,6 +134,7 @@ CoACD_MeshArray CoACD_run(CoACD_Mesh const &input, double threshold,
                           int prep_resolution, int sample_resolution,
                           int mcts_nodes, int mcts_iteration,
                           int mcts_max_depth, bool pca, bool merge,
+                          bool decimate, int max_ch_vertex,
                           int apx_mode, unsigned int seed) {
   coacd::Mesh mesh;
   for (uint64_t i = 0; i < input.vertices_count; ++i) {
@@ -161,7 +167,7 @@ CoACD_MeshArray CoACD_run(CoACD_Mesh const &input, double threshold,
 
   auto meshes = coacd::CoACD(mesh, threshold, max_convex_hull, pm,
                              prep_resolution, sample_resolution, mcts_nodes,
-                             mcts_iteration, mcts_max_depth, pca, merge, apx, seed);
+                             mcts_iteration, mcts_max_depth, pca, merge, decimate, max_ch_vertex, apx, seed);
 
   CoACD_MeshArray arr;
   arr.meshes_ptr = new CoACD_Mesh[meshes.size()];

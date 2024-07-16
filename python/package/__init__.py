@@ -55,6 +55,8 @@ _lib.CoACD_run.argtypes = [
     c_int,
     c_bool,
     c_bool,
+    c_bool,
+    c_int,
     c_int,
     c_uint,
 ]
@@ -85,6 +87,8 @@ def run_coacd(
     mcts_max_depth: int = 3,
     pca: int = False,
     merge: bool = True,
+    decimate: bool = False,
+    max_ch_vertex: int = 256,
     apx_mode: str = "ch",
     seed: int = 0,
 ):
@@ -129,6 +133,8 @@ def run_coacd(
         mcts_max_depth,
         pca,
         merge,
+        decimate,
+        max_ch_vertex,
         apx,
         seed,
     )

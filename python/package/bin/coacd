@@ -58,6 +58,19 @@ if __name__ == "__main__":
         help="If merge is enabled, try to reduce total number of parts by merging.",
     )
     parser.add_argument(
+        "-d",
+        "--decimate",
+        action="store_true",
+        help="If decimate is enabled, reduce total number of vertices per convex hull to max_ch_vertex.",
+    )
+    parser.add_argument(
+        "-dt",
+        "--max-ch-vertex",
+        type=int,
+        default=256,
+        help="max # vertices per convex hull, works only when decimate is enabled",
+    )
+    parser.add_argument(
         "-c",
         "--max-convex-hull",
         type=int,
@@ -66,7 +79,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "-mi",
-        "--mcts_iteration",
+        "--mcts-iteration",
         type=int,
         default=150,
         help="Number of MCTS iterations.",
@@ -132,6 +145,8 @@ if __name__ == "__main__":
         mcts_max_depth=args.mcts_max_depth,
         pca=args.pca,
         merge=not args.no_merge,
+        decimate=args.decimate,
+        max_ch_vertex=args.max_ch_vertex,
         apx_mode=args.apx_mode,
         seed=args.seed,
     )
