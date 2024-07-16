@@ -147,6 +147,8 @@ Here is the description of the parameters (sorted by importance).
 * `-r/--resolution`: sampling resolution for Hausdorff distance calculation (1e3~1e4), default = 2000.
 * `--pca`: flag to enable PCA pre-processing, default = false.
 * `-k`: value of $k$ for R_v calculation, default = 0.3.
+* `-d/--decimate`: enable max vertex constraint per convex hull, default = false.
+* `-dt/--max-ch-vertex`: max vertex value for each convex hull, **only when decimate is enabled**, default = 256.
 * `-am/--approximate-mode`: approximation shape type ("ch" for convex hulls, "box" for cubes), default = "ch".
 * `--seed`: random seed used for sampling, default = random().
 
