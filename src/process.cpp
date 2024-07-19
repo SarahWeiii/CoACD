@@ -344,12 +344,11 @@ namespace coacd
 
                     ++top_row;
                     rowIdx += p1;
-                    for (size_t i = p1 + 1; i < (costSize + 1); ++i)
+                    for (size_t i = p1 + 1; i < costSize; ++i)
                     {
                         costMatrix[rowIdx] = costMatrix[top_row];
                         precostMatrix[rowIdx] = precostMatrix[top_row++];
                         rowIdx += i;
-                        assert(rowIdx >= 0);
                     }
                 }
                 costMatrix.resize(erase_idx);
