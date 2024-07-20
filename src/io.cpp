@@ -19,6 +19,8 @@ namespace coacd
         logger::info("\tMerge Postprocess (on/off):                {}", params.merge);
         logger::info("\tDecimate Postprocess (on/off):             {}", params.decimate);
         logger::info("\tMax Convex Hull Vertex:                    {}", params.max_ch_vertex);
+        logger::info("\tExtrude Postprocess (on/off):              {}", params.extrude);
+        logger::info("\tExtrude Margin:                            {}", params.extrude_margin);
         logger::info("\tPCA (ON/OFF):                              {}", params.pca);
         logger::info("\tk for Rv:                                  {}", params.rv_k);
         logger::info("\tHausdorff Sampling Resolution:             {}", params.resolution);

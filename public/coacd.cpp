@@ -17,6 +17,7 @@ std::vector<Mesh> CoACD(Mesh const &input, double threshold,
                         int prep_resolution, int sample_resolution,
                         int mcts_nodes, int mcts_iteration, int mcts_max_depth,
                         bool pca, bool merge, bool decimate, int max_ch_vertex,
+                        bool extrude, double extrude_margin,
                         std::string apx_mode, unsigned int seed) {
 
   logger::info("threshold               {}", threshold);
@@ -30,6 +31,8 @@ std::vector<Mesh> CoACD(Mesh const &input, double threshold,
   logger::info("merge                   {}", merge);
   logger::info("decimate                {}", decimate);
   logger::info("max_ch_vertex           {}", max_ch_vertex);
+  logger::info("extrude                 {}", extrude);
+  logger::info("extrude margin          {}", extrude_margin);
   logger::info("approximate mode        {}", apx_mode);
   logger::info("seed                    {}", seed);
 
@@ -62,6 +65,8 @@ std::vector<Mesh> CoACD(Mesh const &input, double threshold,
   params.merge = merge;
   params.decimate = decimate;
   params.max_ch_vertex = max_ch_vertex;
+  params.extrude = extrude;
+  params.extrude_margin = extrude_margin;
   params.apx_mode = apx_mode;
   params.seed = seed;
 
@@ -135,6 +140,7 @@ CoACD_MeshArray CoACD_run(CoACD_Mesh const &input, double threshold,
                           int mcts_nodes, int mcts_iteration,
                           int mcts_max_depth, bool pca, bool merge,
                           bool decimate, int max_ch_vertex,
+                          bool extrude, double extrude_margin,
                           int apx_mode, unsigned int seed) {
   coacd::Mesh mesh;
   for (uint64_t i = 0; i < input.vertices_count; ++i) {
@@ -167,7 +173,8 @@ CoACD_MeshArray CoACD_run(CoACD_Mesh const &input, double threshold,
 
   auto meshes = coacd::CoACD(mesh, threshold, max_convex_hull, pm,
                              prep_resolution, sample_resolution, mcts_nodes,
-                             mcts_iteration, mcts_max_depth, pca, merge, decimate, max_ch_vertex, apx, seed);
+                             mcts_iteration, mcts_max_depth, pca, merge, decimate, max_ch_vertex, 
+                             extrude, extrude_margin, apx, seed);
 
   CoACD_MeshArray arr;
   arr.meshes_ptr = new CoACD_Mesh[meshes.size()];

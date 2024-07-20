@@ -71,6 +71,19 @@ if __name__ == "__main__":
         help="max # vertices per convex hull, works only when decimate is enabled",
     )
     parser.add_argument(
+        "-ex",
+        "--extrude",
+        action="store_true",
+        help="If extrude is enabled, extrude the neighboring convex hulls along the overlap face (other faces are unchanged).",
+    )
+    parser.add_argument(
+        "-em",
+        "--extrude-margin",
+        type=float,
+        default=0.01,
+        help="extrude margin, works only when extrude is enabled",
+    )
+    parser.add_argument(
         "-c",
         "--max-convex-hull",
         type=int,
@@ -147,6 +160,8 @@ if __name__ == "__main__":
         merge=not args.no_merge,
         decimate=args.decimate,
         max_ch_vertex=args.max_ch_vertex,
+        extrude=args.extrude,
+        extrude_margin=args.extrude_margin,
         apx_mode=args.apx_mode,
         seed=args.seed,
     )

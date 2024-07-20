@@ -66,6 +66,14 @@ int main(int argc, char *argv[])
       {
         sscanf(argv[i + 1], "%d", &params.max_ch_vertex);
       }
+      if (strcmp(argv[i], "-ex") == 0 || strcmp(argv[i], "--extrude") == 0)
+      {
+        params.extrude = true;
+      }
+      if (strcmp(argv[i], "-em") == 0 || strcmp(argv[i], "--extrude-margin") == 0)
+      {
+        sscanf(argv[i + 1], "%le", &params.extrude_margin);
+      }
       if (strcmp(argv[i], "--pca") == 0)
       {
         params.pca = true;

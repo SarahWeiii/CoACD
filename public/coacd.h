@@ -56,6 +56,7 @@ CoACD_MeshArray COACD_API CoACD_run(CoACD_Mesh const &input, double threshold,
                                     int mcts_nodes, int mcts_iteration,
                                     int mcts_max_depth, bool pca, bool merge,
                                     bool decimate, int max_ch_vertex,
+                                    bool extrude, double extrude_margin,
                                     int apx_mode, unsigned int seed);
 
 void COACD_API CoACD_setLogLevel(char const *level);

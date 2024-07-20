@@ -57,6 +57,8 @@ _lib.CoACD_run.argtypes = [
     c_bool,
     c_bool,
     c_int,
+    c_bool,
+    c_double,
     c_int,
     c_uint,
 ]
@@ -89,6 +91,8 @@ def run_coacd(
     merge: bool = True,
     decimate: bool = False,
     max_ch_vertex: int = 256,
+    extrude: bool = False,
+    extrude_margin: float = 0.01,
     apx_mode: str = "ch",
     seed: int = 0,
 ):
@@ -135,6 +139,8 @@ def run_coacd(
         merge,
         decimate,
         max_ch_vertex,
+        extrude,
+        extrude_margin,
         apx,
         seed,
     )

@@ -359,6 +359,58 @@ namespace coacd
         return h;
     }
 
+    void ExtrudeCH(Model &ch, Plane overlap_plane, Params &params, double margin)
+    {
+        vec3d normal = {overlap_plane.a, overlap_plane.b, overlap_plane.c};
+
+        // decide the extrude direction by other points of the ch
+        int side = 0;
+        for (int i = 0; i < (int)ch.points.size(); i++)
+        {
+            vec3d p = ch.points[i];
+            side += overlap_plane.Side(p, 1e-4);
+        }
+        side = side > 0 ? 1 : -1;
+
+        for (int i = 0; i < (int)ch.points.size(); i++)
+        {
+            if (overlap_plane.Side(ch.points[i], 1e-4) == 0)
+                ch.points[i] = {ch.points[i][0] - side * margin * normal[0],
+                                ch.points[i][1] - side * margin * normal[1],
+                                ch.points[i][2] - side * margin * normal[2]};
+        }
+
+        Model tmp;
+        ch.ComputeAPX(tmp, params.apx_mode, true);
+        ch = tmp;
+    }
+
+    void ExtrudeConvexHulls(vector<Model> &cvxs, Params &params, double eps)
+    {
+        logger::info(" - Extrude Convex Hulls");
+        for (int i = 0; i < (int)cvxs.size(); i++)
+        {
+            Model cvx = cvxs[i];
+            for (int j = 0; j < (int)cvxs.size(); j++)
+            {
+                Model convex1 = cvxs[i], convex2 = cvxs[j];
+                Plane overlap_plane;
+
+                double dist = MeshDist(convex1, convex2);
+                bool flag = ComputeOverlapFace(convex1, convex2, overlap_plane);
+
+                // only extrude the convex hulls along the normal of overlap plane
+                if (dist < eps && flag)
+                {
+                    ExtrudeCH(convex1, overlap_plane, params, params.extrude_margin);
+                    cvxs[i] = convex1;
+                    ExtrudeCH(convex2, overlap_plane, params, params.extrude_margin);
+                    cvxs[j] = convex2;
+                }
+            }
+        }
+    }
+
     vector<Model> Compute(Model &mesh, Params &params)
     {
         vector<Model> InputParts = {mesh};
@@ -466,6 +518,9 @@ namespace coacd
 
         if (params.decimate)
             DecimateConvexHulls(parts, params);
+
+        if (params.extrude)
+            ExtrudeConvexHulls(parts, params);
 
 #ifdef _OPENMP
         end = omp_get_wtime();
