@@ -79,6 +79,13 @@ namespace coacd
         }
     };
 
+    struct Sphere
+    {
+        vec3d center;
+        double radius;
+        Sphere(const vec3d &c = {0,0,0}, double r = 0) : center(c), radius(r) {}
+    };
+
     bool SamePointDetect(vec3d p0, vec3d p1, float eps=1e-5);
     bool SameVectorDirection(vec3d v, vec3d w);
     vec3d CrossProduct(vec3d v, vec3d w);

@@ -38,8 +38,8 @@ namespace coacd
         for (int i = 0; i < (int)mesh.triangles.size(); ++i)
         {
             os << "f " << mesh.triangles[i][0] + 1
-                << " " << mesh.triangles[i][1] + 1
-                << " " << mesh.triangles[i][2] + 1 << "\n";
+               << " " << mesh.triangles[i][1] + 1
+               << " " << mesh.triangles[i][2] + 1 << "\n";
         }
         os.close();
     }
@@ -167,7 +167,7 @@ namespace coacd
         }
     }
 
-    void SaveVRML(const string &fileName, vector<Model>& meshes, Params &params)
+    void SaveVRML(const string &fileName, vector<Model> &meshes, Params &params)
     {
         ofstream foutCH(fileName);
         if (foutCH.is_open())
@@ -178,5 +178,65 @@ namespace coacd
             }
             foutCH.close();
         }
+    }
+
+    void SaveSphere(const string &filename, Sphere &sphere, int resolution)
+    {
+        std::ofstream file(filename);
+        if (!file.is_open())
+        {
+            throw std::runtime_error("Unable to open file for writing.");
+        }
+
+        std::vector<vec3d> vertices;
+        std::vector<std::vector<int>> faces;
+
+        // Generate vertices
+        for (int i = 0; i <= resolution; ++i)
+        {
+            double phi = M_PI * i / resolution;
+            for (int j = 0; j <= resolution; ++j)
+            {
+                double theta = 2 * M_PI * j / resolution;
+                double x = sphere.center[0] + sphere.radius * sin(phi) * cos(theta);
+                double y = sphere.center[1] + sphere.radius * sin(phi) * sin(theta);
+                double z = sphere.center[2] + sphere.radius * cos(phi);
+                vertices.push_back({x, y, z});
+            }
+        }
+
+        // Generate faces
+        for (int i = 0; i < resolution; ++i)
+        {
+            for (int j = 0; j < resolution; ++j)
+            {
+                int p1 = i * (resolution + 1) + j;
+                int p2 = p1 + 1;
+                int p3 = (i + 1) * (resolution + 1) + j;
+                int p4 = p3 + 1;
+
+                faces.push_back({p1, p2, p3});
+                faces.push_back({p2, p4, p3});
+            }
+        }
+
+        // Write vertices
+        for (const auto &v : vertices)
+        {
+            file << "v " << v[0] << " " << v[1] << " " << v[2] << "\n";
+        }
+
+        // Write faces
+        for (const auto &f : faces)
+        {
+            file << "f";
+            for (int idx : f)
+            {
+                file << " " << (idx + 1);
+            }
+            file << "\n";
+        }
+
+        file.close();
     }
 }

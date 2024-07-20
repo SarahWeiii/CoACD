@@ -10,6 +10,8 @@
 #include "src/process.h"
 #include "src/logger.h"
 
+#include "src/welzl.h"
+
 using namespace std;
 using namespace coacd;
 
@@ -155,43 +157,52 @@ int main(int argc, char *argv[])
 
   m.LoadOBJ(params.input_model);
   vector<double> bbox = m.Normalize();
-  // m.SaveOBJ("normalized.obj");
 
-  #if WITH_3RD_PARTY_LIBS
-    if (params.preprocess_mode == "auto")
-    {
-      bool is_manifold = IsManifold(m);
-      logger::info("Mesh Manifoldness: {}", is_manifold);
-      if (!is_manifold)
-        ManifoldPreprocess(params, m);
-    }
-    else if (params.preprocess_mode == "on")
-      ManifoldPreprocess(params, m);
-  #else
-    bool is_manifold = IsManifold(m);
-    logger::info("Mesh Manifoldness: {}", is_manifold);
-    if (!is_manifold)
-    {
-      logger::critical("The mesh is not a 2-manifold! Please enable WITH_3RD_PARTY_LIBS during compilation, or use third-party libraries to preprocess the mesh.");
-      exit(0);
-    }
 
-  #endif
+  m.SaveOBJ("normalized.obj");
 
-  m.SaveOBJ(params.remesh_output_name);
+  // #if WITH_3RD_PARTY_LIBS
+  //   if (params.preprocess_mode == "auto")
+  //   {
+  //     bool is_manifold = IsManifold(m);
+  //     logger::info("Mesh Manifoldness: {}", is_manifold);
+  //     if (!is_manifold)
+  //       ManifoldPreprocess(params, m);
+  //   }
+  //   else if (params.preprocess_mode == "on")
+  //     ManifoldPreprocess(params, m);
+  // #else
+  //   bool is_manifold = IsManifold(m);
+  //   logger::info("Mesh Manifoldness: {}", is_manifold);
+  //   if (!is_manifold)
+  //   {
+  //     logger::critical("The mesh is not a 2-manifold! Please enable WITH_3RD_PARTY_LIBS during compilation, or use third-party libraries to preprocess the mesh.");
+  //     exit(0);
+  //   }
 
-  if (params.pca)
-    rot = m.PCA();
+  // #endif
 
-  vector<Model> parts = Compute(m, params);
+  // m.SaveOBJ(params.remesh_output_name);
 
-  RecoverParts(parts, bbox, rot, params);
+  // if (params.pca)
+  //   rot = m.PCA();
 
-  string objName = regex_replace(params.output_name, regex("wrl"), "obj");
-  string wrlName = regex_replace(params.output_name, regex("obj"), "wrl");
+  // vector<Model> parts = Compute(m, params);
 
-  SaveVRML(wrlName, parts, params);
-  SaveOBJ(objName, parts, params);
+  // RecoverParts(parts, bbox, rot, params);
+
+  // string objName = regex_replace(params.output_name, regex("wrl"), "obj");
+  // string wrlName = regex_replace(params.output_name, regex("obj"), "wrl");
+
+  // SaveVRML(wrlName, parts, params);
+  // SaveOBJ(objName, parts, params);
+
+  Sphere b_sphere = welzl(m.points);
+
+  std::cout << "Center: " << b_sphere.center[0] << ' ' << b_sphere.center[1] << ' ' << b_sphere.center[2] << ' ' << std::endl;
+  std::cout << "Radius: " << b_sphere.radius << std::endl;
+
+  SaveSphere("sphere.obj", b_sphere);
 
   return 0;
 }

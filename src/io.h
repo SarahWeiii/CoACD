@@ -35,4 +35,5 @@ namespace coacd
     void SaveOBJs(const string &foldername, const string &filename, vector<Model> parts, Params &params);
     bool WriteVRML(ofstream &fout, Model mesh);
     void SaveVRML(const string &fileName, vector<Model>& meshes, Params &params);
+    void SaveSphere(const string &filename, Sphere &sphere, int resolution = 20);
 }
