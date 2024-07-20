@@ -149,6 +149,8 @@ Here is the description of the parameters (sorted by importance).
 * `-k`: value of $k$ for R_v calculation, default = 0.3.
 * `-d/--decimate`: enable max vertex constraint per convex hull, default = false.
 * `-dt/--max-ch-vertex`: max vertex value for each convex hull, **only when decimate is enabled**, default = 256.
+* `-ex/--extrude`: extrude neighboring convex hulls along the overlapping faces (other faces unchanged), default = false.
+* `-em/--extrude-margin`: extrude margin, **only when extrude is enabled**, default = 0.01.
 * `-am/--approximate-mode`: approximation shape type ("ch" for convex hulls, "box" for cubes), default = "ch".
 * `--seed`: random seed used for sampling, default = random().
 
