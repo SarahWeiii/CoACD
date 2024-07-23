@@ -1,4 +1,5 @@
 #include "cost.h"
+#include "io.h"
 #include "hausdorff.h"
 
 namespace coacd

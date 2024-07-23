@@ -24,12 +24,7 @@
 
 namespace coacd
 {
-
-    // struct vec3d {
-    //     double x, y, z;
-    //     vec3d(double x = 0, double y = 0, double z = 0) : x(x), y(y), z(z) {}
-    // };
-
-    Sphere welzl(std::vector<vec3d> &P, int num_runs = 3);
-
+    // Sphere welzl(std::vector<vec3d> &P, int num_runs = 5);
+    Sphere welzl(Model &mesh, int num_runs = 5);
+    void Sphere2Mesh(Sphere &sphere, Model &mesh, int resolution = 20);
 }

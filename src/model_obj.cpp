@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include "model_obj.h"
+#include "welzl.h"
 #include "process.h"
 #include "quickhull/QuickHull.hpp"
 #include "btConvexHull/btConvexHullComputer.h"
@@ -109,10 +110,22 @@ namespace coacd
 
         if (apx_mode == "box")
             ComputeBOX(convex);
+        else if (apx_mode == "sphere")
+            ComputeSphere(convex);
         else if (apx_mode == "ch" and !if_vch)
             ComputeCH(convex);
         else
             ComputeVCH(convex);
+    }
+
+    void Model::ComputeSphere(Model &convex)
+    {
+        if (points.size() < 4)
+            return;
+        Model tmp = *this;
+        // Sphere sphere = welzl(tmp.points);
+        Sphere sphere = welzl(tmp);
+        Sphere2Mesh(sphere, convex);
     }
 
     void Model::ComputeBOX(Model &convex)
