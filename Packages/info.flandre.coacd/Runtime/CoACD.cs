@@ -175,8 +175,17 @@ public unsafe class CoACD : MonoBehaviour
 			var  f  = transform.TryGetComponent<MeshFilter>(out var filter);
 			var  sm = transform.TryGetComponent<SkinnedMeshRenderer>(out var skinnedMesh);
 			Mesh m  = null;
-			if (f) { m  = filter.sharedMesh; }
-			if (sm) { m = skinnedMesh.sharedMesh; }
+			if (f) { 
+				m  = filter.sharedMesh; 
+			}
+			else if (sm) { 
+				m = skinnedMesh.sharedMesh; 
+			}
+			else {
+				EditorUtility.DisplayDialog("Error",
+				$"The object you are trying to calculate colliders for did not contain any MeshFilter or SkinnedMeshRenderer.", "Ok");
+				return;
+			}
 			var matrix = f ? filter.transform.localToWorldMatrix : skinnedMesh.transform.localToWorldMatrix;
 			if (m) {
 				{
