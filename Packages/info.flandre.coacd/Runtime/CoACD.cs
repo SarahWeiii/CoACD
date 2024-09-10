@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 #if SAINTSFIELD_SAINTS_EDITOR_APPLY
 using SaintsField.Playa;
@@ -58,9 +59,9 @@ public unsafe class CoACD : MonoBehaviour
 	public unsafe struct Parameters
 	{
 		public static Parameters Init() => new Parameters() {
-																													threshold = 0.05, preprocessMode = PreprocessMode.Auto, preprocessResolution = 50, sampleResolution = 2000,
-																													mctsNodes = 20, mctsIteration    = 150, mctsMaxDepth = 3, pca = false, merge = true, maxConvexHull = -1, seed = 0
-																												};
+			threshold = 0.05, preprocessMode = PreprocessMode.Auto, preprocessResolution = 50, sampleResolution = 2000,
+			mctsNodes = 20, mctsIteration    = 150, mctsMaxDepth = 3, pca = false, merge = true, maxConvexHull = -1, seed = 0
+		};
 
 		[Range(0.01f, 1f)]
 		[Tooltip("concavity threshold for terminating the decomposition")]
@@ -175,8 +176,17 @@ public unsafe class CoACD : MonoBehaviour
 			var  f  = transform.TryGetComponent<MeshFilter>(out var filter);
 			var  sm = transform.TryGetComponent<SkinnedMeshRenderer>(out var skinnedMesh);
 			Mesh m  = null;
-			if (f) { m  = filter.sharedMesh; }
-			if (sm) { m = skinnedMesh.sharedMesh; }
+			if (f) { 
+				m  = filter.sharedMesh; 
+			}
+			else if (sm) { 
+				m = skinnedMesh.sharedMesh; 
+			}
+			else {
+				EditorUtility.DisplayDialog("Error",
+				$"The object you are trying to calculate colliders for did not contain any MeshFilter or SkinnedMeshRenderer.", "Ok");
+				return;
+			}
 			var matrix = f ? filter.transform.localToWorldMatrix : skinnedMesh.transform.localToWorldMatrix;
 			if (m) {
 				{
@@ -210,6 +220,88 @@ public unsafe class CoACD : MonoBehaviour
 			return;
 		}
 		EditorUtility.DisplayProgressBar("Calculating Colliders", "Storing submeshes...", 0.8f);
+		if (_colliderData == null) {
+			path          = Path.ChangeExtension(path, null) + $"_Colliders.asset";
+			path          = AssetDatabase.GenerateUniqueAssetPath(path);
+			_colliderData = CoACDColliderData.CreateAsset(path, parameters, decomposedMeshes.ToArray(), originalMeshes.ToArray());
+		} else { _colliderData.UpdateAsset(parameters, decomposedMeshes.ToArray(), originalMeshes.ToArray()); }
+		AssetDatabase.SaveAssets();
+		ValidateColliders(baseTransform);
+		EditorUtility.ClearProgressBar();
+		EditorGUIUtility.PingObject(_colliderData);
+	}
+
+#if SAINTSFIELD_SAINTS_EDITOR_APPLY
+	[Button]
+#else
+[ContextMenu("Calculate Colliders for Hierarchy")]
+#endif
+	void CalculateCollidersForHierarchy()
+	{
+		var  parameters    = this.parameters;
+		var  baseTransform = transform;
+		Mesh mesh          = null;
+		var  path          = "";
+		EditorUtility.DisplayProgressBar("Calculating Colliders for Hierarchy", "Discovering meshes...", 0.1f);
+		var originalMeshes    = new List<Mesh>();
+		var meshesToDecompose = new List<Mesh>();
+		var transformsToCalc  = new List<Matrix4x4>();
+		{
+			var c = 1;
+			var childComponents = GetComponentsInChildren<Component>()
+				.Where(c => c is MeshFilter || c is SkinnedMeshRenderer)
+				.ToList();
+			foreach (var item in childComponents)
+			{
+				EditorUtility.ClearProgressBar();
+				EditorUtility.DisplayProgressBar("Calculating Colliders for Hierarchy", $"Discovering mesh... ({c++}/{childComponents.Count})",
+					Mathf.Lerp(0.2f, 0.3f, Mathf.InverseLerp(1, childComponents.Count + 1, c)));
+
+				Mesh m           = null;
+				Matrix4x4 matrix;
+				if (item.GetType() == typeof(MeshFilter)) {
+					var filter = ((MeshFilter)item);
+					m          = filter.sharedMesh; 
+					matrix     = filter.transform.localToWorldMatrix;
+				}
+				else {
+					var skinnedMesh = ((SkinnedMeshRenderer)item);
+					m               = skinnedMesh.sharedMesh; 
+					matrix          = skinnedMesh.transform.localToWorldMatrix;
+				}
+				if (m) {
+					{
+						for (var i = 0; i < m.subMeshCount; i++) {
+							meshesToDecompose.Add(ExtractSubmesh(m, i));
+							transformsToCalc.Add(transform.worldToLocalMatrix * matrix);
+						}
+						originalMeshes.Add(m);
+						path = AssetDatabase.GetAssetPath(m);
+						if (string.IsNullOrEmpty(path)) { path = "Assets/"; }
+					}
+				}
+			}
+		}
+		EditorUtility.ClearProgressBar();
+		EditorUtility.DisplayProgressBar("Calculating Colliders for Hierarchy", "Combining meshes...", 0.4f);
+		var decomposedMeshes = new List<Mesh>();
+		{
+			var c = 1;
+			foreach (var meshToDecompose in meshesToDecompose) {
+				EditorUtility.ClearProgressBar();
+				EditorUtility.DisplayProgressBar("Calculating Colliders for Hierarchy", $"Processing mesh... ({c++}/{meshesToDecompose.Count}) (this can take a while)",
+					Mathf.Lerp(0.5f, 0.7f, Mathf.InverseLerp(1, meshesToDecompose.Count + 1, c)));
+				var tempMeshes = RunACD(meshToDecompose);
+				decomposedMeshes.AddRange(tempMeshes);
+			}
+		}
+		EditorUtility.ClearProgressBar();
+		if (decomposedMeshes.Count == 0) {
+			EditorUtility.DisplayDialog("Error",
+				$"The object you are trying to calculate colliders for did not compute any submeshes.\nTry modifying your quality parameters and try again", "Ok");
+			return;
+		}
+		EditorUtility.DisplayProgressBar("Calculating Colliders for Hierarchy", "Storing submeshes...", 0.8f);
 		if (_colliderData == null) {
 			path          = Path.ChangeExtension(path, null) + $"_Colliders.asset";
 			path          = AssetDatabase.GenerateUniqueAssetPath(path);
