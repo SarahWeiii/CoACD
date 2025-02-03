@@ -16,12 +16,22 @@ else()
     add_compile_definitions(WITH_3RD_PARTY_LIBS=0)
 endif()
 
-if (MSVC)
+# --- Compiler-specific flags
+if(MSVC)
+    # For Microsoft Visual Studio (Windows)
     add_compile_options("/bigobj")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W0 -fpermissive -D_USE_MATH_DEFINES")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W0 /D_USE_MATH_DEFINES")
     set(CMAKE_SHARED_LIBRARY_PREFIX "lib")
 else()
+    # For non-MSVC (Linux, macOS, etc.)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fpermissive -D_USE_MATH_DEFINES")
+    if(APPLE)
+        # macOS: add -fPIC
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+    elseif(UNIX)
+        # Linux/Unix: add -fPIC and disable -Werror=stringop-overflow
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -Wno-error=stringop-overflow")
+    endif()
 endif()
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS}")
