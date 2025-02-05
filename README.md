@@ -151,7 +151,7 @@ Here is the description of the parameters (sorted by importance).
 * `-dt/--max-ch-vertex`: max vertex value for each convex hull, **only when decimate is enabled**, default = 256.
 * `-ex/--extrude`: extrude neighboring convex hulls along the overlapping faces (other faces unchanged), default = false.
 * `-em/--extrude-margin`: extrude margin, **only when extrude is enabled**, default = 0.01.
-* `-am/--approximate-mode`: approximation shape type ("ch" for convex hulls, "box" for cubes), default = "ch".
+* `-am/--approximate-mode`: approximation shape type ("ch" for convex hulls, "box" for cubes), default = "ch". I would recommend using a 2x threshold than it in convex for box approximation.
 * `--seed`: random seed used for sampling, default = random().
 
 An example of changing the parameters:
@@ -163,7 +163,7 @@ Parameter tuning *tricks*:
 1. In most cases, you only need to adjust the `threshold` (0.01~1) to balance the level of detail and the number of decomposed components. A higher value gives coarser results, and a lower value gives finer-grained results. You can refer to Fig. 14 in our paper for more details.
 2. If your input mesh is not manifold, you should also adjust the `prep-resolution` (20~100) to control the detail level of the pre-processed mesh. A larger value can make the preprocessed mesh closer to the original mesh but also lead to more triangles and longer runtime.
 3. The default parameters are fast versions. If you care less about running time but more about the number of components, try to increase `searching depth (-md)`, `searching node (-mn)` and `searching iteration (-mi)` for better cutting strategies.
-4. Make sure your input mesh is 2-manifold solid if you want to use the `-np` flag. Skipping manifold pre-processing can better preserve input details, but please don't specify the `-np` flag if your input mesh is non-manifold (the algorithm may crush or generate wrong results).
+4. Make sure your input mesh is 2-manifold solid if you set `-pm` to `off`. Skipping manifold pre-processing can better preserve input details and make the process faster but the algorithm may crush or generate wrong results if the input mesh is not 2-manifold.
 5. `--seed` is used for reproduction of the same results as our algorithm is stochastic.
 
 ## Citation
