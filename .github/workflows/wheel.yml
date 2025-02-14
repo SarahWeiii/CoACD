@@ -62,7 +62,6 @@ jobs:
           compression-level: 6
           overwrite: false
           include-hidden-files: false
-
   run:
     name: Test on ${{ matrix.os }} with Python ${{ matrix.python-version }}
     needs: [build]
@@ -110,3 +109,42 @@ jobs:
 
       - name: Run Tests
         run: python run_tests.py -v
+        
+  release_artifacts:
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+    name: Release repaired and tested wheels
+    needs: [build, run]
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      # IMPORTANT: this permission is mandatory for trusted publishing
+      id-token: write
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Optional, use if you use setuptools_scm
+        submodules: true  # Optional, use if you have submodules
+
+    - name: Download compressed artifacts
+      id: download
+      uses: actions/download-artifact@v4
+      with:
+        path: ./artifacts
+        merge-multiple: true
+
+    - name: Display structure of downloaded files
+      run: ls -R ./artifacts
+
+    - name: Create release and upload wheels
+      uses: ncipollo/release-action@v1
+      with:
+        allowUpdates: true
+        artifacts: "${{ steps.download.outputs.download-path }}/*.whl,${{ steps.download.outputs.download-path }}/*.gz,${{ steps.download.outputs.download-path }}/*.so,${{ steps.download.outputs.download-path }}/*.dylib,${{ steps.download.outputs.download-path }}/*.lib,${{ steps.download.outputs.download-path }}/*.dll"
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: PyPI Publish
+      uses: pypa/gh-action-pypi-publish@v1.12.4
+      with:
+        packages-dir: ${{ steps.download.outputs.download-path }}
