@@ -1,4 +1,4 @@
-FROM quay.io/pypa/manylinux2014_x86_64:2022-11-14-1226cfc
+FROM quay.io/pypa/manylinux_2_28_x86_64:latest
 RUN yum update -y && yum install -y zip
 
 ENV CC=/opt/rh/devtoolset-10/root/usr/bin/cc CXX=/opt/rh/devtoolset-10/root/usr/bin/c++

@@ -4,11 +4,11 @@ on: workflow_dispatch
 
 jobs:
   debug:
-    runs-on: macos-11
+    runs-on: macos-latest
     env:
       TTTY_PASS: coacdyield
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: "true"
       - name: Start Debug Session
