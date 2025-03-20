@@ -105,6 +105,39 @@ namespace coacd
         return sqrt(pow(pt[0] - p[0], 2) + pow(pt[1] - p[1], 2) + pow(pt[2] - p[2], 2));
     }
 
+    double compute_edge_cost(Model &ch, string apx_mode, int tri_i, int tri_j, vector<int> &rm_pt_idxs)
+    {
+        // Compute the edge length
+        double cost = pts_norm(ch.points[tri_i], ch.points[tri_j]);
+
+        // // Compute the new merged point
+        // vec3d tmp_pt = {0.5 * (ch.points[tri_i][0] + ch.points[tri_j][0]),
+        //                 0.5 * (ch.points[tri_i][1] + ch.points[tri_j][1]),
+        //                 0.5 * (ch.points[tri_i][2] + ch.points[tri_j][2])};
+
+        // Model tmp_pts, tmp_ch;
+
+        // // Use std::copy_if to filter out points instead of manually checking in a loop
+        // std::copy_if(ch.points.begin(), ch.points.end(), std::back_inserter(tmp_pts.points),
+        //             [&](const vec3d &pt) {
+        //                 int idx = &pt - &ch.points[0]; // Get index
+        //                 return idx != tri_i && idx != tri_j &&
+        //                         std::find(rm_pt_idxs.begin(), rm_pt_idxs.end(), idx) == rm_pt_idxs.end();
+        //             });
+
+        // tmp_pts.points.push_back(tmp_pt);
+
+        // // Compute the convex hull
+        // tmp_pts.ComputeAPX(tmp_ch, apx_mode, true);
+
+        // // Compute volume difference
+        // double vol_diff = abs(MeshVolume(tmp_ch) - MeshVolume(ch));
+        // std::cout << "vol_diff: " << vol_diff << std::endl;
+
+        // // cost += vol_diff;
+        return cost;
+    }
+
     void DecimateCH(Model &ch, int tgt_pts, string apx_mode)
     {
         if (tgt_pts >= (int)ch.points.size())
@@ -122,7 +155,10 @@ namespace coacd
             for (int j = 0; j < 3; j++)
                 if (ch.triangles[i][j] > ch.triangles[i][(j + 1) % 3])
                 {
-                    double cost = pts_norm(ch.points[ch.triangles[i][j]], ch.points[ch.triangles[i][(j + 1) % 3]]);
+                    // double cost = pts_norm(ch.points[ch.triangles[i][j]], ch.points[ch.triangles[i][(j + 1) % 3]]);
+
+                    double cost = compute_edge_cost(ch, apx_mode, ch.triangles[i][j], ch.triangles[i][(j + 1) % 3], rm_pt_idxs);
+
                     edge_costs.push_back({cost, {ch.triangles[i][j], ch.triangles[i][(j + 1) % 3]}});
                 }
         }
@@ -153,12 +189,14 @@ namespace coacd
                     edge_costs[i].first = INF;
                 else if (edge_costs[i].second.first == edge.first || edge_costs[i].second.first == edge.second)
                 {
-                    edge_costs[i].first = pts_norm(new_pt, ch.points[edge_costs[i].second.second]);
+                    // edge_costs[i].first = pts_norm(new_pt, ch.points[edge_costs[i].second.second]);
+                    edge_costs[i].first = compute_edge_cost(ch, apx_mode, new_pt_idx, edge_costs[i].second.second, rm_pt_idxs);
                     edge_costs[i].second.first = new_pt_idx;
                 }
                 else if (edge_costs[i].second.second == edge.first || edge_costs[i].second.second == edge.second)
                 {
-                    edge_costs[i].first = pts_norm(new_pt, ch.points[edge_costs[i].second.first]);
+                    // edge_costs[i].first = pts_norm(new_pt, ch.points[edge_costs[i].second.first]);
+                    edge_costs[i].first = compute_edge_cost(ch, apx_mode, edge_costs[i].second.first, new_pt_idx, rm_pt_idxs);
                     edge_costs[i].second.second = edge_costs[i].second.first;
                     edge_costs[i].second.first = new_pt_idx; // larger idx should be the first!
                 }
