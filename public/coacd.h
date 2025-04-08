@@ -22,7 +22,9 @@ std::vector<Mesh> CoACD(Mesh const &input, double threshold = 0.05,
                         int prep_resolution = 50, int sample_resolution = 2000,
                         int mcts_nodes = 20, int mcts_iteration = 150,
                         int mcts_max_depth = 3, bool pca = false,
-                        bool merge = true, std::string apx_mode = "ch", unsigned int seed = 0);
+                        bool merge = true, bool decimate = false, int max_ch_vertex = 256,
+                        bool extrude = false, double extrude_margin = 0.01,
+                        std::string apx_mode = "ch", unsigned int seed = 0);
 void set_log_level(std::string_view level);
 
 } // namespace coacd
