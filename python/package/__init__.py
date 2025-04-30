@@ -82,7 +82,7 @@ def run_coacd(
     threshold: float = 0.05,
     max_convex_hull: int = -1,
     preprocess_mode: str = "auto",
-    preprocess_resolution: int = 30,
+    preprocess_resolution: int = 50,
     resolution: int = 2000,
     mcts_nodes: int = 20,
     mcts_iterations: int = 150,
