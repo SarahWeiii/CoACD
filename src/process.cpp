@@ -281,7 +281,12 @@ namespace coacd
             {
                 // Search for lowest cost
                 double bestCost = INF;
-                const size_t addr = FindMinimumElement(costMatrix, &bestCost, 0, (int32_t)costMatrix.size());
+                const int32_t addr = FindMinimumElement(costMatrix, &bestCost, 0, (int32_t)costMatrix.size());
+                if (addr < 0)
+                {
+                    logger::warn("No more convex hulls to merge, cannot reach the given convex hull limits");
+                    break;
+                }
 
                 if (params.max_convex_hull <= 0)
                 {
