@@ -147,7 +147,16 @@ namespace coacd
 
         int borderN = (int)points.size();
 
-        CDT::Triangulation<double> cdt;
+        // In rare cases with vertices very close together, CDT may raise
+        // errors from topological inconsistencies if minDistToConstraintEdge
+        // is too low. Using 5e-17 is 10x higher than a threshold seen to
+        // prevent this error on 1 problematic polygon made by CoACD: 
+        // https://gist.github.com/cstegel/d8dbadadb45567d61fcfa4bfa78c9150
+        CDT::Triangulation<double> cdt(
+            CDT::detail::defaults::vertexInsertionOrder,
+            CDT::IntersectingConstraintEdges::TryResolve,
+            /*minDistToConstraintEdge=*/5e-17);
+        
         try
         {
             cdt.insertVertices(
