@@ -36,6 +36,8 @@ cd python
 python package/bin/coacd -i $InputFile -o $OutputFile
 ```
 
+Note: The input mesh must be a triangle mesh. In Blender, you can triangulate the mesh to convert non-triangular faces (e.g., quads or n-gons) to triangles.
+
 ## Unity
 
 Supporting Unity 2020.1 or later.
