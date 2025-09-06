@@ -1,0 +1,410 @@
+name: Build UE Plugin Libraries
+
+on:
+  workflow_dispatch:
+  pull_request:
+
+permissions:
+  contents: read
+
+
+jobs:
+  build-ue-dll:
+    permissions:
+      contents: read
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2022
+            triplet: x64-windows-static-md
+            artifact-name: windows-amd64
+            artifact-path: build-ue-full/Release/lib_coacd.dll
+            use-author-method: false
+          - os: ubuntu-22.04
+            triplet: x64-linux
+            artifact-name: linux-amd64
+            artifact-path: build-ue-full/lib_coacd.so
+            use-author-method: true
+          - os: macos-13
+            triplet: x64-osx
+            artifact-name: macos-amd64
+            artifact-path: build-ue-full/lib_coacd.dylib
+            use-author-method: true
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+      
+    env:
+      CMAKE_BUILD_PARALLEL_LEVEL: 4
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      
+      - name: Setup Build Environment (UE Plugin)
+        if: ${{ matrix['use-author-method'] }}
+        shell: bash
+        run: |
+          echo "🔧 Setting up UE Plugin build environment for $RUNNER_OS..."
+          
+          # 设置UE插件兼容的环境变量
+          echo "CXXFLAGS=-fPIC -fvisibility=hidden" >> $GITHUB_ENV
+          echo "CFLAGS=-fPIC" >> $GITHUB_ENV
+          
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            echo "LDFLAGS=-Wl,--as-needed" >> $GITHUB_ENV
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            echo "LDFLAGS=-Wl,-dead_strip" >> $GITHUB_ENV
+          fi
+          
+          echo "✅ UE Plugin build environment ready"
+
+      - name: Set VCPKG_ROOT
+        if: ${{ runner.os == 'Windows' || !matrix['use-author-method'] }}
+        id: paths
+        shell: bash
+        run: echo "vcpkg_root=${{ runner.temp }}/vcpkg" >> $GITHUB_OUTPUT
+
+      - name: Set vcpkg local binary cache env
+        if: ${{ runner.os == 'Windows' || !matrix['use-author-method'] }}
+        shell: bash
+        env:
+          VCPKG_ROOT: ${{ steps.paths.outputs.vcpkg_root }}
+        run: |
+          CACHE_DIR="$VCPKG_ROOT/archives"
+          echo "VCPKG_DEFAULT_BINARY_CACHE=$CACHE_DIR" >> $GITHUB_ENV
+          echo "VCPKG_BINARY_SOURCES=clear;files,$CACHE_DIR,readwrite" >> $GITHUB_ENV
+
+      - name: Setup MSVC (x64)
+        if: ${{ runner.os == 'Windows' }}
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Setup vcpkg
+        if: ${{ runner.os == 'Windows' || !matrix['use-author-method'] }}
+        id: setup_vcpkg
+        shell: bash
+        env:
+          VCPKG_ROOT: ${{ steps.paths.outputs.vcpkg_root }}
+        run: |
+          echo "🔄 Cloning vcpkg repository..."
+          git clone https://github.com/microsoft/vcpkg "$VCPKG_ROOT"
+          cd "$VCPKG_ROOT"
+          
+          # Pin to specific commit if provided
+          if [[ "$VCPKG_COMMIT" != "" ]]; then
+            echo "📌 Checking out specific commit: $VCPKG_COMMIT"
+            git checkout "$VCPKG_COMMIT"
+          else
+            echo "🏷️  Using latest vcpkg"
+          fi
+          
+          echo "🔨 Bootstrapping vcpkg..."
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            ./bootstrap-vcpkg.bat
+          else
+            ./bootstrap-vcpkg.sh
+          fi
+          
+          COMMIT_ID=$(git rev-parse HEAD)
+          echo "✅ vcpkg setup complete. Commit: $COMMIT_ID"
+          echo "commit_id=$COMMIT_ID" >> $GITHUB_OUTPUT
+          mkdir -p archives installed
+
+      - name: Generate vcpkg manifest
+        if: ${{ runner.os == 'Windows' || !matrix['use-author-method'] }}
+        shell: bash
+        env:
+          VCPKG_COMMIT_ID: ${{ steps.setup_vcpkg.outputs.commit_id }}
+        run: |
+          echo "🔧 Creating vcpkg manifest with fixed dependency versions..."
+          cat <<EOF > vcpkg.json
+          {
+            "name": "coacd-ue",
+            "version-string": "0.0.0",
+            "builtin-baseline": "$VCPKG_COMMIT_ID",
+            "dependencies": [
+              { 
+                "name": "openvdb", 
+                "default-features": false,
+                "features": []
+              },
+              {
+                "name": "tbb",
+                "version>=": "2021.9.0"
+              },
+              {
+                "name": "zlib",
+                "version>=": "1.3.1"
+              },
+              "imath",
+              "spdlog"
+            ],
+            "overrides": [
+              {
+                "name": "tbb",
+                "version": "2021.9.0"
+              }
+            ]
+          }
+          EOF
+          echo "✅ Generated vcpkg.json with stable dependency versions"
+
+      - name: Cache vcpkg binary archives
+        if: ${{ runner.os == 'Windows' || !matrix['use-author-method'] }}
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.paths.outputs.vcpkg_root }}/archives
+          key: v1-vcpkg-archives-${{ matrix.os }}-${{ matrix.triplet }}
+          restore-keys: |
+            v1-vcpkg-archives-${{ matrix.os }}-
+
+      - name: Cache vcpkg installed tree
+        if: ${{ runner.os == 'Windows' || !matrix['use-author-method'] }}
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.paths.outputs.vcpkg_root }}/installed
+          key: v1-vcpkg-installed-${{ matrix.os }}-${{ matrix.triplet }}
+          restore-keys: |
+            v1-vcpkg-installed-${{ matrix.os }}-
+
+      - name: Install vcpkg packages (manifest)
+        if: ${{ runner.os == 'Windows' || !matrix['use-author-method'] }}
+        shell: bash
+        env:
+          VCPKG_ROOT: ${{ steps.paths.outputs.vcpkg_root }}
+        run: |
+          for i in {1..3}; do
+            echo "Attempt $i/3: Installing vcpkg packages..."
+            "$VCPKG_ROOT/vcpkg" install --triplet ${{ matrix.triplet }}
+            if [ $? -eq 0 ]; then 
+              echo "✅ vcpkg install succeeded on attempt $i"
+              break
+            fi
+            echo "❌ vcpkg install failed on attempt $i"
+            if [ $i -lt 3 ]; then
+              echo "Retrying in $((10 * i)) seconds..."
+              sleep $((10 * i))
+            fi
+          done
+          if [ $? -ne 0 ]; then 
+            echo "💥 vcpkg install failed after 3 attempts"
+            exit 1
+          fi
+
+      - name: Configure CMake (Windows)
+        if: ${{ runner.os == 'Windows' }}
+        shell: powershell
+        env:
+          VCPKG_ROOT: ${{ steps.paths.outputs.vcpkg_root }}
+        run: >
+          cmake -S . -B build-ue-full -G "Visual Studio 17 2022" -A x64
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDLL
+          -DBUILD_SHARED_LIBS=OFF
+          -DWITH_3RD_PARTY_LIBS=ON
+          -DOPENVDB_CORE_SHARED=OFF
+          -DOPENVDB_USE_BLOSC=OFF
+          -DOPENVDB_BUILD_TOOLS=OFF
+          -DOPENVDB_BUILD_UNITTESTS=OFF
+          -DOPENVDB_BUILD_PYTHON_BINDINGS=OFF
+          -DOPENVDB_BUILD_DOCS=OFF
+          -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT\scripts\buildsystems\vcpkg.cmake"
+          -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }}
+          -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON
+          -DCMAKE_CXX_FLAGS_RELEASE="/O2 /GL /Gy"
+          -DCMAKE_SHARED_LINKER_FLAGS_RELEASE="/LTCG /OPT:REF /OPT:ICF"
+          -DCMAKE_EXE_LINKER_FLAGS_RELEASE="/LTCG /OPT:REF /OPT:ICF"
+
+      - name: Configure CMake (UE Plugin - Author's Method)
+        if: ${{ matrix['use-author-method'] }}
+        shell: bash
+        run: |
+          # 设置平台特定的最小化标志
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            OPTIMIZE_FLAGS="-O2 -flto -ffunction-sections -fdata-sections -DNDEBUG"
+            LINKER_FLAGS="-Wl,--gc-sections -Wl,--strip-all"
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            OPTIMIZE_FLAGS="-O2 -flto -ffunction-sections -fdata-sections -DNDEBUG"
+            LINKER_FLAGS="-Wl,-dead_strip -Wl,-x"
+          fi
+          
+          cmake -S . -B build-ue-full \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DOPENVDB_CORE_SHARED=OFF \
+            -DTBB_TEST=OFF \
+            -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+            -DCMAKE_CXX_STANDARD=20 \
+            -DCMAKE_CXX_STANDARD_REQUIRED=ON \
+            -DCMAKE_CXX_VISIBILITY_PRESET=hidden \
+            -DCMAKE_VISIBILITY_INLINES_HIDDEN=ON \
+            -DCMAKE_INSTALL_RPATH='$ORIGIN' \
+            -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON \
+            -DCMAKE_CXX_FLAGS_RELEASE="$OPTIMIZE_FLAGS" \
+            -DCMAKE_C_FLAGS_RELEASE="$OPTIMIZE_FLAGS" \
+            -DCMAKE_SHARED_LINKER_FLAGS_RELEASE="$LINKER_FLAGS" \
+            -DCMAKE_EXE_LINKER_FLAGS_RELEASE="$LINKER_FLAGS"
+
+      - name: Configure CMake (Linux/macOS - vcpkg方式)
+        if: ${{ runner.os != 'Windows' && !matrix['use-author-method'] }}
+        shell: bash
+        env:
+          VCPKG_ROOT: ${{ steps.paths.outputs.vcpkg_root }}
+        run: |
+          echo "🔧 Configuring CMake for $RUNNER_OS..."
+          
+          # Platform-specific compiler flags and definitions based on Context7 best practices
+          if [[ "$RUNNER_OS" == "macOS" ]]; then
+            # macOS: Fix zlib C23 warnings, use C++20 for UE5 compatibility + 最小化优化
+            CMAKE_CXX_FLAGS="-fPIC -stdlib=libc++ -std=c++20 -Wno-deprecated-non-prototype -O2 -flto -ffunction-sections -fdata-sections -DNDEBUG"
+            CMAKE_C_FLAGS="-fPIC -std=c17 -Wno-deprecated-non-prototype -DHAVE_UNISTD_H=1 -O2 -flto -ffunction-sections -fdata-sections -DNDEBUG"
+            CMAKE_LINKER_FLAGS="-Wl,-dead_strip -Wl,-x"
+          else
+            # Linux: Fix TBB no_copy class issues by using C++20 and disabling problematic features + 最小化优化  
+            CMAKE_CXX_FLAGS="-fPIC -std=c++20 -pthread -Wno-deprecated-declarations -O2 -flto -ffunction-sections -fdata-sections -DNDEBUG"
+            CMAKE_C_FLAGS="-fPIC -std=c17 -D_GNU_SOURCE -O2 -flto -ffunction-sections -fdata-sections -DNDEBUG"
+            CMAKE_LINKER_FLAGS="-Wl,--gc-sections -Wl,--strip-all"
+          fi
+          
+          echo "Platform: $RUNNER_OS"
+          echo "CXX Flags: $CMAKE_CXX_FLAGS"  
+          echo "C Flags: $CMAKE_C_FLAGS"
+          echo "Linker Flags: $CMAKE_LINKER_FLAGS"
+          
+          cmake -S . -B build-ue-full \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_SHARED_LIBS=OFF \
+            -DWITH_3RD_PARTY_LIBS=ON \
+            -DOPENVDB_CORE_SHARED=OFF \
+            -DOPENVDB_USE_BLOSC=OFF \
+            -DOPENVDB_BUILD_TOOLS=OFF \
+            -DOPENVDB_BUILD_UNITTESTS=OFF \
+            -DOPENVDB_BUILD_PYTHON_BINDINGS=OFF \
+            -DOPENVDB_BUILD_DOCS=OFF \
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
+            -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} \
+            -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON \
+            -DCMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS" \
+            -DCMAKE_C_FLAGS="$CMAKE_C_FLAGS" \
+            -DCMAKE_SHARED_LINKER_FLAGS="$CMAKE_LINKER_FLAGS" \
+            -DCMAKE_EXE_LINKER_FLAGS="$CMAKE_LINKER_FLAGS" \
+            -DCMAKE_C_STANDARD=17 \
+            -DCMAKE_CXX_STANDARD=20 \
+            -DCMAKE_CXX_STANDARD_REQUIRED=ON \
+            -DCMAKE_C_STANDARD_REQUIRED=ON \
+            -DCMAKE_INCLUDE_CURRENT_DIR=ON \
+            -DCMAKE_VERBOSE_MAKEFILE=ON \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DTBB_BUILD_TESTS=OFF \
+            -DTBB_BUILD_SHARED=OFF \
+            -DTBB_DISABLE_EXCEPTION_RETHROW=ON \
+            -DTBB_STRICT=OFF \
+            -DZLIB_BUILD_EXAMPLES=OFF
+          
+          echo "✅ CMake configuration completed with platform-specific fixes"
+
+      - name: Apply dependency library fixes (Linux/macOS - vcpkg方式)
+        if: ${{ runner.os != 'Windows' && !matrix['use-author-method'] }}
+        shell: bash
+        run: |
+          echo "🔧 Applying platform-specific dependency fixes..."
+          
+          # Check current build environment
+          echo "Current platform: $RUNNER_OS"
+          echo "Available compilers:"
+          which gcc g++ clang clang++ || true
+          
+          # Set TBB-specific environment variables to avoid semaphore issues
+          if [[ "$RUNNER_OS" == "macOS" ]]; then
+            echo "macOS: Checking XCode and C standard support..."
+            clang --version
+            echo "Applied fixes: C++20 standard, zlib C23 warnings suppressed"
+            # macOS specific TBB environment
+            echo "TBB_INSTALL_DIR=/usr/local" >> $GITHUB_ENV
+            echo "TBB_INTERFACE_VERSION=12" >> $GITHUB_ENV
+          else
+            echo "Linux: Checking GCC and threading support..."
+            gcc --version
+            echo "Applied fixes: C++20 standard, TBB strict mode disabled"
+            # Linux specific TBB environment
+            echo "TBB_INSTALL_DIR=/usr/local" >> $GITHUB_ENV
+            echo "TBB_INTERFACE_VERSION=12" >> $GITHUB_ENV
+            echo "TBB_USE_GLIBCXX_VERSION=0" >> $GITHUB_ENV
+          fi
+          
+          echo "✅ Platform-specific fixes and environment variables set successfully"
+
+      - name: Build UE Plugin Library (Author's Method)
+        if: ${{ matrix['use-author-method'] }}
+        shell: bash
+        run: cmake --build build-ue-full --target _coacd --config Release --parallel
+
+      - name: Build UE Plugin Library (Windows - vcpkg)
+        if: ${{ !matrix['use-author-method'] }}
+        shell: bash
+        run: cmake --build build-ue-full --target _coacd --config Release --parallel
+
+      - name: Upload CMake logs on failure
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: cmake-logs-${{ matrix.os }}-${{ github.run_number }}
+          path: |
+            build-ue-full/CMakeFiles/CMakeOutput.log
+            build-ue-full/CMakeFiles/CMakeError.log
+          if-no-files-found: ignore
+
+      - name: Verify Library Output
+        shell: bash
+        run: |
+          echo "🔍 Searching for dynamic library in build-ue-full/"
+          find build-ue-full -name "lib_coacd.*" -type f || true
+          find build-ue-full -name "*coacd*" -type f | grep -v "\.a$" || true
+          echo "Expected artifact path: ${{ matrix.artifact-path }}"
+          
+          # Verify the expected file exists
+          if [ -f "${{ matrix.artifact-path }}" ]; then
+            echo "✓ Found dynamic library at expected path"
+            ls -la "${{ matrix.artifact-path }}"
+            file "${{ matrix.artifact-path }}"
+            
+            # UE Plugin specific validation
+            if [[ "$RUNNER_OS" == "Linux" ]]; then
+              echo "🔍 Linux UE Plugin validation:"
+              ldd "${{ matrix.artifact-path }}" || true
+              objdump -p "${{ matrix.artifact-path }}" | grep "DT_RPATH\|DT_RUNPATH" || echo "No RPATH found (OK for UE plugins)"
+              readelf -d "${{ matrix.artifact-path }}" | grep "TEXTREL\|FLAGS" || true
+            elif [[ "$RUNNER_OS" == "macOS" ]]; then
+              echo "🔍 macOS UE Plugin validation:"
+              otool -L "${{ matrix.artifact-path }}" || true  
+              otool -l "${{ matrix.artifact-path }}" | grep -A2 "LC_RPATH" || echo "No RPATH found (OK for UE plugins)"
+            fi
+          else
+            echo "✗ Dynamic library not found at expected path"
+            echo "Searching for alternative locations..."
+            FOUND_FILE=$(find build-ue-full -name "lib_coacd.*" -type f | head -1)
+            if [ -n "$FOUND_FILE" ]; then
+              echo "Found alternative: $FOUND_FILE"
+              ls -la "$FOUND_FILE"
+              file "$FOUND_FILE"
+              # Update the artifact path for upload
+              echo "ACTUAL_ARTIFACT_PATH=$FOUND_FILE" >> $GITHUB_ENV
+            else
+              echo "No dynamic library found!"
+              exit 1
+            fi
+          fi
+
+      - name: Upload UE Plugin Library
+        uses: actions/upload-artifact@v4
+        with:
+          name: lib_coacd-${{ matrix.artifact-name }}-Release-${{ github.run_number }}
+          path: ${{ env.ACTUAL_ARTIFACT_PATH || matrix.artifact-path }}
+          if-no-files-found: error
+          retention-days: 14
+
