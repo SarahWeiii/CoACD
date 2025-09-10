@@ -429,8 +429,8 @@ namespace coacd
 
         const int N = (int)mesh.points.size();
         int idx = 0;
-        bool *pos_map = new bool[N]();
-        bool *neg_map = new bool[N]();
+        vector<bool> pos_map(N);
+        vector<bool> neg_map(N);
 
         map<pair<int, int>, int> edge_map;
         map<int, int> vertex_map;
@@ -815,8 +815,8 @@ namespace coacd
         double neg_x_min = INF, neg_x_max = -INF, neg_y_min = INF, neg_y_max = -INF, neg_z_min = INF, neg_z_max = -INF;
 
         int pos_idx = 0, neg_idx = 0;
-        int *pos_proj = new int[N]();
-        int *neg_proj = new int[N]();
+        vector<int> pos_proj(N);
+        vector<int> neg_proj(N);
         for (int i = 0; i < N; i++)
         {
             if (pos_map[i] == true)
@@ -929,10 +929,6 @@ namespace coacd
                                      neg_N + border_map[final_triangles[i][1]] - 1,
                                      neg_N + border_map[final_triangles[i][0]] - 1});
         }
-        delete[] pos_proj;
-        delete[] neg_proj;
-        delete[] neg_map;
-        delete[] pos_map;
 
         return true;
     }
