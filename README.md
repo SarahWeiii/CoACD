@@ -4,6 +4,8 @@
  [![Build](https://github.com/SarahWeiii/CoACD/actions/workflows/build.yml/badge.svg)](https://github.com/SarahWeiii/CoACD/actions/workflows/build.yml)
  ![PyPI - Downloads](https://img.shields.io/pypi/dm/coacd)
 
+[***News***] Check our new library, [PaMO](https://github.com/SarahWeiii/pamo.git), which converts any mesh into a low-poly, manifold, intersection-free mesh (CUDA required). It’s perfect as a preprocessing tool for CoACD.
+
 [***News***] CoACD (both Python and C++) is supported on Linux (x86_64), Windows (amd64) and MacOS (x86_64 & apple sillicon) now!
 
 [***News***] CoACD is now supported in Unity as a package!
