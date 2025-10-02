@@ -50,7 +50,7 @@ if(WITH_3RD_PARTY_LIBS)
     include(spdlog)
 endif()
 
-file(GLOB_RECURSE COACD_SRC "src/*.cc" "src/*.cpp")
+file(GLOB_RECURSE COACD_SRC "src/*.cc" "src/*.cpp" "public/coacd.cpp")
 if(NOT WITH_3RD_PARTY_LIBS)
     # Exclude files that match the pattern "preprocess*"
     list(FILTER COACD_SRC EXCLUDE REGEX ".*preprocess.*")
