@@ -1,3 +1,11 @@
+
+find_package(Eigen3 QUIET)
+
+if(Eigen3_FOUND)
+  message(STATUS "Eigen3 found, skipping fetch.")
+  return()
+endif()
+
 include(FetchContent)
 FetchContent_Declare(
   eigen
