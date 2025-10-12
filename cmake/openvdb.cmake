@@ -1,37 +1,20 @@
 if(TARGET openvdb_static)
-  return()
+    return()
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "12")
-    message(
-      WARNING
-        "GCC VERSION < 12 is supported. Current version: ${CMAKE_CXX_COMPILER_VERSION}"
-    )
-  endif()
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "12")
+        message(WARNING "GCC VERSION < 12 is supported. Current version: ${CMAKE_CXX_COMPILER_VERSION}")
+    endif()
 endif()
 
-set(BUILD_SHARED_LIBS
-    OFF
-    CACHE STRING "" FORCE)
-set(USE_STATIC_DEPENDENCIES
-    ON
-    CACHE BOOL "" FORCE)
-set(OPENVDB_ENABLE_UNINSTALL
-    OFF
-    CACHE BOOL "" FORCE)
-set(OPENVDB_FUTURE_DEPRECATION
-    OFF
-    CACHE BOOL "" FORCE)
-set(USE_BLOSC
-    OFF
-    CACHE STRING "" FORCE)
-set(USE_ZLIB
-    OFF
-    CACHE STRING "" FORCE)
-set(TBB_TEST
-    OFF
-    CACHE BOOL "" FORCE)
+set(BUILD_SHARED_LIBS OFF CACHE STRING "" FORCE)
+set(USE_STATIC_DEPENDENCIES ON CACHE BOOL "" FORCE)
+set(OPENVDB_ENABLE_UNINSTALL OFF CACHE BOOL "" FORCE)
+set(OPENVDB_FUTURE_DEPRECATION OFF CACHE BOOL "" FORCE)
+set(USE_BLOSC OFF CACHE STRING "" FORCE)
+set(USE_ZLIB OFF CACHE STRING "" FORCE)
+set(TBB_TEST OFF CACHE BOOL "" FORCE)
 
 include(FetchContent)
 if(CMAKE_VERSION VERSION_LESS 3.28)
@@ -87,9 +70,7 @@ endif()
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS_OLD})
 
 if(WIN32)
-  set(OPENVDB_DISABLE_BOOST_IMPLICIT_LINKING
-      OFF
-      CACHE BOOL "" FORCE)
+    set(OPENVDB_DISABLE_BOOST_IMPLICIT_LINKING OFF CACHE BOOL "" FORCE)
 endif()
 
 set(CMAKE_CXX_STANDARD 17)
@@ -110,16 +91,16 @@ endif()
 
 set_target_properties(openvdb_static PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-target_include_directories(
-  openvdb_static
-  PUBLIC ${boost_SOURCE_DIR}/libs/numeric/conversion/include
-         ${boost_SOURCE_DIR}/libs/any/include
-         ${boost_SOURCE_DIR}/libs/algorithm/include
-         ${boost_SOURCE_DIR}/libs/uuid/include
-         ${boost_SOURCE_DIR}/libs/foreach/include
-         ${boost_SOURCE_DIR}/libs/interprocess/include
-         ${boost_SOURCE_DIR}/libs/intrusive/include
-         ${boost_SOURCE_DIR}/libs/tti/include)
+target_include_directories(openvdb_static PUBLIC
+    ${boost_SOURCE_DIR}/libs/numeric/conversion/include
+    ${boost_SOURCE_DIR}/libs/any/include
+    ${boost_SOURCE_DIR}/libs/algorithm/include
+    ${boost_SOURCE_DIR}/libs/uuid/include
+    ${boost_SOURCE_DIR}/libs/foreach/include
+    ${boost_SOURCE_DIR}/libs/interprocess/include
+    ${boost_SOURCE_DIR}/libs/intrusive/include
+    ${boost_SOURCE_DIR}/libs/tti/include
+)
 
 add_library(Boost::disable_autolinking INTERFACE IMPORTED)
 set(CMAKE_CXX_STANDARD 20)
