@@ -23,12 +23,12 @@ endif()
 
 # --- Compiler-specific flags
 if(MSVC)
-  # For Microsoft Visual Studio (Windows)
+    # For Microsoft Visual Studio (Windows)
     add_compile_options("/bigobj")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W0 /D_USE_MATH_DEFINES")
     set(CMAKE_SHARED_LIBRARY_PREFIX "lib")
 else()
-  # For non-MSVC (Linux, macOS, etc.)
+    # For non-MSVC (Linux, macOS, etc.)
     set(CMAKE_CXX_FLAGS
       "${CMAKE_CXX_FLAGS} -Wall -fpermissive -D_USE_MATH_DEFINES")
     if(APPLE)
