@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.24)
 project(CoACD LANGUAGES C CXX)
+
+# ##############################################################################
+# General Settings
+# ##############################################################################
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
@@ -24,7 +29,8 @@ if(MSVC)
     set(CMAKE_SHARED_LIBRARY_PREFIX "lib")
 else()
     # For non-MSVC (Linux, macOS, etc.)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fpermissive -D_USE_MATH_DEFINES")
+    set(CMAKE_CXX_FLAGS
+      "${CMAKE_CXX_FLAGS} -Wall -fpermissive -D_USE_MATH_DEFINES")
     if(APPLE)
         # macOS: add -fPIC
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
@@ -37,9 +43,10 @@ endif()
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3")
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wno-int-in-bool-context -Wsign-compare")
+    set(CMAKE_CXX_FLAGS_RELEASE
+        "${CMAKE_CXX_FLAGS_RELEASE} -Wno-int-in-bool-context -Wsign-compare")
     set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fsanitize=address")
 endif()
 
@@ -50,6 +57,19 @@ if(WITH_3RD_PARTY_LIBS)
     include(spdlog)
 endif()
 
+# Set default install postfix
+if(UNIX)
+    include(GNUInstallDirs)
+else()
+    set(CMAKE_INSTALL_LIBDIR lib)
+    set(CMAKE_INSTALL_INCLUDEDIR include)
+    set(CMAKE_INSTALL_BINDIR bin)
+endif()
+
+# ##############################################################################
+# BUILD Program
+# ##############################################################################
+
 file(GLOB_RECURSE COACD_SRC "src/*.cc" "src/*.cpp" "public/coacd.cpp")
 if(NOT WITH_3RD_PARTY_LIBS)
     # Exclude files that match the pattern "preprocess*"
@@ -57,7 +77,9 @@ if(NOT WITH_3RD_PARTY_LIBS)
 endif()
 
 add_library(coacd STATIC ${COACD_SRC})
-target_include_directories(coacd PUBLIC public)
+target_include_directories(
+  coacd PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/public>
+               $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 target_include_directories(coacd PRIVATE 3rd/cdt/CDT)
 
 if(WITH_3RD_PARTY_LIBS)
@@ -65,7 +87,7 @@ if(WITH_3RD_PARTY_LIBS)
 endif()
 
 find_package(OpenMP)
-if (OpenMP_CXX_FOUND)
+if(OpenMP_CXX_FOUND)
     target_link_libraries(coacd PUBLIC OpenMP::OpenMP_CXX)
 endif()
 
@@ -87,5 +109,41 @@ if(WITH_3RD_PARTY_LIBS)
     target_link_libraries(main coacd spdlog::spdlog openvdb_static)
 else()
     target_link_libraries(main coacd)
-
 endif()
+
+# ##############################################################################
+# Install target
+# ##############################################################################
+
+install(
+  TARGETS _coacd
+  EXPORT CoACDTargets
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  INCLUDES
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+install(
+  EXPORT CoACDTargets
+  FILE CoACDTargets.cmake
+  NAMESPACE CoACD::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/CoACD)
+
+install(
+  FILES public/coacd.h
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/CoACD)
+
+# ##############################################################################
+# Install Cmake Configuration
+# ##############################################################################
+
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+  ${CMAKE_SOURCE_DIR}/cmake/Config.cmake.in
+  "${CMAKE_BINARY_DIR}/CoACDConfig.cmake"
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/CoACD)
+
+install(FILES "${CMAKE_BINARY_DIR}/CoACDConfig.cmake"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/CoACD)
