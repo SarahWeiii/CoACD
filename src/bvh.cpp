@@ -225,6 +225,7 @@ namespace coacd
                 bool right_intersect = IntersectBVH(triangleIdx, node.right);
                 return right_intersect;
             }
+            return false;
         }
     }
 }
