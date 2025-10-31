@@ -459,6 +459,201 @@ namespace coacd
 
     /////////// IO /////////////
 
+    bool Model::LoadSTL(const string &fileName)
+    {
+        FILE *fid = fopen(fileName.c_str(), "rb");
+        if (!fid)
+        {
+            logger::error("Open File Error!");
+            return false;
+        }
+
+        // Read first 5 bytes to detect format
+        char header[6] = {0};
+        if (fread(header, 1, 5, fid) != 5)
+        {
+            logger::error("Stl head Error!");
+            fclose(fid);
+            return false;
+        }
+        fseek(fid, 0, SEEK_SET);
+
+        // Check if ASCII (starts with "solid")
+        bool is_ascii = (strncmp(header, "solid", 5) == 0);
+        
+        if (is_ascii)
+        {
+            // ASCII STL format
+            fclose(fid);
+            fid = fopen(fileName.c_str(), "r");
+            if (!fid)
+                return false;
+
+            const unsigned int BufferSize = 1024;
+            char buffer[BufferSize];
+            double x_min = INF, x_max = -INF, y_min = INF, y_max = -INF, z_min = INF, z_max = -INF;
+            
+            // Map to merge duplicate vertices
+            std::map<std::array<double, 3>, int> vertex_map;
+            int vertex_count = 0;
+
+            while (fgets(buffer, BufferSize, fid))
+            {
+                // Skip solid/endsolid/facet/endfacet/outer loop/endloop lines
+                if (strncmp(buffer, "  vertex", 8) == 0 || strncmp(buffer, "vertex", 6) == 0)
+                {
+                    double x, y, z;
+                    char *str = buffer;
+                    while (*str && (*str == ' ' || strncmp(str, "vertex", 6) == 0))
+                        str++;
+                    
+                    if (sscanf(str, "%lf %lf %lf", &x, &y, &z) == 3)
+                    {
+                        std::array<double, 3> vertex = {x, y, z};
+                        
+                        if (vertex_map.find(vertex) == vertex_map.end())
+                        {
+                            vertex_map[vertex] = vertex_count++;
+                            points.push_back({x, y, z});
+                            
+                            x_min = min(x_min, x);
+                            x_max = max(x_max, x);
+                            y_min = min(y_min, y);
+                            y_max = max(y_max, y);
+                            z_min = min(z_min, z);
+                            z_max = max(z_max, z);
+                        }
+                    }
+                }
+            }
+            
+            // Re-read to build triangles
+            fseek(fid, 0, SEEK_SET);
+            vector<int> current_tri;
+            
+            while (fgets(buffer, BufferSize, fid))
+            {
+                if (strncmp(buffer, "  vertex", 8) == 0 || strncmp(buffer, "vertex", 6) == 0)
+                {
+                    double x, y, z;
+                    char *str = buffer;
+                    while (*str && (*str == ' ' || strncmp(str, "vertex", 6) == 0))
+                        str++;
+                    
+                    if (sscanf(str, "%lf %lf %lf", &x, &y, &z) == 3)
+                    {
+                        std::array<double, 3> vertex = {x, y, z};
+                        current_tri.push_back(vertex_map[vertex]);
+                        
+                        if (current_tri.size() == 3)
+                        {
+                            triangles.push_back({current_tri[0], current_tri[1], current_tri[2]});
+                            current_tri.clear();
+                        }
+                    }
+                }
+            }
+            
+            bbox[0] = x_min;
+            bbox[1] = x_max;
+            bbox[2] = y_min;
+            bbox[3] = y_max;
+            bbox[4] = z_min;
+            bbox[5] = z_max;
+            
+            fclose(fid);
+        }
+        else
+        {
+            // Binary STL format
+            // Skip 80-byte header
+            fseek(fid, 80, SEEK_SET);
+
+            // Read triangle count
+            uint32_t num_triangles;
+            if (fread(&num_triangles, sizeof(uint32_t), 1, fid) != 1)
+            {
+                fclose(fid);
+                return false;
+            }
+            
+            double x_min = INF, x_max = -INF, y_min = INF, y_max = -INF, z_min = INF, z_max = -INF;
+            
+            // Map to merge duplicate vertices
+            std::map<std::array<float, 3>, int> vertex_map;
+            int vertex_count = 0;
+            
+            for (uint32_t i = 0; i < num_triangles; ++i)
+            {
+                // Each facet: 3 floats (normal) + 9 floats (3 vertices) + 2 bytes (attribute)
+                float normal[3];
+                float vertices[9];
+                uint16_t attribute;
+                
+                if (fread(normal, sizeof(float), 3, fid) != 3)
+                {
+                    fclose(fid);
+                    return false;
+                }
+                
+                if (fread(vertices, sizeof(float), 9, fid) != 9)
+                {
+                    fclose(fid);
+                    return false;
+                }
+                
+                if (fread(&attribute, sizeof(uint16_t), 1, fid) != 1)
+                {
+                    fclose(fid);
+                    return false;
+                }
+                
+                // Process 3 vertices
+                vec3i tri_indices;
+                for (int v = 0; v < 3; ++v)
+                {
+                    std::array<float, 3> vertex = {vertices[v*3], vertices[v*3+1], vertices[v*3+2]};
+                    
+                    if (vertex_map.find(vertex) == vertex_map.end())
+                    {
+                        vertex_map[vertex] = vertex_count;
+                        tri_indices[v] = vertex_count++;
+                        
+                        double x = (double)vertices[v*3];
+                        double y = (double)vertices[v*3+1];
+                        double z = (double)vertices[v*3+2];
+                        
+                        points.push_back({x, y, z});
+                        
+                        x_min = min(x_min, x);
+                        x_max = max(x_max, x);
+                        y_min = min(y_min, y);
+                        y_max = max(y_max, y);
+                        z_min = min(z_min, z);
+                        z_max = max(z_max, z);
+                    }
+                    else
+                    {
+                        tri_indices[v] = vertex_map[vertex];
+                    }
+                }
+                
+                triangles.push_back(tri_indices);
+            }
+            
+            bbox[0] = x_min;
+            bbox[1] = x_max;
+            bbox[2] = y_min;
+            bbox[3] = y_max;
+            bbox[4] = z_min;
+            bbox[5] = z_max;
+            
+            fclose(fid);
+        }
+        
+        return true;
+    }
+
     bool Model::LoadOBJ(const string &fileName)
     {
         const unsigned int BufferSize = 1024;

@@ -3,6 +3,79 @@
 
 namespace coacd
 {
+    // Write multiple parts into a single ASCII STL file.
+    void SaveStl(const string &filename, vector<Model> parts, Params &params)
+    {
+        std::ofstream os(filename);
+        if (!os.is_open())
+            return;
+
+        os.setf(ios::fixed, ios::floatfield);
+        os.setf(ios::showpoint);
+        os.precision(6);
+
+        for (int n = 0; n < (int)parts.size(); ++n)
+        {
+            os << "solid convex_" << n << "\n";
+            const auto &P = parts[n].points;
+            const auto &T = parts[n].triangles;
+            for (int i = 0; i < (int)T.size(); ++i)
+            {
+                int i0 = T[i][0];
+                int i1 = T[i][1];
+                int i2 = T[i][2];
+                vec3d nrm = CalFaceNormal(P[i0], P[i1], P[i2]);
+                os << "  facet normal " << nrm[0] << " " << nrm[1] << " " << nrm[2] << "\n";
+                os << "    outer loop\n";
+                os << "      vertex " << P[i0][0] << " " << P[i0][1] << " " << P[i0][2] << "\n";
+                os << "      vertex " << P[i1][0] << " " << P[i1][1] << " " << P[i1][2] << "\n";
+                os << "      vertex " << P[i2][0] << " " << P[i2][1] << " " << P[i2][2] << "\n";
+                os << "    endloop\n";
+                os << "  endfacet\n";
+            }
+            os << "endsolid convex_" << n << "\n";
+        }
+        os.close();
+    }
+
+    // Write each part to its own ASCII STL file with a 3-digit index suffix.
+    void SaveStls(const string &foldername, const string &filename, vector<Model> parts, Params &params)
+    {
+        int n_zero = 3;
+        for (int n = 0; n < (int)parts.size(); ++n)
+        {
+            string num = to_string(n);
+            string idx = string(n_zero - (int)num.length(), '0') + num;
+            std::ofstream os(foldername + "/" + filename + "_" + idx + ".stl");
+            if (!os.is_open())
+                continue;
+
+            os.setf(ios::fixed, ios::floatfield);
+            os.setf(ios::showpoint);
+            os.precision(6);
+
+            os << "solid convex_" << n << "\n";
+            const auto &P = parts[n].points;
+            const auto &T = parts[n].triangles;
+            for (int i = 0; i < (int)T.size(); ++i)
+            {
+                int i0 = T[i][0];
+                int i1 = T[i][1];
+                int i2 = T[i][2];
+                vec3d nrm = CalFaceNormal(P[i0], P[i1], P[i2]);
+                os << "  facet normal " << nrm[0] << " " << nrm[1] << " " << nrm[2] << "\n";
+                os << "    outer loop\n";
+                os << "      vertex " << P[i0][0] << " " << P[i0][1] << " " << P[i0][2] << "\n";
+                os << "      vertex " << P[i1][0] << " " << P[i1][1] << " " << P[i1][2] << "\n";
+                os << "      vertex " << P[i2][0] << " " << P[i2][1] << " " << P[i2][2] << "\n";
+                os << "    endloop\n";
+                os << "  endfacet\n";
+            }
+            os << "endsolid convex_" << n << "\n";
+            os.close();
+        }
+    }
+
     void SaveConfig(Params params)
     {
         logger::info(" - Config");
