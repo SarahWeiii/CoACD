@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <filesystem>
 #include <time.h>
 
 #if WITH_3RD_PARTY_LIBS
@@ -20,7 +21,7 @@ int main(int argc, char *argv[])
   // Model files
   string input_model;
   params.seed = (unsigned)time(NULL);
-
+  bool is_split = false;
   // args
   for (int i = 0; i < argc; ++i)
   {
@@ -110,16 +111,20 @@ int main(int argc, char *argv[])
       {
         sscanf(argv[i + 1], "%le", &params.dmc_thres);
       }
+      if (strcmp(argv[i], "--split-mesh") == 0)
+      {
+          is_split = true;
+      }
     }
   }
 
-  string ext;
+  string in_ext;
   if (params.input_model.length() > 4)
   {
-    ext = params.input_model.substr(params.input_model.length() - 4);
-    if (ext != ".obj")
+    in_ext = params.input_model.substr(params.input_model.length() - 4);
+    if (in_ext != ".obj" && in_ext != ".stl")
     {
-      logger::critical("Input must be OBJ format!");
+      logger::critical("Input must be OBJ or STL format!");
       exit(0);
     }
   }
@@ -129,16 +134,18 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
+  string out_ext;
   if (params.output_name.length() > 4)
-    ext = params.output_name.substr(params.output_name.length() - 4);
+    out_ext = params.output_name.substr(params.output_name.length() - 4);
   else
   {
     logger::critical("Output Filename Error! You can set the output filename as either .OBJ or .WRL!");
     exit(0);
   }
-  if (ext != ".obj" && ext != ".wrl")
+
+  if (out_ext != ".obj" && out_ext != ".wrl" && out_ext != ".stl")
   {
-    logger::critical("Output Filename must be .OBJ or .WRL format!");
+    logger::critical("Output Filename must be .OBJ or .WRL or .stl format!");
     exit(0);
   }
 
@@ -150,10 +157,17 @@ int main(int argc, char *argv[])
 
   Model m;
   array<array<double, 3>, 3> rot;
-
   SaveConfig(params);
+  if (in_ext == ".obj")
+  {
+      m.LoadOBJ(params.input_model);
+  }
+  else if (in_ext == ".stl")
+  {
+      m.LoadSTL(params.input_model);
+  }
 
-  m.LoadOBJ(params.input_model);
+
   vector<double> bbox = m.Normalize();
   // m.SaveOBJ("normalized.obj");
 
@@ -187,11 +201,42 @@ int main(int argc, char *argv[])
 
   RecoverParts(parts, bbox, rot, params);
 
-  string objName = regex_replace(params.output_name, regex("wrl"), "obj");
-  string wrlName = regex_replace(params.output_name, regex("obj"), "wrl");
 
-  SaveVRML(wrlName, parts, params);
-  SaveOBJ(objName, parts, params);
+  std::filesystem::path p = params.output_name;
+  if (is_split)
+  {
+      std::filesystem::path folder  = p.parent_path();
+      string mesh_name = p.filename().replace_extension("").string();
+      string folder_name = folder.string();
 
+      if (!std::filesystem::exists(folder))
+      {
+          std::filesystem::create_directories(folder);
+          spdlog::info("Create Folder {}", folder_name);
+      }
+
+      if (out_ext == ".obj")
+      {
+          SaveOBJs(folder_name, mesh_name, parts, params);
+      }
+      else if (out_ext == ".stl")
+      {
+          SaveStls(folder_name, mesh_name, parts, params);
+      }
+      else
+      {
+          logger::critical("Output Filename must be .stl or .objformat in split mode!");
+          exit(0);
+      }
+  }
+  else
+  {
+      string objName = p.replace_extension("obj").string(); 
+      string wrlName = p.replace_extension("wrl").string();
+      string stlName = p.replace_extension("stl").string();
+      SaveVRML(wrlName, parts, params);
+      SaveOBJ(objName, parts, params);
+      SaveStl(stlName, parts, params);
+  }
   return 0;
 }

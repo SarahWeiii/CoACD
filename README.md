@@ -137,8 +137,8 @@ bash run_example.sh
 
 Here is the description of the parameters (sorted by importance).
 
-* `-i/--input`: path for input mesh (`.obj`).
-* `-o/--output`: path for output (`.obj` or `.wrl`).
+* `-i/--input`: path for input mesh (`.obj` or `.stl`).
+* `-o/--output`: path for output (`.obj` or `.wrl` or `.stl`, split meshes into a folder  use `--split-mesh`).
 * `-ro/--remesh-output`: path for preprocessed mesh output (`.obj`).
 * `-pr/--prep-resolution`: resolution for manifold preprocess (20~100), default = 50.
 * `-t/--threshold`:  concavity threshold for terminating the decomposition (0.01~1), default = 0.05.
@@ -157,6 +157,7 @@ Here is the description of the parameters (sorted by importance).
 * `-em/--extrude-margin`: extrude margin, **only when extrude is enabled**, default = 0.01.
 * `-am/--approximate-mode`: approximation shape type ("ch" for convex hulls, "box" for cubes), default = "ch". I would recommend using a 2x threshold than it in convex for box approximation.
 * `--seed`: random seed used for sampling, default = random().
+* `--split-mesh`: export meshes individually into a folder
 
 An example of changing the parameters:
 ```

@@ -70,6 +70,7 @@ namespace coacd
         Model();
         bool CheckThin();
         bool LoadOBJ(const string &fileName);
+        bool LoadSTL(const string &fileName);
         bool Load(vector<vec3d> vertices, vector<vec3i> face_indices);
         void SaveOBJ(const string &fileName);
         array<array<double, 3>, 3> PCA();
