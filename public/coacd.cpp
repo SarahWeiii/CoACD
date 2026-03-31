@@ -36,10 +36,8 @@ std::vector<Mesh> CoACD(Mesh const &input, double threshold,
   logger::info("approximate mode        {}", apx_mode);
   logger::info("seed                    {}", seed);
 
-  if (threshold < 0.01) {
-    throw std::runtime_error("CoACD threshold < 0.01 (should be 0.01-1).");
-  } else if (threshold > 1) {
-    throw std::runtime_error("CoACD threshold > 1 (should be 0.01-1).");
+  if (threshold > 1) {
+    throw std::runtime_error("CoACD threshold > 1 (should be 0-1).");
   }
 
   if (prep_resolution > 1000) {
