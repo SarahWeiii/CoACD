@@ -87,6 +87,27 @@ else()
   FetchContent_MakeAvailable(openvdb)
 endif()
 
+if(APPLE)
+    message(STATUS "Patching OpenVDB NodeManager.h for AppleClang template bug")
+
+    # Locate the header file relative to the fetched source
+    set(NODEMANAGER_H "${openvdb_SOURCE_DIR}/openvdb/openvdb/tree/NodeManager.h")
+
+    if(EXISTS "${NODEMANAGER_H}")
+        execute_process(
+            COMMAND sed -i "" -E "s/OpT::template[[:space:]]+eval/OpT::eval/g" "${NODEMANAGER_H}"
+            RESULT_VARIABLE PATCH_RESULT
+        )
+        if(PATCH_RESULT EQUAL 0)
+            message(STATUS "✅ Successfully patched ${NODEMANAGER_H}")
+        else()
+            message(WARNING "⚠️  Failed to patch ${NODEMANAGER_H}")
+        endif()
+    else()
+        message(WARNING "⚠️  OpenVDB NodeManager.h not found at ${NODEMANAGER_H}")
+    endif()
+endif()
+
 set_target_properties(openvdb_static PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 target_include_directories(openvdb_static PUBLIC
