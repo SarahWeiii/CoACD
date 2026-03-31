@@ -45,7 +45,7 @@ class CMakeBuild(build_ext):
             "-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded",
             "-DOPENVDB_CORE_SHARED=OFF",
             "-DTBB_TEST=OFF",
-            f"-DCMAKE_CXX_FLAGS=-fPIC {'-static-libgcc -static-libstdc++' if system == 'linux' else '/MT /EHsc' if system == 'windows' else ''}",
+            f"-DCMAKE_CXX_FLAGS=-fPIC {'-static-libgcc -static-libstdc++' if system == 'linux' else '/MT /EHsc' if system == 'windows' else '-Wno-missing-template-arg-list-after-template-kw' if system == 'darwin' else ''}",
             "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
         ]
         
