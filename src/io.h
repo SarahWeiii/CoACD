@@ -33,6 +33,9 @@ namespace coacd
     void SaveConfig(Params params);
     void SaveOBJ(const string &filename, vector<Model> parts, Params &params);
     void SaveOBJs(const string &foldername, const string &filename, vector<Model> parts, Params &params);
+    // STL export (ASCII). SaveStl writes all parts into a single STL; SaveStls writes individual STL files per part.
+    void SaveStl(const string &filename, vector<Model> parts, Params &params);
+    void SaveStls(const string &foldername, const string &filename, vector<Model> parts, Params &params);
     bool WriteVRML(ofstream &fout, Model mesh);
     void SaveVRML(const string &fileName, vector<Model>& meshes, Params &params);
 }
