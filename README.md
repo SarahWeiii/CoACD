@@ -4,6 +4,8 @@
  [![Build](https://github.com/SarahWeiii/CoACD/actions/workflows/build.yml/badge.svg)](https://github.com/SarahWeiii/CoACD/actions/workflows/build.yml)
  ![PyPI - Downloads](https://img.shields.io/pypi/dm/coacd)
 
+[***News***] CoACD now supports real metric mode (`-rm`), ideal for meshes in real-world scale (e.g., from 3D scans or CAD models in meters). Specify the concavity threshold directly in meters instead of normalized units!
+
 [***News***] Check our new library, [PaMO](https://github.com/SarahWeiii/pamo.git), which converts any mesh into a low-poly, manifold, intersection-free mesh in seconds (CUDA required). It’s perfect as a preprocessing tool for CoACD.
 
 [***News***] CoACD (both Python and C++) is supported on Linux (x86_64), Windows (amd64) and MacOS (x86_64 & apple sillicon) now!
@@ -31,6 +33,9 @@ import coacd
 mesh = trimesh.load(input_file, force="mesh")
 mesh = coacd.Mesh(mesh.vertices, mesh.faces)
 parts = coacd.run_coacd(mesh) # a list of convex hulls.
+
+# Or use real metric mode (threshold in meters)
+parts = coacd.run_coacd(mesh, threshold=0.01, real_metric=True)
 ```
 The complete example script is in `python/package/bin/coacd`, run it by the following command:
 ```
@@ -155,6 +160,7 @@ Here is the description of the parameters (sorted by importance).
 * `-dt/--max-ch-vertex`: max vertex value for each convex hull, **only when decimate is enabled**, default = 256.
 * `-ex/--extrude`: extrude neighboring convex hulls along the overlapping faces (other faces unchanged), default = false.
 * `-em/--extrude-margin`: extrude margin, **only when extrude is enabled**, default = 0.01.
+* `-rm/--real-metric`: flag to enable real metric mode, where the threshold is interpreted as an error in meters (the input mesh should be in meter scale). The algorithm automatically converts it to the normalized threshold used internally. Default = false.
 * `-am/--approximate-mode`: approximation shape type ("ch" for convex hulls, "box" for cubes), default = "ch". I would recommend using a 2x threshold than it in convex for box approximation.
 * `--seed`: random seed used for sampling, default = random().
 

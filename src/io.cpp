@@ -25,6 +25,7 @@ namespace coacd
         logger::info("\tk for Rv:                                  {}", params.rv_k);
         logger::info("\tHausdorff Sampling Resolution:             {}", params.resolution);
         logger::info("\tApproximation Mode (ch/box):               {}", params.apx_mode);
+        logger::info("\tReal Metric Mode (ON/OFF):                  {}", params.real_metric);
         logger::info("\tRandom Seed:                               {}", params.seed);
     }
 

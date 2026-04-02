@@ -110,6 +110,10 @@ int main(int argc, char *argv[])
       {
         sscanf(argv[i + 1], "%le", &params.dmc_thres);
       }
+      if (strcmp(argv[i], "-rm") == 0 || strcmp(argv[i], "--real-metric") == 0)
+      {
+        params.real_metric = true;
+      }
     }
   }
 
@@ -142,17 +146,35 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (params.threshold > 1)
-    logger::warn("Threshold t exceeds the higher bound and is automatically set as 1!");
-  params.threshold = min(params.threshold, 1.0);
+  if (!params.real_metric)
+  {
+    if (params.threshold > 1)
+      logger::warn("Threshold t exceeds the higher bound and is automatically set as 1!");
+    params.threshold = min(params.threshold, 1.0);
+  }
 
   Model m;
   array<array<double, 3>, 3> rot;
 
-  SaveConfig(params);
-
   m.LoadOBJ(params.input_model);
   vector<double> bbox = m.Normalize();
+
+  double real_metric_len = 0;
+  double real_metric_original_threshold = params.threshold;
+  if (params.real_metric)
+  {
+    real_metric_len = max(max(bbox[1] - bbox[0], bbox[3] - bbox[2]), bbox[5] - bbox[4]);
+    params.threshold = params.threshold * 2.0 / real_metric_len * 0.8;
+  }
+
+  SaveConfig(params);
+
+  if (params.real_metric)
+  {
+    logger::info("Real metric mode: mesh max length = {:.2f} cm", real_metric_len * 100.0);
+    logger::info("Real metric mode: error threshold = {:.2f} cm", real_metric_original_threshold * 100.0);
+    logger::info("Real metric mode: threshold {:.4f} cm (real) -> {:.4f} (normalized)", real_metric_original_threshold * 100.0, params.threshold);
+  }
   // m.SaveOBJ("normalized.obj");
 
   #if WITH_3RD_PARTY_LIBS

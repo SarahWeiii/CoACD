@@ -18,7 +18,8 @@ std::vector<Mesh> CoACD(Mesh const &input, double threshold,
                         int mcts_nodes, int mcts_iteration, int mcts_max_depth,
                         bool pca, bool merge, bool decimate, int max_ch_vertex,
                         bool extrude, double extrude_margin,
-                        std::string apx_mode, unsigned int seed) {
+                        std::string apx_mode, unsigned int seed,
+                        bool real_metric) {
 
   logger::info("threshold               {}", threshold);
   logger::info("max # convex hull       {}", max_convex_hull);
@@ -36,7 +37,7 @@ std::vector<Mesh> CoACD(Mesh const &input, double threshold,
   logger::info("approximate mode        {}", apx_mode);
   logger::info("seed                    {}", seed);
 
-  if (threshold > 1) {
+  if (!real_metric && threshold > 1) {
     throw std::runtime_error("CoACD threshold > 1 (should be 0-1).");
   }
 
@@ -67,10 +68,22 @@ std::vector<Mesh> CoACD(Mesh const &input, double threshold,
   params.extrude_margin = extrude_margin;
   params.apx_mode = apx_mode;
   params.seed = seed;
+  params.real_metric = real_metric;
 
   Model m;
   m.Load(input.vertices, input.indices);
   vector<double> bbox = m.Normalize();
+
+  if (real_metric) {
+    double m_len = max(max(bbox[1] - bbox[0], bbox[3] - bbox[2]), bbox[5] - bbox[4]);
+    double original_threshold = params.threshold;
+    params.threshold = params.threshold * 2.0 / m_len * 0.8;
+    logger::info("Real metric mode: mesh max length = {:.2f} cm", m_len * 100.0);
+    logger::info("Real metric mode: error threshold = {:.2f} cm", original_threshold * 100.0);
+    logger::info("Real metric mode: threshold {:.4f} cm (real) -> {:.4f} (normalized)", original_threshold * 100.0, params.threshold);
+  }
+
+
   array<array<double, 3>, 3> rot{
       {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}}};
 
@@ -139,7 +152,8 @@ CoACD_MeshArray CoACD_run(CoACD_Mesh const &input, double threshold,
                           int mcts_max_depth, bool pca, bool merge,
                           bool decimate, int max_ch_vertex,
                           bool extrude, double extrude_margin,
-                          int apx_mode, unsigned int seed) {
+                          int apx_mode, unsigned int seed,
+                          bool real_metric) {
   coacd::Mesh mesh;
   for (uint64_t i = 0; i < input.vertices_count; ++i) {
     mesh.vertices.push_back({input.vertices_ptr[3 * i],
@@ -171,8 +185,8 @@ CoACD_MeshArray CoACD_run(CoACD_Mesh const &input, double threshold,
 
   auto meshes = coacd::CoACD(mesh, threshold, max_convex_hull, pm,
                              prep_resolution, sample_resolution, mcts_nodes,
-                             mcts_iteration, mcts_max_depth, pca, merge, decimate, max_ch_vertex, 
-                             extrude, extrude_margin, apx, seed);
+                             mcts_iteration, mcts_max_depth, pca, merge, decimate, max_ch_vertex,
+                             extrude, extrude_margin, apx, seed, real_metric);
 
   CoACD_MeshArray arr;
   arr.meshes_ptr = new CoACD_Mesh[meshes.size()];

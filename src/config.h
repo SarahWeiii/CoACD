@@ -40,6 +40,7 @@ namespace coacd
     int max_ch_vertex;
     bool extrude;
     double extrude_margin;
+    bool real_metric;
 
     /////////////// MCTS Config ///////////////
     int mcts_iteration;
@@ -65,6 +66,7 @@ namespace coacd
       max_ch_vertex = 256;
       extrude = false;
       extrude_margin = 0.01;
+      real_metric = false;
 
       mcts_iteration = 150;
       mcts_max_depth = 3;

@@ -61,6 +61,7 @@ _lib.CoACD_run.argtypes = [
     c_double,
     c_int,
     c_uint,
+    c_bool,
 ]
 _lib.CoACD_run.restype = CoACD_MeshArray
 
@@ -95,6 +96,7 @@ def run_coacd(
     extrude_margin: float = 0.01,
     apx_mode: str = "ch",
     seed: int = 0,
+    real_metric: bool = False,
 ):
     vertices = np.ascontiguousarray(mesh.vertices, dtype=np.double)
     indices = np.ascontiguousarray(mesh.indices, dtype=np.int32)
@@ -143,6 +145,7 @@ def run_coacd(
         extrude_margin,
         apx,
         seed,
+        real_metric,
     )
 
     meshes = []

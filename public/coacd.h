@@ -25,7 +25,8 @@ std::vector<Mesh> CoACD(Mesh const &input, double threshold = 0.05,
                         int mcts_max_depth = 3, bool pca = false,
                         bool merge = true, bool decimate = false, int max_ch_vertex = 256,
                         bool extrude = false, double extrude_margin = 0.01,
-                        std::string apx_mode = "ch", unsigned int seed = 0);
+                        std::string apx_mode = "ch", unsigned int seed = 0,
+                        bool real_metric = false);
 void set_log_level(std::string_view level);
 
 } // namespace coacd
@@ -60,7 +61,8 @@ CoACD_MeshArray COACD_API CoACD_run(CoACD_Mesh const &input, double threshold,
                                     int mcts_max_depth, bool pca, bool merge,
                                     bool decimate, int max_ch_vertex,
                                     bool extrude, double extrude_margin,
-                                    int apx_mode, unsigned int seed);
+                                    int apx_mode, unsigned int seed,
+                                    bool real_metric);
 
 void COACD_API CoACD_setLogLevel(char const *level);
 }
