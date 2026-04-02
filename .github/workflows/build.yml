@@ -19,7 +19,6 @@ jobs:
           - { os: "ubuntu-22.04", build-dir: "build-linux" }
           - { os: "ubuntu-22.04-arm", build-dir: "build-linux" }
           - { os: "windows-2025", build-dir: "build-windows" }
-          - { os: "macos-13", build-dir: "build-macos" }
           - { os: "macos-15", build-dir: "build-macos" }
     steps:
       - uses: actions/checkout@v4
@@ -31,7 +30,7 @@ jobs:
       - name: Generate
         working-directory: ./${{ matrix.config.build-dir }}
         run: |
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DOPENVDB_CORE_SHARED=OFF -DTBB_TEST=OFF
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DOPENVDB_CORE_SHARED=OFF -DTBB_TEST=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5
       - name: Build
         working-directory: ./${{ matrix.config.build-dir }}
         run: |
