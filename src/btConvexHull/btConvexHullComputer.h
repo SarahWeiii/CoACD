@@ -19,6 +19,7 @@ subject to the following restrictions:
 #include "btVector3.h"
 #include <vector>
 #include <array>
+#include <cstdint>
 
 using namespace std;
 

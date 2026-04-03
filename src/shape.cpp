@@ -1,4 +1,5 @@
 #include "shape.h"
+#include <cstdint>
 
 namespace coacd
 {
