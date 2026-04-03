@@ -13715,7 +13715,7 @@ void i4_sobol ( int dim_num, int *seed, float quasi[ ] )
       cout << "  The spatial dimension DIM_NUM should satisfy:\n";
       cout << "    1 <= DIM_NUM <= " << DIM_MAX2 << "\n";
       cout << "  But this input value is DIM_NUM = " << dim_num << "\n";
-      exit ( 1 );
+      throw std::runtime_error("Wrong spatial dimension");
     }
 
     dim_num_save = dim_num;
@@ -13874,7 +13874,7 @@ void i4_sobol ( int dim_num, int *seed, float quasi[ ] )
     cout << "  SEED =   " << *seed  << "\n";
     cout << "  MAXCOL = " << maxcol << "\n";
     cout << "  L =      " << l << "\n";
-    exit ( 2 );
+    throw std::runtime_error("SEED too large");
   }
 //
 //  Calculate the new components of QUASI.
@@ -14012,7 +14012,7 @@ int i4_uniform ( int a, int b, int *seed )
     cerr << "\n";
     cerr << "I4_UNIFORM - Fatal error!\n";
     cerr << "  Input value of SEED = 0.\n";
-    exit ( 1 );
+    throw std::runtime_error("null SEED");
   }
 
   k = *seed / 127773;
@@ -27676,7 +27676,7 @@ void i8_sobol ( int dim_num, long long int *seed, double quasi[ ] )
       cout << "  The spatial dimension DIM_NUM should satisfy:\n";
       cout << "    1 <= DIM_NUM <= " << DIM_MAX2 << "\n";
       cout << "  But this input value is DIM_NUM = " << dim_num << "\n";
-      exit ( 1 );
+      throw std::runtime_error("Invalid spatial dimension");
     }
 
     dim_num_save = dim_num;
@@ -27835,7 +27835,7 @@ void i8_sobol ( int dim_num, long long int *seed, double quasi[ ] )
     cout << "  SEED =   " << *seed  << "\n";
     cout << "  MAXCOL = " << maxcol << "\n";
     cout << "  L =      " << l << "\n";
-    exit ( 2 );
+    throw std::runtime_error("SEED too large");
   }
 //
 //  Calculate the new components of QUASI.
@@ -28052,7 +28052,7 @@ long long int i8_uniform ( long long int a, long long int b, int *seed )
     cerr << "\n";
     cerr << "I8_UNIFORM - Fatal error!\n";
     cerr << "  Input value of SEED = 0.\n";
-    exit ( 1 );
+    throw std::runtime_error("null SEED");
   }
 
   k = *seed / 127773;
@@ -28258,7 +28258,7 @@ float r4_uniform_01 ( int *seed )
     cerr << "\n";
     cerr << "R4_UNIFORM_01 - Fatal error!\n";
     cerr << "  Input value of SEED = 0.\n";
-    exit ( 1 );
+    throw std::runtime_error("null SEED");
   }
 
   k = *seed / 127773;
@@ -28455,7 +28455,7 @@ double r8_uniform_01 ( int *seed )
     cerr << "\n";
     cerr << "R8_UNIFORM_01 - Fatal error!\n";
     cerr << "  Input value of SEED = 0.\n";
-    exit ( 1 );
+    throw std::runtime_error("null SEED");
   }
 
   k = *seed / 127773;

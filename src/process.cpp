@@ -524,7 +524,7 @@ namespace coacd
                         if (!clipf)
                         {
                             logger::error("Wrong clip proposal!");
-                            exit(0);
+                            throw runtime_error("Wrong clip proposal!");
                         }
 #ifdef _OPENMP
                         omp_set_lock(&writelock);
