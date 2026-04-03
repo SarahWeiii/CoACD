@@ -187,7 +187,7 @@ namespace quickhull {
 	
 	template<typename T>
 	std::unique_ptr<std::vector<size_t>> QuickHull<T>::getIndexVectorFromPool() {
-		auto r = std::move(m_indexVectorPool.get());
+		auto r = m_indexVectorPool.get();
 		r->clear();
 		return r;
 	}
