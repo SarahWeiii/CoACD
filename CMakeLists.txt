@@ -13,13 +13,6 @@ set(CMAKE_CXX_STANDARD 17)
 
 option(WITH_3RD_PARTY_LIBS "Include 3rd party libraries" ON)
 
-if(WITH_3RD_PARTY_LIBS)
-    add_compile_definitions(WITH_3RD_PARTY_LIBS=1)
-else()
-    add_definitions(-DDISABLE_SPDLOG)
-    add_compile_definitions(WITH_3RD_PARTY_LIBS=0)
-endif()
-
 # --- Compiler-specific flags
 if(MSVC)
     # For Microsoft Visual Studio (Windows)
@@ -28,25 +21,10 @@ if(MSVC)
     set(CMAKE_SHARED_LIBRARY_PREFIX "lib")
 else()
     # For non-MSVC (Linux, macOS, etc.)
-    set(CMAKE_CXX_FLAGS
-      "${CMAKE_CXX_FLAGS} -Wall -fpermissive -D_USE_MATH_DEFINES")
-    if(APPLE)
-        # macOS: add -fPIC
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-    elseif(UNIX)
-        # Linux/Unix: add -fPIC and disable -Werror=stringop-overflow
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -Wno-error=stringop-overflow")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+    if(NOT APPLE)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=stringop-overflow")
     endif()
-endif()
-
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS}")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3")
-
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
-    set(CMAKE_CXX_FLAGS_RELEASE
-        "${CMAKE_CXX_FLAGS_RELEASE} -Wno-int-in-bool-context -Wsign-compare")
-    set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fsanitize=address")
 endif()
 
 if(WITH_3RD_PARTY_LIBS)
@@ -79,10 +57,15 @@ add_library(coacd STATIC ${COACD_SRC})
 target_include_directories(
   coacd PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/public>
                $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+set_target_properties(coacd PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 if(WITH_3RD_PARTY_LIBS)
     target_include_directories(coacd PRIVATE 3rd/cdt/CDT/include)
     target_link_libraries(coacd PRIVATE openvdb_static spdlog::spdlog)
+    target_compile_definitions(coacd PUBLIC WITH_3RD_PARTY_LIBS=1)
+else ()
+    target_compile_definitions(coacd PUBLIC WITH_3RD_PARTY_LIBS=0)
+    target_compile_definitions(coacd PUBLIC DISABLE_SPDLOG)
 endif()
 
 find_package(OpenMP)
@@ -92,7 +75,6 @@ endif()
 
 find_package(Threads)
 target_link_libraries(coacd PRIVATE Threads::Threads)
-set_target_properties(coacd PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 add_library(_coacd SHARED "public/coacd.cpp")
 
