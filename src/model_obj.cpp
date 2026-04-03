@@ -212,7 +212,7 @@ namespace coacd
         barycenter[1] /= (int)points.size();
         barycenter[2] /= (int)points.size();
 
-        array<array<double, 3>, 3> covMat;
+        array<array<double, 3>, 3> covMat = {};
         double x, y, z;
         for (int i = 0; i < (int)points.size(); i++)
         {
@@ -250,7 +250,7 @@ namespace coacd
         barycenter[1] /= (int)points.size();
         barycenter[2] /= (int)points.size();
 
-        array<array<double, 3>, 3> covMat;
+        array<array<double, 3>, 3> covMat = {};
         double x, y, z;
         for (int i = 0; i < (int)points.size(); i++)
         {
