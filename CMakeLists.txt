@@ -138,3 +138,13 @@ configure_package_config_file(
 
 install(FILES "${CMAKE_BINARY_DIR}/CoACDConfig.cmake"
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/CoACD)
+
+# ##############################################################################
+# Testing
+# ##############################################################################
+enable_testing()
+add_test (NAME coacd_SnowFlake COMMAND main -i examples/SnowFlake.obj -o ${CMAKE_CURRENT_BINARY_DIR}/SnowFlake_cvx.wrl -np -t 0.02 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+add_test (NAME coacd_Octocat COMMAND main -i examples/Octocat-v2.obj -o ${CMAKE_CURRENT_BINARY_DIR}/Octocat-v2_cvx.wrl -np -t 0.05 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+add_test (NAME coacd_KitchenPot COMMAND main -i examples/KitchenPot.obj -o ${CMAKE_CURRENT_BINARY_DIR}/KitchenPot_cvx.wrl -t 0.05 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+add_test (NAME coacd_Kettle COMMAND main -i examples/Kettle.obj -o ${CMAKE_CURRENT_BINARY_DIR}/Kettle_cvx.wrl -t 0.05 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+add_test (NAME coacd_Bottle COMMAND main -i examples/Bottle.obj -o ${CMAKE_CURRENT_BINARY_DIR}/Bottle_cvx.wrl -t 0.05 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})

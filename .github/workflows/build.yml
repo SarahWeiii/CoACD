@@ -21,24 +21,18 @@ jobs:
           - { os: "windows-2025", build-dir: "build-windows" }
           - { os: "macos-15", build-dir: "build-macos" }
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: "true"
-      - name: Create Build Directory
-        run: |
-          mkdir -p ${{ matrix.config.build-dir }}
       - name: Generate
-        working-directory: ./${{ matrix.config.build-dir }}
         run: |
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DOPENVDB_CORE_SHARED=OFF -DTBB_TEST=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DOPENVDB_CORE_SHARED=OFF -DTBB_TEST=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -B ${{ matrix.config.build-dir }} .
       - name: Build
-        working-directory: ./${{ matrix.config.build-dir }}
         run: |
-          cmake --build . --target main --config Release
-      # - name: Run `make`
-      #   working-directory: ./${{ matrix.config.build-dir }}
-      #   run: |
-      #     make main -j2
+          cmake --build ${{ matrix.config.build-dir }} --target main --config Release --parallel 4
+      - name: Test
+        run: |
+          ctest --test-dir ${{ matrix.config.build-dir }} -C Release --output-on-failure -R coacd
       - name: List Build Results
         run: |
           ls ${{ matrix.config.build-dir }}
