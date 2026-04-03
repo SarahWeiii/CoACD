@@ -79,9 +79,9 @@ add_library(coacd STATIC ${COACD_SRC})
 target_include_directories(
   coacd PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/public>
                $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-target_include_directories(coacd PRIVATE 3rd/cdt/CDT)
 
 if(WITH_3RD_PARTY_LIBS)
+    target_include_directories(coacd PRIVATE 3rd/cdt/CDT/include)
     target_link_libraries(coacd PRIVATE openvdb_static spdlog::spdlog)
 endif()
 

@@ -2,6 +2,8 @@
 #include <exception>
 #ifndef DISABLE_SPDLOG
 #include <spdlog/spdlog.h>
+#else
+#include <iostream>
 #endif
 #include <string_view>
 namespace coacd
