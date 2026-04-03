@@ -27,7 +27,7 @@ namespace coacd
             edges.push_back({idx1, idx2});
             edges.push_back({idx2, idx0});
 
-            if (!edge_num.contains({idx0, idx1}))
+            if (!edge_num.count({idx0, idx1}))
                 edge_num[{idx0, idx1}] = 1;
             else
             {
@@ -36,7 +36,7 @@ namespace coacd
                 logger::info("Manifold Check Time: {}s", double(end - start) / CLOCKS_PER_SEC);
                 return false;
             }
-            if (!edge_num.contains({idx1, idx2}))
+            if (!edge_num.count({idx1, idx2}))
                 edge_num[{idx1, idx2}] = 1;
             else
             {
@@ -45,7 +45,7 @@ namespace coacd
                 logger::info("Manifold Check Time: {}s", double(end - start) / CLOCKS_PER_SEC);
                 return false;
             }
-            if (!edge_num.contains({idx2, idx0}))
+            if (!edge_num.count({idx2, idx0}))
                 edge_num[{idx2, idx0}] = 1;
             else
             {
@@ -59,7 +59,7 @@ namespace coacd
         for (int i = 0; i < (int)edges.size(); i++)
         {
             pair<int, int> oppo_edge = {edges[i].second, edges[i].first};
-            if (!edge_num.contains(oppo_edge))
+            if (!edge_num.count(oppo_edge))
             {
                 logger::info("\tUnclosed mesh");
                 end = clock();
