@@ -51,7 +51,7 @@ namespace quickhull {
 			
 		}
 		
-		VertexDataSource(const std::vector<Vector3<T>>& vec) : m_ptr(&vec[0]), m_count(vec.size()) {
+		VertexDataSource(const std::vector<Vector3<T>>& vec) : m_ptr(vec.data()), m_count(vec.size()) {
 			
 		}
 		

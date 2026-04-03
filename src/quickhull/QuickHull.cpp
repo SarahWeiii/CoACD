@@ -257,7 +257,7 @@ namespace quickhull {
 				}
 				// Disable the face, but retain pointer to the points that were on the positive side of it. We need to assign those points
 				// to the new faces we create shortly.
-				auto t = std::move(m_mesh.disableFace(faceIndex));
+				auto t = m_mesh.disableFace(faceIndex);
 				if (t) {
 					assert(t->size()); // Because we should not assign point vectors to faces unless needed...
 					m_disabledFacePointVectors.push_back(std::move(t));

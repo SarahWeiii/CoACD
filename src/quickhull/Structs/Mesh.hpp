@@ -71,7 +71,7 @@ namespace quickhull {
 
 		struct Face {
 			size_t m_he;
-			Plane<T> m_P;
+			Plane<T> m_P{};
 			T m_mostDistantPointDist;
 			size_t m_mostDistantPoint;
 			size_t m_visibilityCheckedOnIteration;
