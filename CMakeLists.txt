@@ -23,7 +23,7 @@ if(MSVC)
 else()
     # For non-MSVC (Linux, macOS, etc.)
     set(CMAKE_CXX_FLAGS
-      "${CMAKE_CXX_FLAGS} -Wall -fpermissive -D_USE_MATH_DEFINES")
+      "${CMAKE_CXX_FLAGS} -Wall")
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
         # Linux/Unix: disable -Werror=stringop-overflow
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=stringop-overflow")
