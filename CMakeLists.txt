@@ -14,13 +14,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(WITH_3RD_PARTY_LIBS "Include 3rd party libraries" ON)
 
-if(WITH_3RD_PARTY_LIBS)
-    add_compile_definitions(WITH_3RD_PARTY_LIBS=1)
-else()
-    add_definitions(-DDISABLE_SPDLOG)
-    add_compile_definitions(WITH_3RD_PARTY_LIBS=0)
-endif()
-
 # --- Compiler-specific flags
 if(MSVC)
     # For Microsoft Visual Studio (Windows)
@@ -80,10 +73,15 @@ add_library(coacd STATIC ${COACD_SRC})
 target_include_directories(
   coacd PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/public>
                $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-target_include_directories(coacd PRIVATE 3rd/cdt/CDT)
+target_include_directories(coacd PRIVATE 3rd/cdt/CDT/include)
+set_target_properties(coacd PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 if(WITH_3RD_PARTY_LIBS)
     target_link_libraries(coacd PRIVATE openvdb_static spdlog::spdlog)
+    target_compile_definitions(coacd PUBLIC WITH_3RD_PARTY_LIBS=1)
+else()
+    target_compile_definitions(coacd PUBLIC WITH_3RD_PARTY_LIBS=0)
+    target_compile_definitions(coacd PUBLIC DISABLE_SPDLOG)
 endif()
 
 find_package(OpenMP)
@@ -93,7 +91,6 @@ endif()
 
 find_package(Threads)
 target_link_libraries(coacd PRIVATE Threads::Threads)
-set_target_properties(coacd PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 add_library(_coacd SHARED "public/coacd.cpp")
 
