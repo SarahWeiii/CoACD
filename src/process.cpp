@@ -105,7 +105,7 @@ namespace coacd
         return sqrt(pow(pt[0] - p[0], 2) + pow(pt[1] - p[1], 2) + pow(pt[2] - p[2], 2));
     }
 
-    double compute_edge_cost(Model &ch, string apx_mode, int tri_i, int tri_j, vector<int> &rm_pt_idxs)
+    double compute_edge_cost(Model &ch, std::string apx_mode, int tri_i, int tri_j, vector<int> &rm_pt_idxs)
     {
         // Compute the edge length
         double cost = pts_norm(ch.points[tri_i], ch.points[tri_j]);
@@ -138,7 +138,7 @@ namespace coacd
         return cost;
     }
 
-    void DecimateCH(Model &ch, int tgt_pts, string apx_mode)
+    void DecimateCH(Model &ch, int tgt_pts, std::string apx_mode)
     {
         if (tgt_pts >= (int)ch.points.size())
             return;

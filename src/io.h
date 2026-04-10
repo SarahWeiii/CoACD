@@ -6,7 +6,6 @@
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
-#include <string.h>
 #include <string>
 #include <vector>
 #include <cstdlib>
@@ -29,10 +28,10 @@ namespace coacd
 {
 
     //////////////// IO ////////////////
-    void SaveMesh(const string &filename, Model &mesh);
+    void SaveMesh(const std::string &filename, Model &mesh);
     void SaveConfig(Params params);
-    void SaveOBJ(const string &filename, vector<Model> parts, Params &params);
-    void SaveOBJs(const string &foldername, const string &filename, vector<Model> parts, Params &params);
+    void SaveOBJ(const std::string &filename, vector<Model> parts, Params &params);
+    void SaveOBJs(const std::string &foldername, const std::string &filename, vector<Model> parts, Params &params);
     bool WriteVRML(ofstream &fout, Model mesh);
-    void SaveVRML(const string &fileName, vector<Model>& meshes, Params &params);
+    void SaveVRML(const std::string &fileName, vector<Model>& meshes, Params &params);
 }
