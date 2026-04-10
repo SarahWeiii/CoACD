@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
   Params params;
 
   // Model files
-  string input_model;
+  std::string input_model;
   params.seed = (unsigned)time(NULL);
 
   // args
@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
     }
   }
 
-  string ext;
+  std::string ext;
   if (params.input_model.length() > 4)
   {
     ext = params.input_model.substr(params.input_model.length() - 4);
@@ -207,8 +207,8 @@ int main(int argc, char *argv[])
 
   RecoverParts(parts, bbox, rot, params);
 
-  string objName = regex_replace(params.output_name, regex("wrl"), "obj");
-  string wrlName = regex_replace(params.output_name, regex("obj"), "wrl");
+  std::string objName = regex_replace(params.output_name, std::regex("wrl"), "obj");
+  std::string wrlName = regex_replace(params.output_name, std::regex("obj"), "wrl");
 
   SaveVRML(wrlName, parts, params);
   SaveOBJ(objName, parts, params);
