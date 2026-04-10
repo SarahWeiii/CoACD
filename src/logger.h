@@ -28,7 +28,7 @@ namespace coacd
         inline void debug(std::string_view fmt, const Args &...args)
         {
             #ifndef DISABLE_SPDLOG
-            get()->debug(fmt, args...);
+            get()->debug(fmt::runtime(fmt), args...);
             #else
             doPrint(std::cout, fmt, args...);
             #endif
@@ -38,7 +38,7 @@ namespace coacd
         inline void info(std::string_view fmt, const Args &...args)
         {
             #ifndef DISABLE_SPDLOG
-            get()->info(fmt, args...);
+            get()->info(fmt::runtime(fmt), args...);
             #else
             doPrint(std::cout, fmt, args...);
             #endif
@@ -48,7 +48,7 @@ namespace coacd
         inline void warn(std::string_view fmt, const Args &...args)
         {
             #ifndef DISABLE_SPDLOG
-            get()->warn(fmt, args...);
+            get()->warn(fmt::runtime(fmt), args...);
             #else
             doPrint(std::cout, fmt, args...);
             #endif
@@ -58,7 +58,7 @@ namespace coacd
         inline void error(std::string_view fmt, const Args &...args)
         {
             #ifndef DISABLE_SPDLOG
-            get()->error(fmt, args...);
+            get()->error(fmt::runtime(fmt), args...);
             #else
             doPrint(std::cout, fmt, args...);
             #endif
@@ -68,7 +68,7 @@ namespace coacd
         inline void critical(std::string_view fmt, const Args &...args)
         {
             #ifndef DISABLE_SPDLOG
-            get()->critical(fmt, args...);
+            get()->critical(fmt::runtime(fmt), args...);
             #else
             doPrint(std::cout, fmt, args...);
             #endif
