@@ -112,14 +112,14 @@ void* btAlignedAllocInternal(size_t size, int32_t alignment, int32_t line, char*
 {
     void* ret;
     char* real;
-    unsigned long offset;
+    uintptr_t offset;
 
     gTotalBytesAlignedAllocs += size;
     gNumAlignedAllocs++;
 
     real = (char*)sAllocFunc(size + 2 * sizeof(void*) + (alignment - 1));
     if (real) {
-        offset = (alignment - (unsigned long)(real + 2 * sizeof(void*))) & (alignment - 1);
+        offset = (alignment - (uintptr_t)(real + 2 * sizeof(void*))) & (alignment - 1);
         ret = (void*)((real + 2 * sizeof(void*)) + offset);
         *((void**)(ret)-1) = (void*)(real);
         *((int32_t*)(ret)-2) = size;
