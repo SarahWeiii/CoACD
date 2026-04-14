@@ -9,8 +9,8 @@ namespace coacd {
 void RecoverParts(vector<Model> &meshes, vector<double> bbox,
                   array<array<double, 3>, 3> rot) {
   for (int i = 0; i < (int)meshes.size(); i++) {
-    meshes[i].Recover(bbox);
     meshes[i].RevertPCA(rot);
+    meshes[i].Recover(bbox);
   }
 }
 
