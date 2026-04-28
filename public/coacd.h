@@ -7,7 +7,7 @@
 
 namespace coacd {
 
-#if _WIN32
+#if defined(_WIN32)
 #define COACD_API __declspec(dllexport)
 #else
 #define COACD_API
