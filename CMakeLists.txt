@@ -13,6 +13,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(WITH_3RD_PARTY_LIBS "Include 3rd party libraries" ON)
+option(WITH_OPENMP "Enable OpenMP support" ON)
+option(WITH_STD_THREADS "Enable standard C++11 threads parallel fallback" OFF)
 
 # --- Compiler-specific flags
 if(MSVC)
@@ -81,9 +83,16 @@ else()
     target_compile_definitions(coacd PUBLIC DISABLE_SPDLOG)
 endif()
 
-find_package(OpenMP)
-if(OpenMP_CXX_FOUND)
-    target_link_libraries(coacd PUBLIC OpenMP::OpenMP_CXX)
+if(WITH_STD_THREADS)
+    target_compile_definitions(coacd PUBLIC WITH_STD_THREADS=1)
+    # standard threads are handled via target Threads package below.
+else()
+    if(WITH_OPENMP)
+        find_package(OpenMP)
+        if(OpenMP_CXX_FOUND)
+            target_link_libraries(coacd PUBLIC OpenMP::OpenMP_CXX)
+        endif()
+    endif()
 endif()
 
 find_package(Threads)
