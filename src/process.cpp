@@ -252,64 +252,53 @@ namespace coacd
             costMatrix.resize(bound);    // only keeps the top half of the matrix
             precostMatrix.resize(bound); // only keeps the top half of the matrix
 
-#if defined(_OPENMP)
-            // Use high-performance OpenMP parallel loop when OpenMP support is active.
-            size_t p1, p2;
-#pragma omp parallel for default(none) shared(costMatrix, precostMatrix, cvxs, params, bound, threshold, meshs) private(p1, p2)
-            for (int idx = 0; idx < bound; ++idx)
-            {
-                p1 = (size_t)(sqrt(8LL * idx + 1) - 1) >> 1; // compute nearest triangle number index (using 64-bit LL to prevent integer overflows)
-                size_t sum = (p1 * (p1 + 1)) >> 1;           // compute nearest triangle number from index
-                p2 = idx - sum;                         // modular arithmetic from triangle number
-                p1++;
-                double dist = MeshDist(cvxs[p1], cvxs[p2]);
+            auto process_index = [&](int idx) {
+                size_t local_p1 = (size_t)(sqrt(8LL * idx + 1) - 1) >> 1; // compute nearest triangle number index (using 64-bit LL to prevent integer overflows)
+                size_t sum = (local_p1 * (local_p1 + 1)) >> 1;           // compute nearest triangle number from index
+                size_t local_p2 = idx - sum;                         // modular arithmetic from triangle number
+                local_p1++;
+
+                double dist = MeshDist(cvxs[local_p1], cvxs[local_p2]);
                 if (dist < threshold)
                 {
                     Model combinedCH;
-                    MergeCH(cvxs[p1], cvxs[p2], combinedCH, params);
+                    MergeCH(cvxs[local_p1], cvxs[local_p2], combinedCH, params);
 
-                    costMatrix[idx] = ComputeHCost(cvxs[p1], cvxs[p2], combinedCH, params.rv_k, params.resolution, params.seed);
-                    precostMatrix[idx] = max(ComputeHCost(meshs[p1], cvxs[p1], params.rv_k, 3000, params.seed),
-                                             ComputeHCost(meshs[p2], cvxs[p2], params.rv_k, 3000, params.seed));
+                    costMatrix[idx] = ComputeHCost(cvxs[local_p1], cvxs[local_p2], combinedCH, params.rv_k, params.resolution, params.seed);
+                    precostMatrix[idx] = max(ComputeHCost(meshs[local_p1], cvxs[local_p1], params.rv_k, 3000, params.seed),
+                                             ComputeHCost(meshs[local_p2], cvxs[local_p2], params.rv_k, 3000, params.seed));
                 }
                 else
                 {
                     costMatrix[idx] = INF;
                 }
+            };
+
+#if defined(_OPENMP)
+            // Use high-performance OpenMP parallel loop (variables are shared explicitly to support legacy GCC compilers).
+#pragma omp parallel for default(none) shared(bound, process_index, costMatrix, precostMatrix, cvxs, params, threshold, meshs)
+            for (int idx = 0; idx < bound; ++idx)
+            {
+                process_index(idx);
             }
 #elif defined(WITH_STD_THREADS)
             // Fallback to C++11 standard library multi-threading when explicitly requested.
             unsigned int num_threads = std::thread::hardware_concurrency();
             if (num_threads == 0) num_threads = 4; // Thread count bounds fallback
+            num_threads = std::min(static_cast<unsigned int>(bound), num_threads);
 
             std::vector<std::thread> threads;
+            threads.reserve(num_threads);
             int chunk_size = (bound + num_threads - 1) / num_threads;
 
             for (unsigned int t = 0; t < num_threads; ++t)
             {
-                threads.emplace_back([t, chunk_size, bound, &costMatrix, &precostMatrix, &cvxs, &meshs, threshold, &params]() {
+                threads.emplace_back([t, chunk_size, bound, &process_index]() {
                     int start_idx = t * chunk_size;
                     int end_idx = std::min(start_idx + chunk_size, bound);
                     for (int idx = start_idx; idx < end_idx; ++idx)
                     {
-                        size_t local_p1 = (size_t)(sqrt(8LL * idx + 1) - 1) >> 1; // compute nearest triangle number index (using 64-bit LL to prevent integer overflows)
-                        size_t sum = (local_p1 * (local_p1 + 1)) >> 1;             // compute nearest triangle number from index
-                        size_t local_p2 = idx - sum;
-                        local_p1++;
-                        double dist = MeshDist(cvxs[local_p1], cvxs[local_p2]);
-                        if (dist < threshold)
-                        {
-                            Model combinedCH;
-                            MergeCH(cvxs[local_p1], cvxs[local_p2], combinedCH, params);
-
-                            costMatrix[idx] = ComputeHCost(cvxs[local_p1], cvxs[local_p2], combinedCH, params.rv_k, params.resolution, params.seed);
-                            precostMatrix[idx] = max(ComputeHCost(meshs[local_p1], cvxs[local_p1], params.rv_k, 3000, params.seed),
-                                                     ComputeHCost(meshs[local_p2], cvxs[local_p2], params.rv_k, 3000, params.seed));
-                        }
-                        else
-                        {
-                            costMatrix[idx] = INF;
-                        }
+                        process_index(idx);
                     }
                 });
             }
@@ -323,27 +312,9 @@ namespace coacd
             }
 #else
             // Fallback to sequential execution when OpenMP and standard threads are disabled.
-            size_t p1, p2;
             for (int idx = 0; idx < bound; ++idx)
             {
-                p1 = (size_t)(sqrt(8LL * idx + 1) - 1) >> 1; // compute nearest triangle number index (using 64-bit LL to prevent integer overflows)
-                size_t sum = (p1 * (p1 + 1)) >> 1;           // compute nearest triangle number from index
-                p2 = idx - sum;                         // modular arithmetic from triangle number
-                p1++;
-                double dist = MeshDist(cvxs[p1], cvxs[p2]);
-                if (dist < threshold)
-                {
-                    Model combinedCH;
-                    MergeCH(cvxs[p1], cvxs[p2], combinedCH, params);
-
-                    costMatrix[idx] = ComputeHCost(cvxs[p1], cvxs[p2], combinedCH, params.rv_k, params.resolution, params.seed);
-                    precostMatrix[idx] = max(ComputeHCost(meshs[p1], cvxs[p1], params.rv_k, 3000, params.seed),
-                                             ComputeHCost(meshs[p2], cvxs[p2], params.rv_k, 3000, params.seed));
-                }
-                else
-                {
-                    costMatrix[idx] = INF;
-                }
+                process_index(idx);
             }
 #endif
 

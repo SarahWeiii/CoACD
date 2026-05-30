@@ -83,16 +83,18 @@ else()
     target_compile_definitions(coacd PUBLIC DISABLE_SPDLOG)
 endif()
 
+if(WITH_OPENMP)
+    find_package(OpenMP)
+    if(OpenMP_CXX_FOUND)
+        target_link_libraries(coacd PUBLIC OpenMP::OpenMP_CXX)
+    else()
+        # Automatically fallback to C++11 standard library threads if OpenMP is missing
+        set(WITH_STD_THREADS ON)
+    endif()
+endif()
+
 if(WITH_STD_THREADS)
     target_compile_definitions(coacd PUBLIC WITH_STD_THREADS=1)
-    # standard threads are handled via target Threads package below.
-else()
-    if(WITH_OPENMP)
-        find_package(OpenMP)
-        if(OpenMP_CXX_FOUND)
-            target_link_libraries(coacd PUBLIC OpenMP::OpenMP_CXX)
-        endif()
-    endif()
 endif()
 
 find_package(Threads)
