@@ -14,7 +14,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(WITH_3RD_PARTY_LIBS "Include 3rd party libraries" ON)
 option(WITH_OPENMP "Enable OpenMP support" ON)
-option(WITH_STD_THREADS "Enable standard C++11 threads parallel fallback" OFF)
+# Internal fallback configuration (automatically enabled when OpenMP is disabled or unavailable)
 
 # --- Compiler-specific flags
 if(MSVC)
@@ -88,9 +88,12 @@ if(WITH_OPENMP)
     if(OpenMP_CXX_FOUND)
         target_link_libraries(coacd PUBLIC OpenMP::OpenMP_CXX)
     else()
-        # Automatically fallback to C++11 standard library threads if OpenMP is missing
+        # Automatically fallback to standard library threads if OpenMP is missing
         set(WITH_STD_THREADS ON)
     endif()
+else()
+    # Automatically enable standard library threads when OpenMP is explicitly disabled
+    set(WITH_STD_THREADS ON)
 endif()
 
 if(WITH_STD_THREADS)
