@@ -280,47 +280,20 @@ namespace coacd
             };
 
 #if defined(WITH_STD_THREADS)
-            // Fallback to C++11 standard library multi-threading when explicitly requested.
+            // Fallback to C++20 standard library multi-threading when explicitly requested.
             unsigned int num_threads = std::thread::hardware_concurrency();
-            if (const char* env_threads = std::getenv("COACD_NUM_THREADS"))
-            {
-            	try
-            	{
-            		int parsed_threads = std::stoi(env_threads);
-            		if (parsed_threads > 0)
-            		{
-            			num_threads = static_cast<unsigned int>(parsed_threads);
-            		}
-            	}
-            	catch (...)
-            	{
-            		// Fallback to hardware concurrency if parsing fails.
-            	}
-            }
             if (num_threads == 0) num_threads = 4; // Thread count bounds fallback
             num_threads = std::min(static_cast<unsigned int>(bound), num_threads);
             
             std::latch start_latch(num_threads);
-            bool use_latch = true;
-            if (const char* env_latch = std::getenv("COACD_USE_LATCH"))
-            {
-            	if (std::string(env_latch) == "0" || std::string(env_latch) == "false")
-            	{
-            		use_latch = false;
-            	}
-            }
-            
             std::vector<std::thread> threads;
             threads.reserve(num_threads);
             int chunk_size = (bound + num_threads - 1) / num_threads;
             
             for (unsigned int t = 0; t < num_threads; ++t)
             {
-            	threads.emplace_back([t, chunk_size, bound, &process_index, &start_latch, use_latch]() {
-            		if (use_latch)
-            		{
-            			start_latch.arrive_and_wait();
-            		}
+            	threads.emplace_back([t, chunk_size, bound, &process_index, &start_latch]() {
+            		start_latch.arrive_and_wait();
             		int start_idx = t * chunk_size;
             		int end_idx = std::min(start_idx + chunk_size, bound);
             		for (int idx = start_idx; idx < end_idx; ++idx)
@@ -646,42 +619,18 @@ namespace coacd
 
 #if defined(WITH_STD_THREADS)
             unsigned int num_threads = std::thread::hardware_concurrency();
-            if (const char* env_threads = std::getenv("COACD_NUM_THREADS"))
-            {
-            	try
-            	{
-            		int parsed_threads = std::stoi(env_threads);
-            		if (parsed_threads > 0)
-            		{
-            			num_threads = static_cast<unsigned int>(parsed_threads);
-            		}
-            	}
-            	catch (...) {}
-            }
             if (num_threads == 0) num_threads = 4;
             num_threads = std::min(static_cast<unsigned int>(num_inputs), num_threads);
 
             std::latch start_latch(num_threads);
-            bool use_latch = true;
-            if (const char* env_latch = std::getenv("COACD_USE_LATCH"))
-            {
-            	if (std::string(env_latch) == "0" || std::string(env_latch) == "false")
-            	{
-            		use_latch = false;
-            	}
-            }
-
             std::vector<std::thread> threads;
             threads.reserve(num_threads);
             int chunk_size = (num_inputs + num_threads - 1) / num_threads;
 
             for (unsigned int t = 0; t < num_threads; ++t)
             {
-            	threads.emplace_back([t, chunk_size, num_inputs, &process_mesh_part, &start_latch, use_latch]() {
-            		if (use_latch)
-            		{
-            			start_latch.arrive_and_wait();
-            		}
+            	threads.emplace_back([t, chunk_size, num_inputs, &process_mesh_part, &start_latch]() {
+            		start_latch.arrive_and_wait();
             		int start_idx = t * chunk_size;
             		int end_idx = std::min(start_idx + chunk_size, num_inputs);
             		for (int p = start_idx; p < end_idx; ++p)
