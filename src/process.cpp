@@ -6,13 +6,13 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
-#include <cstdlib>
-#include <latch>
-#include <thread>
 #include <vector>
+
+#if defined(WITH_STD_THREADS)
+#include <thread>
 #include <mutex>
 #include <chrono>
-#include <cmath>
+#endif
 
 namespace coacd
 {
@@ -287,20 +287,18 @@ namespace coacd
             	process_index(idx);
             }
 #elif defined(WITH_STD_THREADS)
-            // Fallback to C++20 standard library multi-threading when explicitly requested.
+            // Fallback to standard library multi-threading when explicitly requested.
             unsigned int num_threads = std::thread::hardware_concurrency();
             if (num_threads == 0) num_threads = 4; // Thread count bounds fallback
             num_threads = std::min(static_cast<unsigned int>(bound), num_threads);
             
-            std::latch start_latch(num_threads);
             std::vector<std::thread> threads;
             threads.reserve(num_threads);
             int chunk_size = (bound + num_threads - 1) / num_threads;
             
             for (unsigned int t = 0; t < num_threads; ++t)
             {
-            	threads.emplace_back([t, chunk_size, bound, &process_index, &start_latch]() {
-            		start_latch.arrive_and_wait();
+            	threads.emplace_back([t, chunk_size, bound, &process_index]() {
             		int start_idx = t * chunk_size;
             		int end_idx = std::min(start_idx + chunk_size, bound);
             		for (int idx = start_idx; idx < end_idx; ++idx)
@@ -629,15 +627,13 @@ namespace coacd
             if (num_threads == 0) num_threads = 4;
             num_threads = std::min(static_cast<unsigned int>(num_inputs), num_threads);
 
-            std::latch start_latch(num_threads);
             std::vector<std::thread> threads;
             threads.reserve(num_threads);
             int chunk_size = (num_inputs + num_threads - 1) / num_threads;
 
             for (unsigned int t = 0; t < num_threads; ++t)
             {
-            	threads.emplace_back([t, chunk_size, num_inputs, &process_mesh_part, &start_latch]() {
-            		start_latch.arrive_and_wait();
+            	threads.emplace_back([t, chunk_size, num_inputs, &process_mesh_part]() {
             		int start_idx = t * chunk_size;
             		int end_idx = std::min(start_idx + chunk_size, num_inputs);
             		for (int p = start_idx; p < end_idx; ++p)

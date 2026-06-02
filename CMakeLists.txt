@@ -14,7 +14,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(WITH_3RD_PARTY_LIBS "Include 3rd party libraries" ON)
 option(WITH_OPENMP "Enable OpenMP support" ON)
-option(WITH_STD_THREADS "Enable standard C++20 threads parallel fallback" ON)
+option(WITH_STD_THREADS "Enable standard threads parallel fallback" ON)
 
 # --- Compiler-specific flags
 if(MSVC)
