@@ -6,8 +6,13 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <cstdlib>
+#include <latch>
 #include <thread>
 #include <vector>
+#include <mutex>
+#include <chrono>
+#include <cmath>
 
 namespace coacd
 {
@@ -274,41 +279,70 @@ namespace coacd
                 }
             };
 
-#if defined(_OPENMP)
-            // Use high-performance OpenMP parallel loop (variables are shared explicitly to support legacy GCC compilers).
-#pragma omp parallel for default(none) shared(bound, process_index, costMatrix, precostMatrix, cvxs, params, threshold, meshs)
-            for (int idx = 0; idx < bound; ++idx)
-            {
-                process_index(idx);
-            }
-#elif defined(WITH_STD_THREADS)
+#if defined(WITH_STD_THREADS)
             // Fallback to C++11 standard library multi-threading when explicitly requested.
             unsigned int num_threads = std::thread::hardware_concurrency();
+            if (const char* env_threads = std::getenv("COACD_NUM_THREADS"))
+            {
+            	try
+            	{
+            		int parsed_threads = std::stoi(env_threads);
+            		if (parsed_threads > 0)
+            		{
+            			num_threads = static_cast<unsigned int>(parsed_threads);
+            		}
+            	}
+            	catch (...)
+            	{
+            		// Fallback to hardware concurrency if parsing fails.
+            	}
+            }
             if (num_threads == 0) num_threads = 4; // Thread count bounds fallback
             num_threads = std::min(static_cast<unsigned int>(bound), num_threads);
-
+            
+            std::latch start_latch(num_threads);
+            bool use_latch = true;
+            if (const char* env_latch = std::getenv("COACD_USE_LATCH"))
+            {
+            	if (std::string(env_latch) == "0" || std::string(env_latch) == "false")
+            	{
+            		use_latch = false;
+            	}
+            }
+            
             std::vector<std::thread> threads;
             threads.reserve(num_threads);
             int chunk_size = (bound + num_threads - 1) / num_threads;
-
+            
             for (unsigned int t = 0; t < num_threads; ++t)
             {
-                threads.emplace_back([t, chunk_size, bound, &process_index]() {
-                    int start_idx = t * chunk_size;
-                    int end_idx = std::min(start_idx + chunk_size, bound);
-                    for (int idx = start_idx; idx < end_idx; ++idx)
-                    {
-                        process_index(idx);
-                    }
-                });
+            	threads.emplace_back([t, chunk_size, bound, &process_index, &start_latch, use_latch]() {
+            		if (use_latch)
+            		{
+            			start_latch.arrive_and_wait();
+            		}
+            		int start_idx = t * chunk_size;
+            		int end_idx = std::min(start_idx + chunk_size, bound);
+            		for (int idx = start_idx; idx < end_idx; ++idx)
+            		{
+            			process_index(idx);
+            		}
+            	});
             }
-
+            
             for (auto& th : threads)
             {
-                if (th.joinable())
-                {
-                    th.join();
-                }
+            	if (th.joinable())
+            	{
+            		th.join();
+            	}
+            }
+#elif defined(_OPENMP)
+            // Use high-performance OpenMP parallel loop (variables are shared explicitly to support legacy GCC compilers).
+            #pragma omp parallel for default(none) shared(bound, process_index, costMatrix, precostMatrix, cvxs, params, threshold, meshs)
+            for (int idx = 0; idx < bound; ++idx)
+            {
+            	process_index(idx);
             }
 #else
             // Fallback to sequential execution when OpenMP and standard threads are disabled.
@@ -501,7 +535,11 @@ namespace coacd
     {
         vector<Model> InputParts = {mesh};
         vector<Model> parts, pmeshs;
-#ifdef _OPENMP
+
+#if defined(WITH_STD_THREADS)
+        std::mutex writelock_mutex;
+        auto start_time = std::chrono::steady_clock::now();
+#elif defined(_OPENMP)
         omp_lock_t writelock;
         omp_init_lock(&writelock);
         double start, end;
@@ -521,14 +559,13 @@ namespace coacd
         {
             vector<Model> tmp;
             logger::info("iter {} ---- waiting pool: {}", iter, InputParts.size());
-#ifdef _OPENMP
-#pragma omp parallel for default(none) shared(InputParts, params, mesh, writelock, parts, pmeshs, tmp) private(cut_area)
-#endif
-            for (int p = 0; p < (int)InputParts.size(); p++)
-            {
+
+            int num_inputs = (int)InputParts.size();
+            auto process_mesh_part = [&](int p) {
+                double local_cut_area;
                 random_engine.seed(params.seed);
-                if (p % ((int)InputParts.size() / 10 + 1) == 0)
-                    logger::info("Processing [{:.1f}%]", p * 100.0 / (int)InputParts.size());
+                if (p % (num_inputs / 10 + 1) == 0)
+                    logger::info("Processing [{:.1f}%]", p * 100.0 / num_inputs);
 
                 Model pmesh = InputParts[p], pCH;
                 Plane bestplane;
@@ -546,13 +583,17 @@ namespace coacd
                     Node *best_next_node = MonteCarloTreeSearch(params, node, best_path);
                     if (best_next_node == NULL)
                     {
-#ifdef _OPENMP
+#if defined(WITH_STD_THREADS)
+                        writelock_mutex.lock();
+#elif defined(_OPENMP)
                         omp_set_lock(&writelock);
 #endif
                         parts.push_back(pCH);
                         pmeshs.push_back(pmesh);
                         free_tree(node, 0);
-#ifdef _OPENMP
+#if defined(WITH_STD_THREADS)
+                        writelock_mutex.unlock();
+#elif defined(_OPENMP)
                         omp_unset_lock(&writelock);
 #endif
                     }
@@ -563,36 +604,107 @@ namespace coacd
                         free_tree(node, 0);
 
                         Model pos, neg;
-                        bool clipf = Clip(pmesh, pos, neg, bestplane, cut_area);
+                        bool clipf = Clip(pmesh, pos, neg, bestplane, local_cut_area);
                         if (!clipf)
                         {
                             logger::error("Wrong clip proposal!");
                             throw runtime_error("Wrong clip proposal!");
                         }
-#ifdef _OPENMP
+#if defined(WITH_STD_THREADS)
+                        writelock_mutex.lock();
+#elif defined(_OPENMP)
                         omp_set_lock(&writelock);
 #endif
                         if ((int)pos.triangles.size() > 0)
                             tmp.push_back(pos);
                         if ((int)neg.triangles.size() > 0)
                             tmp.push_back(neg);
-#ifdef _OPENMP
+#if defined(WITH_STD_THREADS)
+                        writelock_mutex.unlock();
+#elif defined(_OPENMP)
                         omp_unset_lock(&writelock);
 #endif
                     }
                 }
                 else
                 {
-#ifdef _OPENMP
+#if defined(WITH_STD_THREADS)
+                    writelock_mutex.lock();
+#elif defined(_OPENMP)
                     omp_set_lock(&writelock);
 #endif
                     parts.push_back(pCH);
                     pmeshs.push_back(pmesh);
-#ifdef _OPENMP
+#if defined(WITH_STD_THREADS)
+                    writelock_mutex.unlock();
+#elif defined(_OPENMP)
                     omp_unset_lock(&writelock);
 #endif
                 }
+            };
+
+#if defined(WITH_STD_THREADS)
+            unsigned int num_threads = std::thread::hardware_concurrency();
+            if (const char* env_threads = std::getenv("COACD_NUM_THREADS"))
+            {
+            	try
+            	{
+            		int parsed_threads = std::stoi(env_threads);
+            		if (parsed_threads > 0)
+            		{
+            			num_threads = static_cast<unsigned int>(parsed_threads);
+            		}
+            	}
+            	catch (...) {}
             }
+            if (num_threads == 0) num_threads = 4;
+            num_threads = std::min(static_cast<unsigned int>(num_inputs), num_threads);
+
+            std::latch start_latch(num_threads);
+            bool use_latch = true;
+            if (const char* env_latch = std::getenv("COACD_USE_LATCH"))
+            {
+            	if (std::string(env_latch) == "0" || std::string(env_latch) == "false")
+            	{
+            		use_latch = false;
+            	}
+            }
+
+            std::vector<std::thread> threads;
+            threads.reserve(num_threads);
+            int chunk_size = (num_inputs + num_threads - 1) / num_threads;
+
+            for (unsigned int t = 0; t < num_threads; ++t)
+            {
+            	threads.emplace_back([t, chunk_size, num_inputs, &process_mesh_part, &start_latch, use_latch]() {
+            		if (use_latch)
+            		{
+            			start_latch.arrive_and_wait();
+            		}
+            		int start_idx = t * chunk_size;
+            		int end_idx = std::min(start_idx + chunk_size, num_inputs);
+            		for (int p = start_idx; p < end_idx; ++p)
+            		{
+            			process_mesh_part(p);
+            		}
+            	});
+            }
+            for (auto& th : threads)
+            {
+            	if (th.joinable()) th.join();
+            }
+#elif defined(_OPENMP)
+            #pragma omp parallel for default(none) shared(num_inputs, process_mesh_part, InputParts, params, mesh, writelock, parts, pmeshs, tmp) private(cut_area)
+            for (int p = 0; p < num_inputs; p++)
+            {
+            	process_mesh_part(p);
+            }
+#else
+            for (int p = 0; p < num_inputs; p++)
+            {
+            	process_mesh_part(p);
+            }
+#endif
             logger::info("Processing [100.0%]");
             InputParts.clear();
             InputParts = tmp;
@@ -608,7 +720,11 @@ namespace coacd
         if (params.extrude)
             ExtrudeConvexHulls(parts, params);
 
-#ifdef _OPENMP
+#if defined(WITH_STD_THREADS)
+        auto end_time = std::chrono::steady_clock::now();
+        std::chrono::duration<double> diff = end_time - start_time;
+        logger::info("Compute Time: {}s", diff.count());
+#elif defined(_OPENMP)
         end = omp_get_wtime();
         logger::info("Compute Time: {}s", double(end - start));
 #else
