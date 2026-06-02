@@ -538,7 +538,6 @@ namespace coacd
 
 #if defined(WITH_STD_THREADS)
         std::mutex writelock_mutex;
-        auto start_time = std::chrono::steady_clock::now();
 #elif defined(_OPENMP)
         omp_lock_t writelock;
         omp_init_lock(&writelock);
@@ -721,9 +720,7 @@ namespace coacd
             ExtrudeConvexHulls(parts, params);
 
 #if defined(WITH_STD_THREADS)
-        auto end_time = std::chrono::steady_clock::now();
-        std::chrono::duration<double> diff = end_time - start_time;
-        logger::info("Compute Time: {}s", diff.count());
+        // No timing logic
 #elif defined(_OPENMP)
         end = omp_get_wtime();
         logger::info("Compute Time: {}s", double(end - start));
