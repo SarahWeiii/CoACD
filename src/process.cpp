@@ -258,9 +258,9 @@ namespace coacd
             precostMatrix.resize(bound); // only keeps the top half of the matrix
 
             auto process_index = [&](int idx) {
-                size_t local_p1 = (size_t)(sqrt(8LL * idx + 1) - 1) >> 1; // compute nearest triangle number index (using 64-bit LL to prevent integer overflows)
-                size_t sum = (local_p1 * (local_p1 + 1)) >> 1;           // compute nearest triangle number from index
-                size_t local_p2 = idx - sum;                         // modular arithmetic from triangle number
+                size_t local_p1 = (size_t)(sqrt(8 * idx + 1) - 1) >> 1; // compute nearest triangle number index
+                size_t sum = (local_p1 * (local_p1 + 1)) >> 1;          // compute nearest triangle number from index
+                size_t local_p2 = idx - sum;                        // modular arithmetic from triangle number
                 local_p1++;
 
                 double dist = MeshDist(cvxs[local_p1], cvxs[local_p2]);
