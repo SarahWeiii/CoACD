@@ -279,7 +279,14 @@ namespace coacd
                 }
             };
 
-#if defined(WITH_STD_THREADS)
+#if defined(_OPENMP)
+            // Use high-performance OpenMP parallel loop (variables are shared explicitly to support legacy GCC compilers).
+            #pragma omp parallel for default(none) shared(bound, process_index, costMatrix, precostMatrix, cvxs, params, threshold, meshs)
+            for (int idx = 0; idx < bound; ++idx)
+            {
+            	process_index(idx);
+            }
+#elif defined(WITH_STD_THREADS)
             // Fallback to C++20 standard library multi-threading when explicitly requested.
             unsigned int num_threads = std::thread::hardware_concurrency();
             if (num_threads == 0) num_threads = 4; // Thread count bounds fallback
@@ -309,13 +316,6 @@ namespace coacd
             	{
             		th.join();
             	}
-            }
-#elif defined(_OPENMP)
-            // Use high-performance OpenMP parallel loop (variables are shared explicitly to support legacy GCC compilers).
-            #pragma omp parallel for default(none) shared(bound, process_index, costMatrix, precostMatrix, cvxs, params, threshold, meshs)
-            for (int idx = 0; idx < bound; ++idx)
-            {
-            	process_index(idx);
             }
 #else
             // Fallback to sequential execution when OpenMP and standard threads are disabled.
@@ -509,13 +509,13 @@ namespace coacd
         vector<Model> InputParts = {mesh};
         vector<Model> parts, pmeshs;
 
-#if defined(WITH_STD_THREADS)
-        std::mutex writelock_mutex;
-#elif defined(_OPENMP)
+#if defined(_OPENMP)
         omp_lock_t writelock;
         omp_init_lock(&writelock);
         double start, end;
         start = omp_get_wtime();
+#elif defined(WITH_STD_THREADS)
+        std::mutex writelock_mutex;
 #else
         clock_t start, end;
         start = clock();
@@ -555,18 +555,18 @@ namespace coacd
                     Node *best_next_node = MonteCarloTreeSearch(params, node, best_path);
                     if (best_next_node == NULL)
                     {
-#if defined(WITH_STD_THREADS)
-                        std::lock_guard<std::mutex> lock(writelock_mutex);
-#elif defined(_OPENMP)
+#if defined(_OPENMP)
                         omp_set_lock(&writelock);
+#elif defined(WITH_STD_THREADS)
+                        std::lock_guard<std::mutex> lock(writelock_mutex);
 #endif
                         parts.push_back(pCH);
                         pmeshs.push_back(pmesh);
                         free_tree(node, 0);
-#if defined(WITH_STD_THREADS)
-                        // Auto-unlocked
-#elif defined(_OPENMP)
+#if defined(_OPENMP)
                         omp_unset_lock(&writelock);
+#elif defined(WITH_STD_THREADS)
+                        // Auto-unlocked
 #endif
                     }
                     else
@@ -583,41 +583,47 @@ namespace coacd
                             throw runtime_error("Wrong clip proposal!");
                         }
                         {
-#if defined(WITH_STD_THREADS)
-                            std::lock_guard<std::mutex> lock(writelock_mutex);
-#elif defined(_OPENMP)
+#if defined(_OPENMP)
                             omp_set_lock(&writelock);
+#elif defined(WITH_STD_THREADS)
+                            std::lock_guard<std::mutex> lock(writelock_mutex);
 #endif
                             if ((int)pos.triangles.size() > 0)
                                 tmp.push_back(pos);
                             if ((int)neg.triangles.size() > 0)
                                 tmp.push_back(neg);
-#if defined(WITH_STD_THREADS)
-                            // Auto-unlocked
-#elif defined(_OPENMP)
+#if defined(_OPENMP)
                             omp_unset_lock(&writelock);
+#elif defined(WITH_STD_THREADS)
+                            // Auto-unlocked
 #endif
                         }
                     }
                 }
                 else
                 {
-#if defined(WITH_STD_THREADS)
-                    std::lock_guard<std::mutex> lock(writelock_mutex);
-#elif defined(_OPENMP)
+#if defined(_OPENMP)
                     omp_set_lock(&writelock);
+#elif defined(WITH_STD_THREADS)
+                    std::lock_guard<std::mutex> lock(writelock_mutex);
 #endif
                     parts.push_back(pCH);
                     pmeshs.push_back(pmesh);
-#if defined(WITH_STD_THREADS)
-                    // Auto-unlocked
-#elif defined(_OPENMP)
+#if defined(_OPENMP)
                     omp_unset_lock(&writelock);
+#elif defined(WITH_STD_THREADS)
+                    // Auto-unlocked
 #endif
                 }
             };
 
-#if defined(WITH_STD_THREADS)
+#if defined(_OPENMP)
+            #pragma omp parallel for default(none) shared(num_inputs, process_mesh_part, InputParts, params, mesh, writelock, parts, pmeshs, tmp) private(cut_area)
+            for (int p = 0; p < num_inputs; p++)
+            {
+            	process_mesh_part(p);
+            }
+#elif defined(WITH_STD_THREADS)
             unsigned int num_threads = std::thread::hardware_concurrency();
             if (num_threads == 0) num_threads = 4;
             num_threads = std::min(static_cast<unsigned int>(num_inputs), num_threads);
@@ -643,12 +649,6 @@ namespace coacd
             {
             	if (th.joinable()) th.join();
             }
-#elif defined(_OPENMP)
-            #pragma omp parallel for default(none) shared(num_inputs, process_mesh_part, InputParts, params, mesh, writelock, parts, pmeshs, tmp) private(cut_area)
-            for (int p = 0; p < num_inputs; p++)
-            {
-            	process_mesh_part(p);
-            }
 #else
             for (int p = 0; p < num_inputs; p++)
             {
@@ -670,11 +670,11 @@ namespace coacd
         if (params.extrude)
             ExtrudeConvexHulls(parts, params);
 
-#if defined(WITH_STD_THREADS)
-        // No timing logic
-#elif defined(_OPENMP)
+#if defined(_OPENMP)
         end = omp_get_wtime();
         logger::info("Compute Time: {}s", double(end - start));
+#elif defined(WITH_STD_THREADS)
+        // No timing logic
 #else
         end = clock();
         logger::info("Compute Time: {}s", double(end - start) / CLOCKS_PER_SEC);
