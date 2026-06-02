@@ -583,7 +583,7 @@ namespace coacd
                     if (best_next_node == NULL)
                     {
 #if defined(WITH_STD_THREADS)
-                        writelock_mutex.lock();
+                        std::lock_guard<std::mutex> lock(writelock_mutex);
 #elif defined(_OPENMP)
                         omp_set_lock(&writelock);
 #endif
@@ -591,7 +591,7 @@ namespace coacd
                         pmeshs.push_back(pmesh);
                         free_tree(node, 0);
 #if defined(WITH_STD_THREADS)
-                        writelock_mutex.unlock();
+                        // Auto-unlocked
 #elif defined(_OPENMP)
                         omp_unset_lock(&writelock);
 #endif
@@ -609,33 +609,35 @@ namespace coacd
                             logger::error("Wrong clip proposal!");
                             throw runtime_error("Wrong clip proposal!");
                         }
+                        {
 #if defined(WITH_STD_THREADS)
-                        writelock_mutex.lock();
+                            std::lock_guard<std::mutex> lock(writelock_mutex);
 #elif defined(_OPENMP)
-                        omp_set_lock(&writelock);
+                            omp_set_lock(&writelock);
 #endif
-                        if ((int)pos.triangles.size() > 0)
-                            tmp.push_back(pos);
-                        if ((int)neg.triangles.size() > 0)
-                            tmp.push_back(neg);
+                            if ((int)pos.triangles.size() > 0)
+                                tmp.push_back(pos);
+                            if ((int)neg.triangles.size() > 0)
+                                tmp.push_back(neg);
 #if defined(WITH_STD_THREADS)
-                        writelock_mutex.unlock();
+                            // Auto-unlocked
 #elif defined(_OPENMP)
-                        omp_unset_lock(&writelock);
+                            omp_unset_lock(&writelock);
 #endif
+                        }
                     }
                 }
                 else
                 {
 #if defined(WITH_STD_THREADS)
-                    writelock_mutex.lock();
+                    std::lock_guard<std::mutex> lock(writelock_mutex);
 #elif defined(_OPENMP)
                     omp_set_lock(&writelock);
 #endif
                     parts.push_back(pCH);
                     pmeshs.push_back(pmesh);
 #if defined(WITH_STD_THREADS)
-                    writelock_mutex.unlock();
+                    // Auto-unlocked
 #elif defined(_OPENMP)
                     omp_unset_lock(&writelock);
 #endif
