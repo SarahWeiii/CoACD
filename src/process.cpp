@@ -516,6 +516,7 @@ namespace coacd
         start = omp_get_wtime();
 #elif defined(WITH_STD_THREADS)
         std::mutex writelock_mutex;
+        auto start_time = std::chrono::steady_clock::now();
 #else
         clock_t start, end;
         start = clock();
@@ -674,7 +675,9 @@ namespace coacd
         end = omp_get_wtime();
         logger::info("Compute Time: {}s", double(end - start));
 #elif defined(WITH_STD_THREADS)
-        // No timing logic
+        auto end_time = std::chrono::steady_clock::now();
+        std::chrono::duration<double> diff = end_time - start_time;
+        logger::info("Compute Time: {}s", diff.count());
 #else
         end = clock();
         logger::info("Compute Time: {}s", double(end - start) / CLOCKS_PER_SEC);
