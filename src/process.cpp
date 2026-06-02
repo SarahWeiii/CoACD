@@ -12,7 +12,6 @@
 #include <thread>
 #include <mutex>
 #include <chrono>
-#include <cstdlib>
 #endif
 
 namespace coacd
@@ -283,21 +282,6 @@ namespace coacd
 #if defined(WITH_STD_THREADS)
             // Fallback to standard library multi-threading when explicitly requested.
             unsigned int num_threads = std::thread::hardware_concurrency();
-            if (const char* env_threads = std::getenv("COACD_NUM_THREADS"))
-            {
-            	try
-            	{
-            		int parsed_threads = std::stoi(env_threads);
-            		if (parsed_threads > 0)
-            		{
-            			num_threads = static_cast<unsigned int>(parsed_threads);
-            		}
-            	}
-            	catch (...)
-            	{
-            		// Fallback to hardware concurrency if parsing fails.
-            	}
-            }
             if (num_threads == 0) num_threads = 4; // Thread count bounds fallback
             num_threads = std::min(static_cast<unsigned int>(bound), num_threads);
             
@@ -634,18 +618,6 @@ namespace coacd
 
 #if defined(WITH_STD_THREADS)
             unsigned int num_threads = std::thread::hardware_concurrency();
-            if (const char* env_threads = std::getenv("COACD_NUM_THREADS"))
-            {
-            	try
-            	{
-            		int parsed_threads = std::stoi(env_threads);
-            		if (parsed_threads > 0)
-            		{
-            			num_threads = static_cast<unsigned int>(parsed_threads);
-            		}
-            	}
-            	catch (...) {}
-            }
             if (num_threads == 0) num_threads = 4;
             num_threads = std::min(static_cast<unsigned int>(num_inputs), num_threads);
 
