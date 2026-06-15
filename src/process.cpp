@@ -279,7 +279,14 @@ namespace coacd
                 }
             };
 
-#if defined(WITH_STD_THREADS)
+#if defined(_OPENMP)
+            // Use high-performance OpenMP parallel loop (variables are shared explicitly to support legacy GCC compilers).
+            #pragma omp parallel for default(none) shared(bound, process_index, costMatrix, precostMatrix, cvxs, params, threshold, meshs)
+            for (int idx = 0; idx < bound; ++idx)
+            {
+            	process_index(idx);
+            }
+#elif defined(WITH_STD_THREADS)
             // Fallback to standard library multi-threading when explicitly requested.
             unsigned int num_threads = std::thread::hardware_concurrency();
             if (num_threads == 0) num_threads = 4; // Thread count bounds fallback
@@ -287,17 +294,22 @@ namespace coacd
             
             std::vector<std::thread> threads;
             threads.reserve(num_threads);
+            std::vector<std::exception_ptr> exceptions(num_threads);
             int chunk_size = (bound + num_threads - 1) / num_threads;
             
             for (unsigned int t = 0; t < num_threads; ++t)
             {
-            	threads.emplace_back([t, chunk_size, bound, &process_index]() {
-            		int start_idx = t * chunk_size;
-            		int end_idx = std::min(start_idx + chunk_size, bound);
-            		for (int idx = start_idx; idx < end_idx; ++idx)
-            		{
-            			process_index(idx);
-            		}
+            	threads.emplace_back([t, chunk_size, bound, &process_index, &exceptions]() {
+                    try {
+                        int start_idx = t * chunk_size;
+                        int end_idx = std::min(start_idx + chunk_size, bound);
+                        for (int idx = start_idx; idx < end_idx; ++idx)
+                        {
+                            process_index(idx);
+                        }
+                    } catch (...) {
+                        exceptions[t] = std::current_exception();
+                    }
             	});
             }
             
@@ -308,12 +320,13 @@ namespace coacd
             		th.join();
             	}
             }
-#elif defined(_OPENMP)
-            // Use high-performance OpenMP parallel loop (variables are shared explicitly to support legacy GCC compilers).
-            #pragma omp parallel for default(none) shared(bound, process_index, costMatrix, precostMatrix, cvxs, params, threshold, meshs)
-            for (int idx = 0; idx < bound; ++idx)
+
+            for (auto& exc : exceptions)
             {
-            	process_index(idx);
+                if (exc)
+                {
+                    std::rethrow_exception(exc);
+                }
             }
 #else
             // Fallback to sequential execution when OpenMP and standard threads are disabled.
@@ -616,35 +629,47 @@ namespace coacd
                 }
             };
 
-#if defined(WITH_STD_THREADS)
+#if defined(_OPENMP)
+            #pragma omp parallel for default(none) shared(num_inputs, process_mesh_part, InputParts, params, mesh, writelock, parts, pmeshs, tmp) private(cut_area)
+            for (int p = 0; p < num_inputs; p++)
+            {
+            	process_mesh_part(p);
+            }
+#elif defined(WITH_STD_THREADS)
             unsigned int num_threads = std::thread::hardware_concurrency();
             if (num_threads == 0) num_threads = 4;
             num_threads = std::min(static_cast<unsigned int>(num_inputs), num_threads);
 
             std::vector<std::thread> threads;
             threads.reserve(num_threads);
+            std::vector<std::exception_ptr> exceptions(num_threads);
             int chunk_size = (num_inputs + num_threads - 1) / num_threads;
 
             for (unsigned int t = 0; t < num_threads; ++t)
             {
-            	threads.emplace_back([t, chunk_size, num_inputs, &process_mesh_part]() {
-            		int start_idx = t * chunk_size;
-            		int end_idx = std::min(start_idx + chunk_size, num_inputs);
-            		for (int p = start_idx; p < end_idx; ++p)
-            		{
-            			process_mesh_part(p);
-            		}
+            	threads.emplace_back([t, chunk_size, num_inputs, &process_mesh_part, &exceptions]() {
+                    try {
+                        int start_idx = t * chunk_size;
+                        int end_idx = std::min(start_idx + chunk_size, num_inputs);
+                        for (int p = start_idx; p < end_idx; ++p)
+                        {
+                            process_mesh_part(p);
+                        }
+                    } catch (...) {
+                        exceptions[t] = std::current_exception();
+                    }
             	});
             }
             for (auto& th : threads)
             {
             	if (th.joinable()) th.join();
             }
-#elif defined(_OPENMP)
-            #pragma omp parallel for default(none) shared(num_inputs, process_mesh_part, InputParts, params, mesh, writelock, parts, pmeshs, tmp) private(cut_area)
-            for (int p = 0; p < num_inputs; p++)
+            for (auto& exc : exceptions)
             {
-            	process_mesh_part(p);
+                if (exc)
+                {
+                    std::rethrow_exception(exc);
+                }
             }
 #else
             for (int p = 0; p < num_inputs; p++)
