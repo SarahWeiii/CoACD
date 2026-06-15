@@ -27,7 +27,7 @@ jobs:
           submodules: "true"
       - name: Generate
         run: |
-          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DOPENVDB_CORE_SHARED=OFF -DTBB_TEST=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -B ${{ matrix.config.build-dir }} .
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DOPENVDB_CORE_SHARED=OFF -DTBB_TEST=OFF "-DCMAKE_POLICY_VERSION_MINIMUM=3.5" -B ${{ matrix.config.build-dir }} .
       - name: Build
         run: |
           cmake --build ${{ matrix.config.build-dir }} --target main --config Release --parallel 4
