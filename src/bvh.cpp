@@ -154,11 +154,12 @@ namespace coacd
     {
         vec3d tri_aabbMin = {1e10, 1e10, 1e10};
         vec3d tri_aabbMax = {-1e10, -1e10, -1e10};
-        for (int i = 0; i < 3; i++)
-        {
-            tri_aabbMin[i] = min(tri_aabbMin[i], model.points[triangleIdx[i]][i]);
-            tri_aabbMax[i] = max(tri_aabbMax[i], model.points[triangleIdx[i]][i]);
-        }
+        for (int j = 0; j < 3; j++)
+            for (int i = 0; i < 3; i++)
+            {
+                tri_aabbMin[i] = min(tri_aabbMin[i], model.points[triangleIdx[j]][i]);
+                tri_aabbMax[i] = max(tri_aabbMax[i], model.points[triangleIdx[j]][i]);
+            }
         return isOverlap3D(tri_aabbMin, aabbMin, tri_aabbMax, aabbMax);
     }
 
