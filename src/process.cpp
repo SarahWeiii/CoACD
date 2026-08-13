@@ -3,8 +3,16 @@
 #include "config.h"
 #include "bvh.h"
 
-#include <iostream>
+#include <algorithm>
 #include <cmath>
+#include <iostream>
+#include <vector>
+
+#if defined(WITH_STD_THREADS)
+#include <thread>
+#include <mutex>
+#include <chrono>
+#endif
 
 namespace coacd
 {
@@ -249,31 +257,84 @@ namespace coacd
             costMatrix.resize(bound);    // only keeps the top half of the matrix
             precostMatrix.resize(bound); // only keeps the top half of the matrix
 
-            size_t p1, p2;
-#ifdef _OPENMP
-#pragma omp parallel for default(none) shared(costMatrix, precostMatrix, cvxs, params, bound, threshold, meshs) private(p1, p2)
-#endif
-            for (int idx = 0; idx < bound; ++idx)
-            {
-                p1 = (int)(sqrt(8 * idx + 1) - 1) >> 1; // compute nearest triangle number index
-                int sum = (p1 * (p1 + 1)) >> 1;         // compute nearest triangle number from index
-                p2 = idx - sum;                         // modular arithmetic from triangle number
-                p1++;
-                double dist = MeshDist(cvxs[p1], cvxs[p2]);
+            auto process_index = [&](int idx) {
+                size_t local_p1 = (size_t)(sqrt(8 * idx + 1) - 1) >> 1; // compute nearest triangle number index
+                size_t sum = (local_p1 * (local_p1 + 1)) >> 1;          // compute nearest triangle number from index
+                size_t local_p2 = idx - sum;                        // modular arithmetic from triangle number
+                local_p1++;
+
+                double dist = MeshDist(cvxs[local_p1], cvxs[local_p2]);
                 if (dist < threshold)
                 {
                     Model combinedCH;
-                    MergeCH(cvxs[p1], cvxs[p2], combinedCH, params);
+                    MergeCH(cvxs[local_p1], cvxs[local_p2], combinedCH, params);
 
-                    costMatrix[idx] = ComputeHCost(cvxs[p1], cvxs[p2], combinedCH, params.rv_k, params.resolution, params.seed);
-                    precostMatrix[idx] = max(ComputeHCost(meshs[p1], cvxs[p1], params.rv_k, 3000, params.seed),
-                                             ComputeHCost(meshs[p2], cvxs[p2], params.rv_k, 3000, params.seed));
+                    costMatrix[idx] = ComputeHCost(cvxs[local_p1], cvxs[local_p2], combinedCH, params.rv_k, params.resolution, params.seed);
+                    precostMatrix[idx] = max(ComputeHCost(meshs[local_p1], cvxs[local_p1], params.rv_k, 3000, params.seed),
+                                             ComputeHCost(meshs[local_p2], cvxs[local_p2], params.rv_k, 3000, params.seed));
                 }
                 else
                 {
                     costMatrix[idx] = INF;
                 }
+            };
+
+#if defined(_OPENMP)
+            // Use high-performance OpenMP parallel loop (variables are shared explicitly to support legacy GCC compilers).
+            #pragma omp parallel for default(none) shared(bound, process_index, costMatrix, precostMatrix, cvxs, params, threshold, meshs)
+            for (int idx = 0; idx < bound; ++idx)
+            {
+            	process_index(idx);
             }
+#elif defined(WITH_STD_THREADS)
+            // Fallback to standard library multi-threading when explicitly requested.
+            unsigned int num_threads = std::thread::hardware_concurrency();
+            if (num_threads == 0) num_threads = 4; // Thread count bounds fallback
+            num_threads = std::min(static_cast<unsigned int>(bound), num_threads);
+            
+            std::vector<std::thread> threads;
+            threads.reserve(num_threads);
+            std::vector<std::exception_ptr> exceptions(num_threads);
+            int chunk_size = (bound + num_threads - 1) / num_threads;
+            
+            for (unsigned int t = 0; t < num_threads; ++t)
+            {
+            	threads.emplace_back([t, chunk_size, bound, &process_index, &exceptions]() {
+                    try {
+                        int start_idx = t * chunk_size;
+                        int end_idx = std::min(start_idx + chunk_size, bound);
+                        for (int idx = start_idx; idx < end_idx; ++idx)
+                        {
+                            process_index(idx);
+                        }
+                    } catch (...) {
+                        exceptions[t] = std::current_exception();
+                    }
+            	});
+            }
+            
+            for (auto& th : threads)
+            {
+            	if (th.joinable())
+            	{
+            		th.join();
+            	}
+            }
+
+            for (auto& exc : exceptions)
+            {
+                if (exc)
+                {
+                    std::rethrow_exception(exc);
+                }
+            }
+#else
+            // Fallback to sequential execution when OpenMP and standard threads are disabled.
+            for (int idx = 0; idx < bound; ++idx)
+            {
+                process_index(idx);
+            }
+#endif
 
             size_t costSize = (size_t)cvxs.size();
 
@@ -458,11 +519,15 @@ namespace coacd
     {
         vector<Model> InputParts = {mesh};
         vector<Model> parts, pmeshs;
-#ifdef _OPENMP
+
+#if defined(_OPENMP)
         omp_lock_t writelock;
         omp_init_lock(&writelock);
         double start, end;
         start = omp_get_wtime();
+#elif defined(WITH_STD_THREADS)
+        std::mutex writelock_mutex;
+        auto start_time = std::chrono::steady_clock::now();
 #else
         clock_t start, end;
         start = clock();
@@ -478,14 +543,13 @@ namespace coacd
         {
             vector<Model> tmp;
             logger::info("iter {} ---- waiting pool: {}", iter, InputParts.size());
-#ifdef _OPENMP
-#pragma omp parallel for default(none) shared(InputParts, params, mesh, writelock, parts, pmeshs, tmp) private(cut_area)
-#endif
-            for (int p = 0; p < (int)InputParts.size(); p++)
-            {
+
+            int num_inputs = (int)InputParts.size();
+            auto process_mesh_part = [&](int p) {
+                double local_cut_area;
                 random_engine.seed(params.seed);
-                if (p % ((int)InputParts.size() / 10 + 1) == 0)
-                    logger::info("Processing [{:.1f}%]", p * 100.0 / (int)InputParts.size());
+                if (p % (num_inputs / 10 + 1) == 0)
+                    logger::info("Processing [{:.1f}%]", p * 100.0 / num_inputs);
 
                 Model pmesh = InputParts[p], pCH;
                 Plane bestplane;
@@ -503,14 +567,18 @@ namespace coacd
                     Node *best_next_node = MonteCarloTreeSearch(params, node, best_path);
                     if (best_next_node == NULL)
                     {
-#ifdef _OPENMP
+#if defined(_OPENMP)
                         omp_set_lock(&writelock);
+#elif defined(WITH_STD_THREADS)
+                        std::lock_guard<std::mutex> lock(writelock_mutex);
 #endif
                         parts.push_back(pCH);
                         pmeshs.push_back(pmesh);
                         free_tree(node, 0);
-#ifdef _OPENMP
+#if defined(_OPENMP)
                         omp_unset_lock(&writelock);
+#elif defined(WITH_STD_THREADS)
+                        // Auto-unlocked
 #endif
                     }
                     else
@@ -520,36 +588,95 @@ namespace coacd
                         free_tree(node, 0);
 
                         Model pos, neg;
-                        bool clipf = Clip(pmesh, pos, neg, bestplane, cut_area);
+                        bool clipf = Clip(pmesh, pos, neg, bestplane, local_cut_area);
                         if (!clipf)
                         {
                             logger::error("Wrong clip proposal!");
                             throw runtime_error("Wrong clip proposal!");
                         }
-#ifdef _OPENMP
-                        omp_set_lock(&writelock);
+                        {
+#if defined(_OPENMP)
+                            omp_set_lock(&writelock);
+#elif defined(WITH_STD_THREADS)
+                            std::lock_guard<std::mutex> lock(writelock_mutex);
 #endif
-                        if ((int)pos.triangles.size() > 0)
-                            tmp.push_back(pos);
-                        if ((int)neg.triangles.size() > 0)
-                            tmp.push_back(neg);
-#ifdef _OPENMP
-                        omp_unset_lock(&writelock);
+                            if ((int)pos.triangles.size() > 0)
+                                tmp.push_back(pos);
+                            if ((int)neg.triangles.size() > 0)
+                                tmp.push_back(neg);
+#if defined(_OPENMP)
+                            omp_unset_lock(&writelock);
+#elif defined(WITH_STD_THREADS)
+                            // Auto-unlocked
 #endif
+                        }
                     }
                 }
                 else
                 {
-#ifdef _OPENMP
+#if defined(_OPENMP)
                     omp_set_lock(&writelock);
+#elif defined(WITH_STD_THREADS)
+                    std::lock_guard<std::mutex> lock(writelock_mutex);
 #endif
                     parts.push_back(pCH);
                     pmeshs.push_back(pmesh);
-#ifdef _OPENMP
+#if defined(_OPENMP)
                     omp_unset_lock(&writelock);
+#elif defined(WITH_STD_THREADS)
+                    // Auto-unlocked
 #endif
                 }
+            };
+
+#if defined(_OPENMP)
+            #pragma omp parallel for default(none) shared(num_inputs, process_mesh_part, InputParts, params, mesh, writelock, parts, pmeshs, tmp) private(cut_area)
+            for (int p = 0; p < num_inputs; p++)
+            {
+            	process_mesh_part(p);
             }
+#elif defined(WITH_STD_THREADS)
+            unsigned int num_threads = std::thread::hardware_concurrency();
+            if (num_threads == 0) num_threads = 4;
+            num_threads = std::min(static_cast<unsigned int>(num_inputs), num_threads);
+
+            std::vector<std::thread> threads;
+            threads.reserve(num_threads);
+            std::vector<std::exception_ptr> exceptions(num_threads);
+            int chunk_size = (num_inputs + num_threads - 1) / num_threads;
+
+            for (unsigned int t = 0; t < num_threads; ++t)
+            {
+            	threads.emplace_back([t, chunk_size, num_inputs, &process_mesh_part, &exceptions]() {
+                    try {
+                        int start_idx = t * chunk_size;
+                        int end_idx = std::min(start_idx + chunk_size, num_inputs);
+                        for (int p = start_idx; p < end_idx; ++p)
+                        {
+                            process_mesh_part(p);
+                        }
+                    } catch (...) {
+                        exceptions[t] = std::current_exception();
+                    }
+            	});
+            }
+            for (auto& th : threads)
+            {
+            	if (th.joinable()) th.join();
+            }
+            for (auto& exc : exceptions)
+            {
+                if (exc)
+                {
+                    std::rethrow_exception(exc);
+                }
+            }
+#else
+            for (int p = 0; p < num_inputs; p++)
+            {
+            	process_mesh_part(p);
+            }
+#endif
             logger::info("Processing [100.0%]");
             InputParts.clear();
             InputParts = tmp;
@@ -565,9 +692,13 @@ namespace coacd
         if (params.extrude)
             ExtrudeConvexHulls(parts, params);
 
-#ifdef _OPENMP
+#if defined(_OPENMP)
         end = omp_get_wtime();
         logger::info("Compute Time: {}s", double(end - start));
+#elif defined(WITH_STD_THREADS)
+        auto end_time = std::chrono::steady_clock::now();
+        std::chrono::duration<double> diff = end_time - start_time;
+        logger::info("Compute Time: {}s", diff.count());
 #else
         end = clock();
         logger::info("Compute Time: {}s", double(end - start) / CLOCKS_PER_SEC);

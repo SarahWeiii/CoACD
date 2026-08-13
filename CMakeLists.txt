@@ -11,8 +11,16 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 option(WITH_3RD_PARTY_LIBS "Include 3rd party libraries" ON)
+if(APPLE)
+    set(WITH_OPENMP_DEFAULT OFF)
+else()
+    set(WITH_OPENMP_DEFAULT ON)
+endif()
+option(WITH_OPENMP "Enable OpenMP support" ${WITH_OPENMP_DEFAULT})
+option(WITH_STD_THREADS "Enable standard threads parallel fallback" ON)
 
 # --- Compiler-specific flags
 if(MSVC)
@@ -81,9 +89,23 @@ else()
     target_compile_definitions(coacd PUBLIC DISABLE_SPDLOG)
 endif()
 
-find_package(OpenMP)
-if(OpenMP_CXX_FOUND)
-    target_link_libraries(coacd PUBLIC OpenMP::OpenMP_CXX)
+set(USE_STD_THREADS OFF)
+if(WITH_OPENMP)
+    find_package(OpenMP)
+    if(OpenMP_CXX_FOUND)
+        target_link_libraries(coacd PUBLIC OpenMP::OpenMP_CXX)
+    else()
+        # Automatically fallback to standard library threads if OpenMP is missing
+        set(USE_STD_THREADS ON)
+    endif()
+else()
+    if(WITH_STD_THREADS)
+        set(USE_STD_THREADS ON)
+    endif()
+endif()
+
+if(USE_STD_THREADS)
+    target_compile_definitions(coacd PUBLIC WITH_STD_THREADS=1)
 endif()
 
 find_package(Threads)
