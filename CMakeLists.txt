@@ -11,7 +11,6 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 option(WITH_3RD_PARTY_LIBS "Include 3rd party libraries" ON)
 if(APPLE)
@@ -68,32 +67,36 @@ endif()
 # BUILD Program
 # ##############################################################################
 
-file(GLOB_RECURSE COACD_SRC "src/*.cc" "src/*.cpp" "public/coacd.cpp")
+file(GLOB_RECURSE COACD_SRC "src/*.cc" "src/*.cpp")
 if(NOT WITH_3RD_PARTY_LIBS)
     # Exclude files that match the pattern "preprocess*"
     list(FILTER COACD_SRC EXCLUDE REGEX ".*preprocess.*")
 endif()
 
-add_library(coacd STATIC ${COACD_SRC})
-target_include_directories(
-  coacd PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/public>
-               $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-target_include_directories(coacd PRIVATE 3rd/cdt/CDT/include)
-set_target_properties(coacd PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-
+add_library(coacd_interface INTERFACE)
 if(WITH_3RD_PARTY_LIBS)
-    target_link_libraries(coacd PRIVATE openvdb_static spdlog::spdlog)
-    target_compile_definitions(coacd PUBLIC WITH_3RD_PARTY_LIBS=1)
+    target_compile_definitions(coacd_interface INTERFACE WITH_3RD_PARTY_LIBS=1)
 else()
-    target_compile_definitions(coacd PUBLIC WITH_3RD_PARTY_LIBS=0)
-    target_compile_definitions(coacd PUBLIC DISABLE_SPDLOG)
+    target_compile_definitions(coacd_interface INTERFACE WITH_3RD_PARTY_LIBS=0)
+    target_compile_definitions(coacd_interface INTERFACE DISABLE_SPDLOG)
+endif()
+
+add_library(coacd_objects OBJECT ${COACD_SRC})
+target_link_libraries(coacd_objects PRIVATE coacd_interface)
+target_include_directories(coacd_objects
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/public>
+           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+    PRIVATE 3rd/cdt/CDT/include)
+set_target_properties(coacd_objects PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+if(WITH_3RD_PARTY_LIBS)
+    target_link_libraries(coacd_objects PRIVATE openvdb_static spdlog::spdlog)
 endif()
 
 set(USE_STD_THREADS OFF)
 if(WITH_OPENMP)
     find_package(OpenMP)
     if(OpenMP_CXX_FOUND)
-        target_link_libraries(coacd PUBLIC OpenMP::OpenMP_CXX)
+        target_link_libraries(coacd_objects PUBLIC OpenMP::OpenMP_CXX)
     else()
         # Automatically fallback to standard library threads if OpenMP is missing
         set(USE_STD_THREADS ON)
@@ -102,29 +105,33 @@ else()
     if(WITH_STD_THREADS)
         set(USE_STD_THREADS ON)
     endif()
-endif()
+endif ()
 
 if(USE_STD_THREADS)
-    target_compile_definitions(coacd PUBLIC WITH_STD_THREADS=1)
+    find_package(Threads)
+    target_compile_definitions(coacd_objects PUBLIC WITH_STD_THREADS=1)
+    target_link_libraries(coacd_objects PRIVATE Threads::Threads)
 endif()
 
-find_package(Threads)
-target_link_libraries(coacd PRIVATE Threads::Threads)
+add_library(coacd STATIC "public/coacd.cpp")
+target_link_libraries(coacd PRIVATE coacd_objects)
+target_compile_definitions(coacd PUBLIC COACD_STATIC)
+target_link_libraries(coacd PUBLIC coacd_interface)
 
 add_library(_coacd SHARED "public/coacd.cpp")
+target_link_libraries(_coacd PRIVATE coacd_objects)
+target_compile_definitions(_coacd PRIVATE _coacd_EXPORTS)
+target_link_libraries(_coacd PUBLIC coacd_interface)
 
-if(WITH_3RD_PARTY_LIBS)
-    target_link_libraries(_coacd PRIVATE coacd spdlog::spdlog openvdb_static)
-else()
-    target_link_libraries(_coacd PRIVATE coacd)
+if (WITH_3RD_PARTY_LIBS)
+    target_link_libraries(coacd PRIVATE openvdb_static spdlog::spdlog)
+    target_link_libraries(_coacd PRIVATE openvdb_static spdlog::spdlog)
 endif()
 
 add_executable(main main.cpp)
-
-if(WITH_3RD_PARTY_LIBS)
-    target_link_libraries(main coacd spdlog::spdlog openvdb_static)
-else()
-    target_link_libraries(main coacd)
+target_link_libraries(main PRIVATE coacd)
+if (WITH_3RD_PARTY_LIBS)
+    target_link_libraries(main PRIVATE openvdb_static spdlog::spdlog)
 endif()
 
 # ##############################################################################
@@ -132,7 +139,7 @@ endif()
 # ##############################################################################
 
 install(
-  TARGETS _coacd
+  TARGETS _coacd coacd_interface
   EXPORT CoACDTargets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}

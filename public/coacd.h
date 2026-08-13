@@ -8,7 +8,13 @@
 namespace coacd {
 
 #if defined(_WIN32)
+#if defined(COACD_STATIC)
+#define COACD_API
+#elif defined(_coacd_EXPORTS)
 #define COACD_API __declspec(dllexport)
+#else
+#define COACD_API __declspec(dllimport)
+#endif
 #else
 #define COACD_API
 #endif
@@ -18,7 +24,7 @@ struct Mesh {
   std::vector<std::array<int, 3>> indices;
 };
 
-std::vector<Mesh> CoACD(Mesh const &input, double threshold = 0.05,
+COACD_API std::vector<Mesh> CoACD(Mesh const &input, double threshold = 0.05,
                         int max_convex_hull = -1, std::string preprocess = "auto",
                         int prep_resolution = 50, int sample_resolution = 2000,
                         int mcts_nodes = 20, int mcts_iteration = 150,
@@ -27,7 +33,7 @@ std::vector<Mesh> CoACD(Mesh const &input, double threshold = 0.05,
                         bool extrude = false, double extrude_margin = 0.01,
                         std::string apx_mode = "ch", unsigned int seed = 0,
                         bool real_metric = false);
-void set_log_level(std::string_view level);
+COACD_API void set_log_level(std::string_view level);
 
 } // namespace coacd
 
