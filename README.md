@@ -114,6 +114,30 @@ cmake .. -DCMAKE_BUILD_TYPE=Release \
 && make main -j
 ```
 
+Parallel backends (CMake options):
+
+* `WITH_OPENMP` (default **ON** on Linux/Windows, **OFF** on macOS): prefer OpenMP when found.
+* `WITH_STD_THREADS` (default **ON**): C++17 `std::thread` fallback used **only** when OpenMP is disabled or missing — never alongside OpenMP.
+
+Examples:
+
+```
+# Default Linux/Windows: OpenMP
+cmake .. -DCMAKE_BUILD_TYPE=Release
+
+# No OpenMP (macOS default, or dual-libgomp environments such as ROCm/HIP torch):
+cmake .. -DCMAKE_BUILD_TYPE=Release -DWITH_OPENMP=OFF
+
+# Fully sequential:
+cmake .. -DCMAKE_BUILD_TYPE=Release -DWITH_OPENMP=OFF -DWITH_STD_THREADS=OFF
+```
+
+For Python wheels from source, set `COACD_WITH_OPENMP=0` to force the std::thread backend:
+
+```
+COACD_WITH_OPENMP=0 pip install .
+```
+
 On Windows (MSVC):
 
 ```
