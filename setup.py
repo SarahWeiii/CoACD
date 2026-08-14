@@ -48,7 +48,13 @@ class CMakeBuild(build_ext):
             f"-DCMAKE_CXX_FLAGS=-fPIC {'-static-libgcc -static-libstdc++' if system == 'linux' else '/MT /EHsc' if system == 'windows' else '-Wno-missing-template-arg-list-after-template-kw' if system == 'darwin' else ''}",
             "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
         ]
-        
+        # Dual-OpenMP safety (e.g. ROCm/HIP torch already mapped libgomp): force std::thread.
+        _omp = os.environ.get("COACD_WITH_OPENMP", "").strip().lower()
+        if _omp in ("0", "off", "false", "no"):
+            cmake_args.append("-DWITH_OPENMP=OFF")
+        elif _omp in ("1", "on", "true", "yes"):
+            cmake_args.append("-DWITH_OPENMP=ON")
+
         build_args = []
 
         # if not cmake_generator:
