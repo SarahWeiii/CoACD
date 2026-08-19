@@ -252,10 +252,19 @@ namespace coacd
         if (nConvexHulls > 1)
         {
             int bound = ((((nConvexHulls - 1) * nConvexHulls)) >> 1);
+            // The cost of a merge is measured between the merged hull and the
+            // union of the two parts' original meshes, so it always states how
+            // concave the resulting hull is with respect to the geometry it has
+            // to cover. Measuring against the two hulls instead would only give
+            // the increment added by this one merge, and those increments
+            // accumulate silently over successive merges.
+            // partMeshs mirrors cvxs: every index change applied to cvxs below
+            // must be applied to it as well.
+            vector<Model> partMeshs = meshs;
+
             // Populate the cost matrix
-            vector<double> costMatrix, precostMatrix;
-            costMatrix.resize(bound);    // only keeps the top half of the matrix
-            precostMatrix.resize(bound); // only keeps the top half of the matrix
+            vector<double> costMatrix;
+            costMatrix.resize(bound); // only keeps the top half of the matrix
 
             auto process_index = [&](int idx) {
                 size_t local_p1 = (size_t)(sqrt(8 * idx + 1) - 1) >> 1; // compute nearest triangle number index
@@ -266,12 +275,11 @@ namespace coacd
                 double dist = MeshDist(cvxs[local_p1], cvxs[local_p2]);
                 if (dist < threshold)
                 {
-                    Model combinedCH;
+                    Model combinedCH, combinedMesh;
                     MergeCH(cvxs[local_p1], cvxs[local_p2], combinedCH, params);
+                    MergeMesh(partMeshs[local_p1], partMeshs[local_p2], combinedMesh);
 
-                    costMatrix[idx] = ComputeHCost(cvxs[local_p1], cvxs[local_p2], combinedCH, params.rv_k, params.resolution, params.seed);
-                    precostMatrix[idx] = max(ComputeHCost(meshs[local_p1], cvxs[local_p1], params.rv_k, 3000, params.seed),
-                                             ComputeHCost(meshs[local_p2], cvxs[local_p2], params.rv_k, 3000, params.seed));
+                    costMatrix[idx] = ComputeHCost(combinedMesh, combinedCH, params.rv_k, params.resolution, params.seed);
                 }
                 else
                 {
@@ -281,7 +289,7 @@ namespace coacd
 
 #if defined(_OPENMP)
             // Use high-performance OpenMP parallel loop (variables are shared explicitly to support legacy GCC compilers).
-            #pragma omp parallel for default(none) shared(bound, process_index, costMatrix, precostMatrix, cvxs, params, threshold, meshs)
+            #pragma omp parallel for default(none) shared(bound, process_index, costMatrix, cvxs, params, threshold, partMeshs)
             for (int idx = 0; idx < bound; ++idx)
             {
             	process_index(idx);
@@ -354,11 +362,6 @@ namespace coacd
                     // if dose not set max nConvexHull, stop the merging when bestCost is larger than the threshold
                     if (bestCost > params.threshold)
                         break;
-                    if (bestCost > max(params.threshold - precostMatrix[addr], 0.01)) // avoid merging two parts that have already used up the treshold
-                    {
-                        costMatrix[addr] = INF;
-                        continue;
-                    }
                 }
                 else
                 {
@@ -368,11 +371,6 @@ namespace coacd
                         if (bestCost > params.threshold + 0.005 && (int)cvxs.size() == params.max_convex_hull)
                             logger::warn("Max concavity {} exceeds the threshold {} due to {} convex hull limitation", bestCost, params.threshold, params.max_convex_hull);
                         break;
-                    }
-                    if ((int)cvxs.size() <= params.max_convex_hull && bestCost > max(params.threshold - precostMatrix[addr], 0.01)) // avoid merging two parts that have already used up the treshold
-                    {
-                        costMatrix[addr] = INF;
-                        continue;
                     }
                 }
 
@@ -387,12 +385,16 @@ namespace coacd
                 assert(p2 < costSize);
 
                 // Make the lowest cost row and column into a new hull
-                Model cch;
+                Model cch, cmesh;
                 MergeCH(cvxs[p1], cvxs[p2], cch, params);
+                MergeMesh(partMeshs[p1], partMeshs[p2], cmesh);
                 cvxs[p2] = cch;
+                partMeshs[p2] = cmesh;
 
                 std::swap(cvxs[p1], cvxs[cvxs.size() - 1]);
                 cvxs.pop_back();
+                std::swap(partMeshs[p1], partMeshs[partMeshs.size() - 1]);
+                partMeshs.pop_back();
 
                 costSize = costSize - 1;
 
@@ -403,10 +405,10 @@ namespace coacd
                     double dist = MeshDist(cvxs[p2], cvxs[i]);
                     if (dist < threshold)
                     {
-                        Model combinedCH;
+                        Model combinedCH, combinedMesh;
                         MergeCH(cvxs[p2], cvxs[i], combinedCH, params);
-                        costMatrix[rowIdx] = ComputeHCost(cvxs[p2], cvxs[i], combinedCH, params.rv_k, params.resolution, params.seed);
-                        precostMatrix[rowIdx++] = max(precostMatrix[p2] + bestCost, precostMatrix[i]);
+                        MergeMesh(partMeshs[p2], partMeshs[i], combinedMesh);
+                        costMatrix[rowIdx++] = ComputeHCost(combinedMesh, combinedCH, params.rv_k, params.resolution, params.seed);
                     }
                     else
                         costMatrix[rowIdx++] = INF;
@@ -418,10 +420,10 @@ namespace coacd
                     double dist = MeshDist(cvxs[p2], cvxs[i]);
                     if (dist < threshold)
                     {
-                        Model combinedCH;
+                        Model combinedCH, combinedMesh;
                         MergeCH(cvxs[p2], cvxs[i], combinedCH, params);
-                        costMatrix[rowIdx] = ComputeHCost(cvxs[p2], cvxs[i], combinedCH, params.rv_k, params.resolution, params.seed);
-                        precostMatrix[rowIdx] = max(precostMatrix[p2] + bestCost, precostMatrix[i]);
+                        MergeMesh(partMeshs[p2], partMeshs[i], combinedMesh);
+                        costMatrix[rowIdx] = ComputeHCost(combinedMesh, combinedCH, params.rv_k, params.resolution, params.seed);
                     }
                     else
                         costMatrix[rowIdx] = INF;
@@ -438,10 +440,7 @@ namespace coacd
                     for (size_t i = 0; i < p1; ++i)
                     {
                         if (i != p2)
-                        {
                             costMatrix[rowIdx] = costMatrix[top_row];
-                            precostMatrix[rowIdx] = precostMatrix[top_row];
-                        }
                         ++rowIdx;
                         ++top_row;
                     }
@@ -450,13 +449,11 @@ namespace coacd
                     rowIdx += p1;
                     for (size_t i = p1 + 1; i < costSize; ++i)
                     {
-                        costMatrix[rowIdx] = costMatrix[top_row];
-                        precostMatrix[rowIdx] = precostMatrix[top_row++];
+                        costMatrix[rowIdx] = costMatrix[top_row++];
                         rowIdx += i;
                     }
                 }
                 costMatrix.resize(erase_idx);
-                precostMatrix.resize(erase_idx);
             }
         }
 
