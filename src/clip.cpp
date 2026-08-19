@@ -677,7 +677,28 @@ namespace coacd
                 }
                 else if (f0 && f1 && f2)
                 {
-                    if (s0 == 0 || (s0 != 0 && s1 != 0 && s2 != 0 && SamePointDetect(pi0, pi2))) // intersect at p0
+                    // The plane meets all three edges, which geometrically means it
+                    // passes through one of the vertices. Decide which one: either a
+                    // vertex sits on the plane, or two of the intersections coincide.
+                    // When the plane misses a vertex by slightly more than those
+                    // tolerances (which oblique planes do far more often than
+                    // axis-aligned ones) fall back to the vertex closest to it.
+                    int corner;
+                    if (s0 == 0 || (s0 != 0 && s1 != 0 && s2 != 0 && SamePointDetect(pi0, pi2)))
+                        corner = 0;
+                    else if (s1 == 0 || (s0 != 0 && s1 != 0 && s2 != 0 && SamePointDetect(pi0, pi1)))
+                        corner = 1;
+                    else if (s2 == 0 || (s0 != 0 && s1 != 0 && s2 != 0 && SamePointDetect(pi1, pi2)))
+                        corner = 2;
+                    else
+                    {
+                        double d0 = fabs(p0[0] * plane.a + p0[1] * plane.b + p0[2] * plane.c + plane.d);
+                        double d1 = fabs(p1[0] * plane.a + p1[1] * plane.b + p1[2] * plane.c + plane.d);
+                        double d2 = fabs(p2[0] * plane.a + p2[1] * plane.b + p2[2] * plane.c + plane.d);
+                        corner = (d0 <= d1 && d0 <= d2) ? 0 : ((d1 <= d2) ? 1 : 2);
+                    }
+
+                    if (corner == 0) // intersect at p0
                     {
                         // f2 = f0 = p0
                         addPoint(vertex_map, border, p0, id0, idx);
@@ -713,7 +734,7 @@ namespace coacd
                             }
                         }
                     }
-                    else if (s1 == 0 || (s0 != 0 && s1 != 0 && s2 != 0 && SamePointDetect(pi0, pi1))) // intersect at p1
+                    else if (corner == 1) // intersect at p1
                     {
                         // f0 = f1 = p1
                         addPoint(vertex_map, border, p1, id1, idx);
@@ -749,7 +770,7 @@ namespace coacd
                             }
                         }
                     }
-                    else if (s2 == 0 || (s0 != 0 && s1 != 0 && s2 != 0 && SamePointDetect(pi1, pi2))) // intersect at p2
+                    else // intersect at p2
                     {
                         // f1 = f2 = p2
                         addPoint(vertex_map, border, p2, id2, idx);
@@ -785,8 +806,6 @@ namespace coacd
                             }
                         }
                     }
-                    else
-                        throw runtime_error("Intersection error. Please report this error to sarahwei0210@gmail.com with your input OBJ and log file.");
                 }
             }
         }
