@@ -168,9 +168,34 @@ if __name__ == "__main__":
     mesh_parts = []
     for vs, fs in result:
         mesh_parts.append(trimesh.Trimesh(vs, fs))
-    scene = trimesh.Scene()
+
     np.random.seed(0)
-    for p in mesh_parts:
-        p.visual.vertex_colors[:, :3] = (np.random.rand(3) * 255).astype(np.uint8)
-        scene.add_geometry(p)
-    scene.export(output_file)
+    colors = [np.random.rand(3) for _ in mesh_parts]
+
+    if output_file.lower().endswith(".obj"):
+        mtl_file = os.path.splitext(output_file)[0] + ".mtl"
+        mtl_name = os.path.basename(mtl_file)
+        with open(mtl_file, "w") as mf:
+            for i, color in enumerate(colors):
+                mf.write(f"newmtl mat_{i}\n")
+                mf.write(f"Kd {color[0]:.6f} {color[1]:.6f} {color[2]:.6f}\n")
+                mf.write("Ka 0.000000 0.000000 0.000000\n")
+                mf.write("Ks 0.000000 0.000000 0.000000\n")
+                mf.write("d 1.0\n\n")
+        with open(output_file, "w") as of:
+            of.write(f"mtllib {mtl_name}\n")
+            vertex_offset = 0
+            for i, mesh in enumerate(mesh_parts):
+                of.write(f"o convex_{i}\n")
+                of.write(f"usemtl mat_{i}\n")
+                for v in mesh.vertices:
+                    of.write(f"v {v[0]:.6f} {v[1]:.6f} {v[2]:.6f}\n")
+                for f in mesh.faces:
+                    of.write(f"f {f[0]+1+vertex_offset} {f[1]+1+vertex_offset} {f[2]+1+vertex_offset}\n")
+                vertex_offset += len(mesh.vertices)
+    else:
+        scene = trimesh.Scene()
+        for p, color in zip(mesh_parts, colors):
+            p.visual.vertex_colors[:, :3] = (color * 255).astype(np.uint8)
+            scene.add_geometry(p)
+        scene.export(output_file)
