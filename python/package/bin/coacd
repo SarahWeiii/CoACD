@@ -131,6 +131,14 @@ if __name__ == "__main__":
         help="Approximation shape mode (ch/box).",
     )
     parser.add_argument("--seed", type=int, default=0, help="Random seed.")
+    parser.add_argument(
+        "--split",
+        action="store_true",
+        help="Additionally write each convex part to its own file in an "
+        "<output>_parts folder. Needed by consumers that convexify each mesh "
+        "asset as a whole (e.g. MuJoCo), where a single merged file always "
+        "collapses to one convex shape.",
+    )
 
     args = parser.parse_args()
 
@@ -174,3 +182,12 @@ if __name__ == "__main__":
         p.visual.vertex_colors[:, :3] = (np.random.rand(3) * 255).astype(np.uint8)
         scene.add_geometry(p)
     scene.export(output_file)
+
+    if args.split:
+        stem, ext = os.path.splitext(output_file)
+        parts_dir = stem + "_parts"
+        os.makedirs(parts_dir, exist_ok=True)
+        base = os.path.basename(stem)
+        for i, p in enumerate(mesh_parts):
+            p.export(os.path.join(parts_dir, f"{base}_{i:03d}{ext}"))
+        print(f"Split output: {len(mesh_parts)} parts written to {parts_dir}")

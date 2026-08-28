@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -19,6 +20,7 @@ int main(int argc, char *argv[])
 
   // Model files
   std::string input_model;
+  bool split_output = false;
   params.seed = (unsigned)time(NULL);
 
   // args
@@ -113,6 +115,10 @@ int main(int argc, char *argv[])
       if (strcmp(argv[i], "-rm") == 0 || strcmp(argv[i], "--real-metric") == 0)
       {
         params.real_metric = true;
+      }
+      if (strcmp(argv[i], "-sp") == 0 || strcmp(argv[i], "--split") == 0)
+      {
+        split_output = true;
       }
     }
   }
@@ -212,6 +218,16 @@ int main(int argc, char *argv[])
 
   SaveVRML(wrlName, parts, params);
   SaveOBJ(objName, parts, params);
+  if (split_output)
+  {
+    // One OBJ per convex part, so consumers that convexify each mesh asset
+    // (MuJoCo, Bullet, ...) can address the parts individually.
+    std::string folderName = objName.substr(0, objName.length() - 4) + "_parts";
+    std::filesystem::create_directories(folderName);
+    std::string stem = std::filesystem::path(objName).stem().string();
+    SaveOBJs(folderName, stem, parts, params);
+    logger::info("Split output: {} parts written to {}", parts.size(), folderName);
+  }
 
   return 0;
 }
