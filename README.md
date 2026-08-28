@@ -187,6 +187,7 @@ Here is the description of the parameters (sorted by importance).
 * `-rm/--real-metric`: flag to enable real metric mode, where the threshold is interpreted as an error in meters (the input mesh should be in meter scale). The algorithm automatically converts it to the normalized threshold used internally. Default = false.
 * `-am/--approximate-mode`: approximation shape type ("ch" for convex hulls, "box" for cubes), default = "ch". I would recommend using a 2x threshold than it in convex for box approximation.
 * `--seed`: random seed used for sampling, default = random().
+* `-sp/--split` (`--split` in the Python CLI): additionally write each convex part to its own file in an `<output>_parts` folder. Use this for engines that convexify each mesh asset as a whole (e.g. MuJoCo, Bullet): a single merged file always collapses back to one convex shape, while separate files keep holes and concavities intact (see issue #53). Default = false.
 
 An example of changing the parameters:
 ```
