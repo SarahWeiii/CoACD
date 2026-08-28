@@ -267,6 +267,10 @@ namespace coacd
             costMatrix.resize(bound); // only keeps the top half of the matrix
 
             auto process_index = [&](int idx) {
+                // Sampling inside ComputeHCost draws from the thread-local
+                // engine; reseed per pair so the cost does not depend on what
+                // this worker thread happened to process before.
+                random_engine.seed(params.seed);
                 size_t local_p1 = (size_t)(sqrt(8 * idx + 1) - 1) >> 1; // compute nearest triangle number index
                 size_t sum = (local_p1 * (local_p1 + 1)) >> 1;          // compute nearest triangle number from index
                 size_t local_p2 = idx - sum;                        // modular arithmetic from triangle number
@@ -408,6 +412,7 @@ namespace coacd
                         Model combinedCH, combinedMesh;
                         MergeCH(cvxs[p2], cvxs[i], combinedCH, params);
                         MergeMesh(partMeshs[p2], partMeshs[i], combinedMesh);
+                        random_engine.seed(params.seed); // per-pair, matching process_index
                         costMatrix[rowIdx++] = ComputeHCost(combinedMesh, combinedCH, params.rv_k, params.resolution, params.seed);
                     }
                     else
@@ -423,6 +428,7 @@ namespace coacd
                         Model combinedCH, combinedMesh;
                         MergeCH(cvxs[p2], cvxs[i], combinedCH, params);
                         MergeMesh(partMeshs[p2], partMeshs[i], combinedMesh);
+                        random_engine.seed(params.seed); // per-pair, matching process_index
                         costMatrix[rowIdx] = ComputeHCost(combinedMesh, combinedCH, params.rv_k, params.resolution, params.seed);
                     }
                     else
@@ -518,12 +524,9 @@ namespace coacd
         vector<Model> parts, pmeshs;
 
 #if defined(_OPENMP)
-        omp_lock_t writelock;
-        omp_init_lock(&writelock);
         double start, end;
         start = omp_get_wtime();
 #elif defined(WITH_STD_THREADS)
-        std::mutex writelock_mutex;
         auto start_time = std::chrono::steady_clock::now();
 #else
         clock_t start, end;
@@ -535,13 +538,18 @@ namespace coacd
         logger::info(" - Decomposition (MCTS)");
 
         size_t iter = 0;
-        double cut_area;
         while ((int)InputParts.size() > 0)
         {
             vector<Model> tmp;
             logger::info("iter {} ---- waiting pool: {}", iter, InputParts.size());
 
             int num_inputs = (int)InputParts.size();
+            // Each part writes its results into its own slots; they are
+            // compacted in index order after the parallel loop, so pool order
+            // and final part order do not depend on thread completion order.
+            vector<Model> pos_slots(num_inputs), neg_slots(num_inputs);
+            vector<Model> done_ch(num_inputs), done_mesh(num_inputs);
+            vector<char> has_pos(num_inputs, 0), has_neg(num_inputs, 0), done(num_inputs, 0);
             auto process_mesh_part = [&](int p) {
                 double local_cut_area;
                 random_engine.seed(params.seed);
@@ -564,19 +572,10 @@ namespace coacd
                     Node *best_next_node = MonteCarloTreeSearch(params, node, best_path);
                     if (best_next_node == NULL)
                     {
-#if defined(_OPENMP)
-                        omp_set_lock(&writelock);
-#elif defined(WITH_STD_THREADS)
-                        std::lock_guard<std::mutex> lock(writelock_mutex);
-#endif
-                        parts.push_back(pCH);
-                        pmeshs.push_back(pmesh);
+                        done_ch[p] = pCH;
+                        done_mesh[p] = pmesh;
+                        done[p] = 1;
                         free_tree(node, 0);
-#if defined(_OPENMP)
-                        omp_unset_lock(&writelock);
-#elif defined(WITH_STD_THREADS)
-                        // Auto-unlocked
-#endif
                     }
                     else
                     {
@@ -591,43 +590,28 @@ namespace coacd
                             logger::error("Wrong clip proposal!");
                             throw runtime_error("Wrong clip proposal!");
                         }
+                        if ((int)pos.triangles.size() > 0)
                         {
-#if defined(_OPENMP)
-                            omp_set_lock(&writelock);
-#elif defined(WITH_STD_THREADS)
-                            std::lock_guard<std::mutex> lock(writelock_mutex);
-#endif
-                            if ((int)pos.triangles.size() > 0)
-                                tmp.push_back(pos);
-                            if ((int)neg.triangles.size() > 0)
-                                tmp.push_back(neg);
-#if defined(_OPENMP)
-                            omp_unset_lock(&writelock);
-#elif defined(WITH_STD_THREADS)
-                            // Auto-unlocked
-#endif
+                            pos_slots[p] = pos;
+                            has_pos[p] = 1;
+                        }
+                        if ((int)neg.triangles.size() > 0)
+                        {
+                            neg_slots[p] = neg;
+                            has_neg[p] = 1;
                         }
                     }
                 }
                 else
                 {
-#if defined(_OPENMP)
-                    omp_set_lock(&writelock);
-#elif defined(WITH_STD_THREADS)
-                    std::lock_guard<std::mutex> lock(writelock_mutex);
-#endif
-                    parts.push_back(pCH);
-                    pmeshs.push_back(pmesh);
-#if defined(_OPENMP)
-                    omp_unset_lock(&writelock);
-#elif defined(WITH_STD_THREADS)
-                    // Auto-unlocked
-#endif
+                    done_ch[p] = pCH;
+                    done_mesh[p] = pmesh;
+                    done[p] = 1;
                 }
             };
 
 #if defined(_OPENMP)
-            #pragma omp parallel for default(none) shared(num_inputs, process_mesh_part, InputParts, params, mesh, writelock, parts, pmeshs, tmp) private(cut_area)
+            #pragma omp parallel for default(none) shared(num_inputs, process_mesh_part)
             for (int p = 0; p < num_inputs; p++)
             {
             	process_mesh_part(p);
@@ -674,6 +658,18 @@ namespace coacd
             	process_mesh_part(p);
             }
 #endif
+            for (int p = 0; p < num_inputs; p++)
+            {
+                if (done[p])
+                {
+                    parts.push_back(done_ch[p]);
+                    pmeshs.push_back(done_mesh[p]);
+                }
+                if (has_pos[p])
+                    tmp.push_back(pos_slots[p]);
+                if (has_neg[p])
+                    tmp.push_back(neg_slots[p]);
+            }
             logger::info("Processing [100.0%]");
             InputParts.clear();
             InputParts = tmp;
