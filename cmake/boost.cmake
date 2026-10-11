@@ -3,6 +3,10 @@ set(BOOST_IOSTREAMS_ENABLE_ZSTD OFF CACHE BOOL "" FORCE)
 set(BOOST_IOSTREAMS_ENABLE_LZMA OFF)
 set(BOOST_IOSTREAMS_ENABLE_BZIP2 OFF)
 
+# OpenVDB only needs these compiled Boost components and their dependencies.
+# Avoid configuring unrelated libraries, including Boost.Context's ARM assembler.
+set(BOOST_INCLUDE_LIBRARIES iostreams system)
+
 include(FetchContent)
 
 if(WIN32)
