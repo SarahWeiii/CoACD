@@ -27,7 +27,9 @@ jobs:
             cmake-platform: x64
           - os: windows-11-arm
             arch: ARM64
-            windows-build: cp3{12,13}-win_arm64
+            # Same identifiers as AMD64: the first build is reused for the rest,
+            # so the ctypes-only wheel is tagged cp39-abi3 on both architectures.
+            windows-build: cp3{9,10,11,12,13}-win_arm64
             cmake-platform: ARM64
     steps:
       - name: Checkout repository
@@ -113,6 +115,11 @@ jobs:
           - os: windows-2025
             arch: AMD64
             python-version: '3.13'
+          # NumPy has no Windows ARM64 wheels for CPython 3.9/3.10, so the
+          # tests (trimesh/numpy) run on every later version CoACD builds.
+          - os: windows-11-arm
+            arch: ARM64
+            python-version: '3.11'
           - os: windows-11-arm
             arch: ARM64
             python-version: '3.12'
