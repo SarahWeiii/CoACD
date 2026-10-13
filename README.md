@@ -113,7 +113,7 @@ Then run `cmake`. On Linux and MacOS:
 
 ```
 cmake .. -DCMAKE_BUILD_TYPE=Release \
-&& make main -j
+&& make main -j$(nproc)
 ```
 
 Parallel backends (CMake options):
