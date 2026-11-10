@@ -149,6 +149,8 @@ namespace threeyd
 
             static_assert(detail::HasSubscriptOperator<TemplatedVec, size_t>::value, "TemplatedVec must implement operator[]");
             using declfloat = typename std::decay<decltype(std::declval<TemplatedVec>()[0])>::type;
+            // At least double, for edge_edge_test.
+            using widefloat = typename std::conditional<(sizeof(declfloat) < sizeof(double)), double, declfloat>::type;
 
         public:
             // distances smaller than get_tolerance() may be treated as 0
@@ -549,14 +551,17 @@ namespace threeyd
             // Caveat! This test most likely fails if the two edges ar colinear
             // But this doesn't disturb the final result (other tests should detect the intersection)
             inline static bool edge_edge_test(const TemplatedVec &V0, const TemplatedVec &U0, const TemplatedVec &U1,
-                                              const size_t i0, const size_t i1, declfloat Ax, declfloat Ay)
+                                              const size_t i0, const size_t i1, widefloat Ax, widefloat Ay)
             {
-                constexpr declfloat TOLERANCE = 1e-10;
-                declfloat bx, by, cx, cy, f, d, e;
-                bx = U0[i0] - U1[i0]; // B = U0 - U1 (projected onto the i0-i1 plane)
-                by = U0[i1] - U1[i1];
-                cx = V0[i0] - U0[i0]; // C = V0 - U0 (projected onto the i0-i1 plane)
-                cy = V0[i1] - U0[i1];
+                // Computed in (at least) double. For float coordinates this makes rounding errors in f, d and e
+                // negligible, so collinear and nearly collinear edges are classified correctly. In float, collinear
+                // edges give rounding noise that can pass the tests below as an intersection.
+                constexpr widefloat TOLERANCE = 1e-10;
+                widefloat bx, by, cx, cy, f, d, e;
+                bx = widefloat(U0[i0]) - U1[i0]; // B = U0 - U1 (projected onto the i0-i1 plane)
+                by = widefloat(U0[i1]) - U1[i1];
+                cx = widefloat(V0[i0]) - U0[i0]; // C = V0 - U0 (projected onto the i0-i1 plane)
+                cy = widefloat(V0[i1]) - U0[i1];
                 // if the edges intersect, |f| is twice the area of the convex quadrilateral spanned by the vertices
                 f = Ay * bx - Ax * by;
                 // if the edges intersect, |d| is twice the area of the triangle U0, U1, V0
@@ -614,10 +619,10 @@ namespace threeyd
                                                      const TemplatedVec &U1, const TemplatedVec &U2, const size_t i0,
                                                      const size_t i1)
             {
-                declfloat ax, ay; // coordinates of the edge relative to  V0
+                widefloat ax, ay; // coordinates of the edge relative to  V0
 
-                ax = V1[i0] - V0[i0];
-                ay = V1[i1] - V0[i1];
+                ax = widefloat(V1[i0]) - V0[i0];
+                ay = widefloat(V1[i1]) - V0[i1];
                 /* test intersection of edge U0, U1 with edge V0, V1 */
                 if (edge_edge_test(V0, U0, U1, i0, i1, ax, ay))
                 {
