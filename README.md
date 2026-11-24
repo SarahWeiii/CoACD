@@ -164,6 +164,14 @@ bash run_example.sh
 * You can adjust the threshold by `-t` to see results with different quality.
 * Three of the examples are from [PartNet-M](https://sapien.ucsd.edu/browse) (Bottle.obj, Kettle.obj, KitchenPot.obj), which are non-manifold. Two of them are from [Thingi10K](https://ten-thousand-models.appspot.com/) (Octocat-v2.obj, SnowFlake.obj), which are both 2-manifold.
 
+## Benchmarking
+
+`run_benchmark.py` runs `main` on the example meshes with a fixed seed and reports the time, the number of convex hulls and a hash of the output for each mesh. To check a change for speed and unchanged results, build `main` before and after the change and compare the two:
+```
+python run_benchmark.py --baseline build-before/main --candidate build/main
+```
+It alternates runs of the two builds (3 each by default) and prints the median times, how much they vary between runs, the speedup per mesh, and whether the outputs are identical. It exits with an error if any output differs. Speedups smaller than the variation aren't meaningful. Run `python run_benchmark.py --help` for more options, such as other meshes or parameters.
+
 ## Parameters
 
 Here is the description of the parameters (sorted by importance).
